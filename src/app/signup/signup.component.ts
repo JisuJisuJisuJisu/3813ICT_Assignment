@@ -1,15 +1,20 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { RouterModule } from '@angular/router'; 
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-signup',
+  standalone: true,
+  imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.css']
 })
 export class SignupComponent {
   signupForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  // Router를 생성자에 추가하여 주입합니다.
+  constructor(private fb: FormBuilder, private router: Router) {
     this.signupForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
@@ -24,10 +29,10 @@ export class SignupComponent {
       localStorage.setItem('userEmail', email);
       localStorage.setItem('userPassword', password);
 
-      console.log('User signed up with email:', email);
-
-      // 이후에 원하는 페이지로 리디렉션할 수 있습니다.
-      // 예: this.router.navigate(['/login']);
+      console.log('Signup successful');
+      
+      // 로그인 페이지로 리디렉션
+      this.router.navigate(['/login']);
     }
   }
 }
