@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { RouterModule } from '@angular/router'; 
+import { Router, RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { User } from '../models/user.model'; // User 인터페이스 import
+import { User } from '../models/user.model';
 
 @Component({
   selector: 'app-signup',
@@ -14,7 +13,6 @@ import { User } from '../models/user.model'; // User 인터페이스 import
 export class SignupComponent {
   signupForm: FormGroup;
 
-  // Router를 생성자에 추가하여 주입합니다.
   constructor(private fb: FormBuilder, private router: Router) {
     this.signupForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -39,16 +37,21 @@ export class SignupComponent {
       // 새로운 사용자 생성
       const newUser: User = {
         id: id,
-        username: username, // 이메일에서 추출한 username 사용
+        username: username,
         email: email,
-        roles: ['User'],  // 기본 역할 설정
-        groups: []        // 초기 그룹은 없음
+        password: password,
+        roles: ['User'], 
+        groups: []        
       };
 
-      // 로컬 스토리지에 이메일과 비밀번호 저장
-      localStorage.setItem('user', JSON.stringify(newUser));
-      localStorage.setItem('userEmail', email);
-      localStorage.setItem('userPassword', password);
+      // 기존 사용자 리스트를 가져옴
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+
+      // 새 사용자 추가
+      users.push(newUser);
+
+      // 사용자 리스트를 로컬 스토리지에 저장
+      localStorage.setItem('users', JSON.stringify(users));
 
       console.log('Signup successful');
       
