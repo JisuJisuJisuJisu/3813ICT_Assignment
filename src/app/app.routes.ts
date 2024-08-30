@@ -6,11 +6,14 @@ import { SuperAdminComponent } from './super-admin/super-admin.component';
 import { ManageUsersComponent } from './manage-users/manage-users.component';
 import { ManageGroupsComponent } from './manage-groups/manage-groups.component';
 import { ManageChannelsComponent } from './manage-channels/manage-channels.component';
+import { GroupListComponent } from './group-list/group-list.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
-  { path: 'dashboard', component: DashboardComponent }, 
+  { path: 'dashboard', component: DashboardComponent, children:[
+    { path: '', component: GroupListComponent}
+  ] }, 
   {
     path: 'super-admin',
     component: SuperAdminComponent,
