@@ -16,15 +16,13 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="https://bryanrojasq.wordpress.com">
-                
+            <a class="navbar-brand" href="#">
+                <!-- Brand logo or text -->
             </a>
         </div>
         <!-- Top Menu Items -->
         <ul class="nav navbar-right top-nav">
-            <li><a href="#" data-placement="bottom" data-toggle="tooltip" href="#" data-original-title="Stats"><i class="fa fa-bar-chart-o"></i>
-                </a>
-            </li>            
+            <li><a href="#" data-placement="bottom" data-toggle="tooltip" href="#" data-original-title="Stats"><i class="fa fa-bar-chart-o"></i></a></li>            
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin User <b class="fa fa-angle-down"></b></a>
                 <ul class="dropdown-menu">
@@ -40,26 +38,39 @@
             <ul class="nav navbar-nav side-nav">
                 <!-- Channels 메뉴 -->
                 <li>
-                    <a href="#" data-toggle="collapse" data-target="#submenu-1"><i class="fa fa-fw fa-search"></i> Channels <i class="fa fa-fw fa-angle-down pull-right"></i></a>
-                    <ul id="submenu-1" class="collapse">
-                        <li><a href="#"><i class="fa fa-angle-double-right"></i> Channel 1</a></li>
-                        <li><a href="#"><i class="fa fa-angle-double-right"></i> Channel 2</a></li>
-                        <li><a href="#"><i class="fa fa-angle-double-right"></i> Channel 3</a></li>
+                    <a href="#" data-toggle="collapse" data-target="#submenu-channels"><i class="fa fa-fw fa-search"></i> Channels <i class="fa fa-fw fa-angle-down pull-right"></i></a>
+                    <ul id="submenu-channels" class="collapse">
+                        <li *ngFor="let channel of userChannels">
+                            <a href="#"><i class="fa fa-angle-double-right"></i> {{ channel.name }}</a>
+                        </li>
                     </ul>
                 </li>
+                
                 <!-- Back to Dashboard 버튼 -->
                 <li>
                     <a href="#" onclick="window.location.href='dashboard-url';"><i class="fa fa-fw fa-arrow-left"></i> Back to Dashboard</a>
                 </li>
-                <!-- 유저별로 다른 UI -->
+                
+                <!-- Super Admin 전용 메뉴 -->
                 <li *ngIf="isSuperAdmin()">
-                    <a href="#"><i class="fa fa-fw fa-star"></i> Super Admin Panel</a>
+                    <a href="#" onclick="window.location.href='manage-users-url';"><i class="fa fa-fw fa-users"></i> Manage Users</a>
+                </li>
+                <li *ngIf="isSuperAdmin()">
+                    <a href="#" onclick="window.location.href='manage-groups-url';"><i class="fa fa-fw fa-sitemap"></i> Manage Groups</a>
+                </li>
+                <li *ngIf="isSuperAdmin()">
+                    <a href="#" onclick="window.location.href='manage-channels-url';"><i class="fa fa-fw fa-comments"></i> Manage Channels</a>
+                </li>
+
+                <!-- Group Admin 전용 메뉴 -->
+                <li *ngIf="isGroupAdmin() && !isSuperAdmin()">
+                    <a href="#" onclick="window.location.href='create-groups-url';"><i class="fa fa-fw fa-plus"></i> Create Groups</a>
                 </li>
                 <li *ngIf="isGroupAdmin() && !isSuperAdmin()">
-                    <a href="#"><i class="fa fa-fw fa-users"></i> Group Admin Panel</a>
+                    <a href="#" onclick="window.location.href='manage-my-groups-url';"><i class="fa fa-fw fa-sitemap"></i> Manage My Groups</a>
                 </li>
-                <li *ngIf="!isSuperAdmin() && !isGroupAdmin()">
-                    <a href="#"><i class="fa fa-fw fa-user"></i> User Panel</a>
+                <li *ngIf="isGroupAdmin() && !isSuperAdmin()">
+                    <a href="#" onclick="window.location.href='manage-channels-url';"><i class="fa fa-fw fa-comments"></i> Manage Channels</a>
                 </li>
             </ul>
         </div>
@@ -74,15 +85,13 @@
                     <div class="card" style="max-width: 18rem; margin: 20px auto;">
                         <img class="card-img-top" src="..." alt="Card image cap">
                         <div class="card-body">
-                          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
                         </div>
-                      </div>
-      
+                    </div>
                 </div>
             </div>
             <!-- /.row -->
         </div>
         <!-- /.container-fluid -->
     </div>
-    
 </div>

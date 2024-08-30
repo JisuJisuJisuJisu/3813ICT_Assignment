@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { User } from '../models/user.model';
 import { Router } from '@angular/router';
+import { Channel } from '../models/channel.model'; 
+
 
 @Component({
   selector: 'app-dashboard',
@@ -12,6 +14,9 @@ import { Router } from '@angular/router';
 })
 export class DashboardComponent implements OnInit {
   user: User | null = null;  // 초기값을 null로 설정
+  userChannels: Channel[] = [];  // 유저가 가입한 채널 리스트
+
+ 
 
   constructor(private router: Router) {}
 
@@ -29,12 +34,8 @@ export class DashboardComponent implements OnInit {
       this.user = users.find(u => u.email === loggedInUserEmail) || null;
 
       if (this.user) {
-        // 사용자가 Super Admin인지 확인
-        if (this.isSuperAdmin()) {
-          console.log('Super Admin 로그인:', this.user);
-        } else {
-          console.log('일반 사용자 로그인:', this.user);
-        }
+        // 유저가 가입한 그룹의 채널을 가져옴
+        this.userChannels = this.getUserChannels(this.user.groups);
       } else {
         console.log('사용자 정보가 없습니다.');
         // 로그인이 필요한 경우 로그인 페이지로 리디렉션
@@ -47,11 +48,18 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  getUserChannels(groups: any[]): Channel[] {
+    const channels: Channel[] = [];  // Channel 타입을 명시적으로 선언합니다
+    groups.forEach(group => {
+      channels.push(...group.channels);  // 그룹 내의 채널들을 채널 배열에 추가합니다
+    });
+    return channels;
+  }
   isSuperAdmin(): boolean {
-    return this.user?.roles.includes('Super Admin') || false;
+    return this.user?.roles.includes('Super_Admin') || false;
   }
 
   isGroupAdmin(): boolean {
-    return this.user?.roles.includes('Group Admin') || false;
+    return this.user?.roles.includes('Group_Admin') || false;
   }
 }

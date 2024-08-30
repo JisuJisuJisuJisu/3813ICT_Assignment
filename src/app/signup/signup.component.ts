@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { User } from '../models/user.model';
+import { Group } from '../models/group.model'; 
+
 
 @Component({
   selector: 'app-signup',
