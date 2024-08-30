@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { User } from '../models/user.model';
 import { Router } from '@angular/router';
 import { Channel } from '../models/channel.model'; 
-
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,RouterModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
