@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { User } from '../models/user.model';
-import { Group } from '../models/group.model'; 
-
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-signup',
@@ -15,7 +13,7 @@ import { Group } from '../models/group.model';
 export class SignupComponent {
   signupForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(private fb: FormBuilder, private router: Router, private http: HttpClient) {
     this.signupForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(1)]]
@@ -36,29 +34,26 @@ export class SignupComponent {
       // email의 @ 앞 부분을 username으로 사용
       const username = email.split('@')[0];
 
-      // 새로운 사용자 생성
-      const newUser: User = {
+      // 새로운 사용자 객체 생성
+      const newUser = {
         id: id,
         username: username,
         email: email,
         password: password,
         roles: ['User'], 
-        groups: []        
+        groups: []
       };
 
-      // 기존 사용자 리스트를 가져옴
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-
-      // 새 사용자 추가
-      users.push(newUser);
-
-      // 사용자 리스트를 로컬 스토리지에 저장
-      localStorage.setItem('users', JSON.stringify(users));
-
-      console.log('Signup successful');
-      
-      // 로그인 페이지로 리디렉션
-      this.router.navigate(['/login']);
+      // 서버로 POST 요청을 보냄
+      this.http.post('http://localhost:3000/signup', newUser).subscribe({
+        next: (response: any) => {
+          console.log('Signup successful');
+          this.router.navigate(['/login']);
+        },
+        error: (error) => {
+          console.error('There was an error during signup!', error);
+        }
+      });
     }
   }
 }

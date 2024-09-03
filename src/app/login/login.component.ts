@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { User } from '../models/user.model';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +13,7 @@ import { User } from '../models/user.model';
 export class LoginComponent {
   loginForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(private fb: FormBuilder, private router: Router, private http: HttpClient) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(1)]]
@@ -27,20 +27,17 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
 
-      // 로컬 스토리지에서 모든 사용자 정보를 가져옴
-      const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-
-      // 저장된 사용자들 중에서 입력한 이메일과 비밀번호가 일치하는 사용자를 찾음
-      const user = storedUsers.find((u: User) => u.email === email && u.password === password);
-
-      if (user) {
-        console.log('Login successful');
-        sessionStorage.setItem('loggedInUserEmail', user.email);
-        // 대시보드로 User 객체를 전달하며 이동
-        this.router.navigate(['/dashboard'], { state: { user: user } });
-      } else {
-        console.log('Invalid email or password');
-      }
+      // 서버로 로그인 요청을 보냄
+      this.http.post('http://localhost:3000/login', { email, password }).subscribe({
+        next: (response: any) => {
+          console.log('Login successful');
+          sessionStorage.setItem('loggedInUserEmail', response.user.email);
+          this.router.navigate(['/dashboard'], { state: { user: response.user } });
+        },
+        error: (error) => {
+          console.error('Invalid email or password', error);
+        }
+      });
     }
   }
 }

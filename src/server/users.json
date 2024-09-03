@@ -1,0 +1,52 @@
+[
+  {
+    "id": "7zdhycwyl",
+    "username": "vv",
+    "email": "vv@vv.com",
+    "password": "123",
+    "roles": [
+      "User"
+    ],
+    "groups": []
+  },
+  {
+    "id": "bcibvp6pv",
+    "username": "aa",
+    "email": "aa@aa.com",
+    "password": "123",
+    "roles": [
+      "User"
+    ],
+    "groups": []
+  },
+  {
+    "id": "t4z9erws9",
+    "username": "bb",
+    "email": "bb@bb.com",
+    "password": "123",
+    "roles": [
+      "User"
+    ],
+    "groups": []
+  },
+  {
+    "id": "xdc4jz7mk",
+    "username": "cc",
+    "email": "cc@cc.com",
+    "password": "123",
+    "roles": [
+      "User"
+    ],
+    "groups": []
+  },
+  {
+    "id": "adaxz5mmp",
+    "username": "super",
+    "email": "super@super.com",
+    "password": "123",
+    "roles": [
+      "Super Admin"
+    ],
+    "groups": []
+  }
+]
