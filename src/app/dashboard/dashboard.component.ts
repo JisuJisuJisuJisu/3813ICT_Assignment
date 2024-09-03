@@ -56,10 +56,10 @@ export class DashboardComponent implements OnInit {
   }
 
   isSuperAdmin(): boolean {
-    return this.user?.roles.includes('Super_Admin') || false;
+    return this.user?.roles.includes('Super Admin') || false;
   }
 
   isGroupAdmin(): boolean {
-    return this.user?.roles.includes('Group_Admin') || false;
+    return this.user?.roles.includes('Group Admin') || false;
   }
 }

@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const usersFilePath = path.join(__dirname, 'users.json');
+const usersFilePath = path.join(__dirname, 'users.json'); 
 const groupsFilePath = path.join(__dirname, 'groups.json');
 
 const server = http.createServer((req, res) => {
@@ -15,7 +15,7 @@ const server = http.createServer((req, res) => {
         res.end();
         return;
     }
-    
+
     if (req.method === 'POST' && req.url === '/signup') {
         let body = '';
 
@@ -47,7 +47,7 @@ const server = http.createServer((req, res) => {
                     }
 
                     res.writeHead(201, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Signup successful' }));
+                    res.end(JSON.stringify(newUser));
                 });
             });
         });
