@@ -5,7 +5,7 @@
     "email": "pp@pp.com",
     "password": "123",
     "roles": [
-      "User"
+      "Group Admin"
     ],
     "groups": []
   },
@@ -27,5 +27,35 @@
         "imageUrl": ""
       }
     ]
+  },
+  {
+    "id": "zgwzlp22p",
+    "username": "bb@bb.com",
+    "email": "bb@bb.com",
+    "password": "123",
+    "roles": [
+      "Group Admin"
+    ],
+    "groups": []
+  },
+  {
+    "id": "gky27a7pi",
+    "username": "ff@ff.com",
+    "email": "ff@ff.com",
+    "password": "123",
+    "roles": [
+      "Group Admin"
+    ],
+    "groups": []
+  },
+  {
+    "id": "ff6qzxdfz",
+    "username": "hh@hh.com",
+    "email": "hh@hh.com",
+    "password": "123",
+    "roles": [
+      "User"
+    ],
+    "groups": []
   }
 ]

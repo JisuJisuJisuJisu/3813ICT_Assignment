@@ -11,15 +11,43 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let user of users">
+      <tr *ngFor="let user of users" (click)="openRoleModal(user)">
         <td>{{ user.id }}</td>
         <td>{{ user.username }}</td>
         <td>{{ user.email }}</td>
         <td>{{ user.roles.join(', ') }}</td>
         <td>
-          <button class="btn btn-danger btn-sm" (click)="deleteUser(user.id)">Delete</button>
+          <button class="btn btn-danger btn-sm" (click)="deleteUser(user.id); $event.stopPropagation();">Delete</button>
         </td>
       </tr>
     </tbody>
   </table>
+
+  <!-- 사용자 역할 변경 모달 -->
+  <div class="modal" tabindex="-1" role="dialog" id="roleModal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Change User Role</h5>
+          <button type="button" class="close" aria-label="Close" (click)="closeRoleModal()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>{{ selectedUser?.username }}'s current role: {{ selectedUser?.roles?.join(', ') || 'No roles assigned' }}</p>
+          <div class="form-group">
+            <label for="roleSelect">Select new role:</label>
+            <select class="form-select" id="roleSelect" [(ngModel)]="newRole">
+              <option value="Super Admin">Super Admin</option>
+              <option value="Group Admin">Group Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" (click)="confirmRoleChange()">Save changes</button>
+          <button type="button" class="btn btn-secondary" (click)="closeRoleModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
