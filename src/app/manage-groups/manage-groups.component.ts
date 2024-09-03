@@ -60,10 +60,13 @@ export class ManageGroupsComponent implements OnInit {
     this.http.get<Group[]>(`http://localhost:3000/groups`).subscribe({
       next: (groups: Group[]) => {
         if (this.isSuperAdmin) {
-          this.groups = groups;
+          this.groups = groups; // Super Admin은 모든 그룹을 볼 수 있음
         } else {
-          this.groups = groups.filter(group => group.createdBy === this.user?.id);
+          this.groups = groups.filter(group => group.createdBy === this.user?.id); // Group Admin은 자신이 생성한 그룹만 볼 수 있음
         }
+
+        // 로컬 스토리지에 그룹 저장
+        localStorage.setItem('groups', JSON.stringify(this.groups));
       },
       error: (error) => {
         console.error('그룹 정보를 가져오는 중 오류 발생:', error);
@@ -72,15 +75,23 @@ export class ManageGroupsComponent implements OnInit {
   }
 
   deleteGroup(groupId: string): void {
+    // Super Admin이거나 Group Admin이 자신이 생성한 그룹을 삭제할 수 있음
     if (this.isSuperAdmin || this.groups.some(group => group.id === groupId && group.createdBy === this.user?.id)) {
       this.http.delete(`http://localhost:3000/groups/${groupId}`).subscribe({
         next: () => {
+          console.log(`Group with ID ${groupId} deleted successfully`);
+  
           // 그룹 리스트에서 해당 그룹 삭제
           this.groups = this.groups.filter(group => group.id !== groupId);
-
+  
+          // 로컬 스토리지에서 그룹 삭제
+          let storedGroups = JSON.parse(localStorage.getItem('groups') || '[]');
+          storedGroups = storedGroups.filter((group: Group) => group.id !== groupId);
+          localStorage.setItem('groups', JSON.stringify(storedGroups));
+  
+          // 사용자 정보에서 해당 그룹 삭제
           if (this.user) {
             this.user.groups = this.user.groups.filter(group => group.id !== groupId);
-            // 사용자 정보 갱신
             this.updateUserInStorage(this.user);
           }
         },
@@ -92,8 +103,17 @@ export class ManageGroupsComponent implements OnInit {
       alert('You do not have permission to delete this group.');
     }
   }
-
+  
   updateUserInStorage(user: User): void {
+    // 로컬 스토리지의 users 배열 업데이트
+    let storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    storedUsers = storedUsers.map((u: User) => u.id === user.id ? user : u);
+    localStorage.setItem('users', JSON.stringify(storedUsers));
+  
+    // currentUser 업데이트
+    localStorage.setItem('currentUser', JSON.stringify(user));
+  
+    // 서버에 사용자 정보 PUT 요청
     this.http.put(`http://localhost:3000/users/${user.id}`, user).subscribe({
       next: () => {
         console.log('사용자 정보가 성공적으로 갱신되었습니다.');
@@ -103,6 +123,7 @@ export class ManageGroupsComponent implements OnInit {
       }
     });
   }
+  
 
   generateUniqueId(): string {
     return Math.random().toString(36).substr(2, 9);
@@ -119,7 +140,7 @@ export class ManageGroupsComponent implements OnInit {
       reader.readAsDataURL(file);
     }
   }
-  
+
   onSubmit(): void {
     // 새로운 그룹 생성
     this.newGroup.id = this.generateUniqueId();
@@ -128,8 +149,15 @@ export class ManageGroupsComponent implements OnInit {
     // 서버에 새로운 그룹 추가 요청
     this.http.post<Group>(`http://localhost:3000/groups`, this.newGroup).subscribe({
       next: (group) => {
+        console.log('New group created successfully:', group);
+
         // 그룹 추가
         this.groups.push(group);
+
+        // 로컬 스토리지에 그룹 추가
+        let storedGroups = JSON.parse(localStorage.getItem('groups') || '[]');
+        storedGroups.push(group);
+        localStorage.setItem('groups', JSON.stringify(storedGroups));
 
         // 현재 사용자에 그룹 추가
         if (this.user) {
@@ -147,3 +175,4 @@ export class ManageGroupsComponent implements OnInit {
     });
   }
 }
+

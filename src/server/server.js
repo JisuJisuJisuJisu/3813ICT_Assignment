@@ -205,21 +205,20 @@ const server = http.createServer((req, res) => {
             });
         });
 
-    } else if (req.method === 'DELETE' && req.url.startsWith('/groups/')) {
-        // 특정 그룹 삭제
-        const groupId = req.url.split('/')[2];
+    } else if (req.method === 'DELETE' && req.url.startsWith('/users/')) {
+        const userId = req.url.split('/').pop();
 
-        fs.readFile(groupsFilePath, 'utf8', (err, data) => {
+        fs.readFile(usersFilePath, 'utf8', (err, data) => {
             if (err) {
                 res.writeHead(500, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ message: 'Internal Server Error' }));
                 return;
             }
 
-            let groups = JSON.parse(data);
-            groups = groups.filter(group => group.id !== groupId);
+            let users = JSON.parse(data);
+            users = users.filter(u => u.id !== userId);
 
-            fs.writeFile(groupsFilePath, JSON.stringify(groups, null, 2), 'utf8', err => {
+            fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), 'utf8', err => {
                 if (err) {
                     res.writeHead(500, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ message: 'Internal Server Error' }));
@@ -227,11 +226,11 @@ const server = http.createServer((req, res) => {
                 }
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Group deleted successfully' }));
+                res.end(JSON.stringify({ message: 'User deleted successfully' }));
             });
         });
 
-    } else {
+    }  else {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Not Found');
     }

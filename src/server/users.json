@@ -29,16 +29,6 @@
     ]
   },
   {
-    "id": "zgwzlp22p",
-    "username": "bb@bb.com",
-    "email": "bb@bb.com",
-    "password": "123",
-    "roles": [
-      "Group Admin"
-    ],
-    "groups": []
-  },
-  {
     "id": "gky27a7pi",
     "username": "ff@ff.com",
     "email": "ff@ff.com",
@@ -46,12 +36,55 @@
     "roles": [
       "Group Admin"
     ],
-    "groups": []
+    "groups": [
+      {
+        "id": "1wi1uy3fx",
+        "name": "f1",
+        "description": "11",
+        "createdBy": "gky27a7pi",
+        "channels": [],
+        "imageUrl": ""
+      },
+      {
+        "id": "0bpc90z0i",
+        "name": "f2",
+        "description": "22",
+        "createdBy": "gky27a7pi",
+        "channels": [],
+        "imageUrl": ""
+      },
+      {
+        "id": "c7enyp2eu",
+        "name": "f3",
+        "description": "33",
+        "createdBy": "gky27a7pi",
+        "channels": [],
+        "imageUrl": ""
+      },
+      {
+        "id": "pe9rcj3hd",
+        "name": "f5",
+        "description": "55",
+        "createdBy": "gky27a7pi",
+        "channels": [],
+        "imageUrl": ""
+      }
+    ]
   },
   {
     "id": "ff6qzxdfz",
     "username": "hh@hh.com",
     "email": "hh@hh.com",
+    "password": "123",
+    "roles": [
+      "Group Admin"
+    ],
+    "groups": []
+  },
+  {
+    "id": "amd7zzbre",
+    "username": "ww@ww.com",
+    "email": "ww@ww.com",
     "password": "123",
     "roles": [
       "User"
