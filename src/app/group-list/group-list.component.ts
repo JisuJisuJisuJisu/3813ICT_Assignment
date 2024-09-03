@@ -18,28 +18,31 @@ export class GroupListComponent implements OnInit {
 
   ngOnInit(): void {
     const loggedInUserEmail = sessionStorage.getItem('loggedInUserEmail');
-  
+
     if (loggedInUserEmail) {
-      // 서버에서 사용자 정보를 가져옴
-      this.http.get<User[]>('http://localhost:3000/users').subscribe({
-        next: (users) => {
-          const user = users.find(u => u.email === loggedInUserEmail);
-  
-          if (user) {
-            sessionStorage.setItem('currentUser', JSON.stringify(user));
-            this.userGroups = user.groups;
-          }
-        },
-        error: (err) => {
-          console.error('사용자 정보를 가져오는 중 오류 발생:', err);
-        }
-      });
+      this.getUserData(loggedInUserEmail);
+    } else {
+      console.log('로그인 정보가 없습니다.');
     }
   }
 
+  getUserData(email: string): void {
+    this.http.get<User[]>('http://localhost:3000/users').subscribe({
+      next: (users) => {
+        const user = users.find(u => u.email === email);
+        if (user) {
+          this.userGroups = user.groups;
+        } else {
+          console.log('사용자를 찾을 수 없습니다.');
+        }
+      },
+      error: (err) => {
+        console.error('사용자 정보를 가져오는 중 오류 발생:', err);
+      }
+    });
+  }
+
   getUserGroups(): Group[] {
-    const userJson = sessionStorage.getItem('currentUser');
-    const user: User = userJson ? JSON.parse(userJson) : null;
-    return user ? user.groups : [];
+    return this.userGroups;
   }
 }

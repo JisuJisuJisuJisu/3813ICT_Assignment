@@ -17,16 +17,7 @@
     "roles": [
       "Super Admin"
     ],
-    "groups": [
-      {
-        "id": "vtybsprwr",
-        "name": "123",
-        "description": "1233",
-        "createdBy": "si8w9m6m7",
-        "channels": [],
-        "imageUrl": ""
-      }
-    ]
+    "groups": []
   },
   {
     "id": "gky27a7pi",
@@ -46,14 +37,6 @@
         "imageUrl": ""
       },
       {
-        "id": "0bpc90z0i",
-        "name": "f2",
-        "description": "22",
-        "createdBy": "gky27a7pi",
-        "channels": [],
-        "imageUrl": ""
-      },
-      {
         "id": "c7enyp2eu",
         "name": "f3",
         "description": "33",
@@ -62,9 +45,17 @@
         "imageUrl": ""
       },
       {
-        "id": "pe9rcj3hd",
-        "name": "f5",
-        "description": "55",
+        "id": "bac5zx27m",
+        "name": "f9",
+        "description": "99",
+        "createdBy": "gky27a7pi",
+        "channels": [],
+        "imageUrl": ""
+      },
+      {
+        "id": "2dsllp4fl",
+        "name": "f10",
+        "description": "10",
         "createdBy": "gky27a7pi",
         "channels": [],
         "imageUrl": ""
