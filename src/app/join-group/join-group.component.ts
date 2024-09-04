@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CommonModule} from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 interface Group {
@@ -12,18 +12,20 @@ interface Group {
 @Component({
   selector: 'app-join-group',
   templateUrl: './join-group.component.html',
-  imports:[CommonModule,FormsModule],
-  standalone:true,
+  imports: [CommonModule, FormsModule],
+  standalone: true,
   styleUrls: ['./join-group.component.css']
 })
 export class JoinGroupComponent implements OnInit {
   groups: Group[] = [];
   isLoading: boolean = true;
   errorMessage: string | null = null;
+  loggedInUserEmail: string | null = null;
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
+    this.loggedInUserEmail = sessionStorage.getItem('loggedInUserEmail'); // 현재 로그인한 사용자의 이메일 가져오기
     this.fetchGroups();
   }
 
@@ -43,8 +45,21 @@ export class JoinGroupComponent implements OnInit {
   }
 
   joinGroup(groupId: string): void {
-    // 그룹 가입 요청 로직 추가
-    console.log(`Join request sent for group ID: ${groupId}`);
-    alert(`Join request sent for group ID: ${groupId}`);
+    if (this.loggedInUserEmail) {
+      const requestData = { email: this.loggedInUserEmail }; // 요청 데이터: 사용자 이메일
+
+      this.http.post(`http://localhost:3000/groups/${groupId}/join`, requestData)
+        .subscribe({
+          next: () => {
+            alert(`Join request sent for group ID: ${groupId}`);
+          },
+          error: (error) => {
+            console.error('Error sending join request:', error);
+            alert('Failed to send join request.');
+          }
+        });
+    } else {
+      alert('You must be logged in to join a group.');
+    }
   }
 }

@@ -3,6 +3,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -15,7 +16,7 @@ export class LoginComponent {
 
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(1)]]
     });
   }
@@ -35,6 +36,7 @@ export class LoginComponent {
           this.router.navigate(['/dashboard'], { state: { user: response.user } });
         },
         error: (error) => {
+          alert(error.error.message);
           console.error('Invalid email or password', error);
         }
       });

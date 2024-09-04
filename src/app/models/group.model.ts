@@ -1,10 +1,12 @@
 import { Channel } from './channel.model';
+import { User } from './user.model';  
 
 export interface Group {
-  id: string;          // 고유한 그룹 ID
-  name: string;        // 그룹 이름
+  id: string;          
+  name: string;        
   description: string;
-  channels: Channel[]; // 그룹 내의 채널들을 저장하는 배열
+  channels: Channel[]; 
   createdBy: string;
   imageUrl?: string;
+  pendingUsers?: User[]; 
 }

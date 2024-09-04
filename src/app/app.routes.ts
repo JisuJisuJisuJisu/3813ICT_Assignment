@@ -11,6 +11,9 @@ import { GroupListComponent } from './group-list/group-list.component';
 import { GroupDetailComponent } from './group-detail/group-detail.component';
 import { ProfileComponent } from './profile/profile.component';
 import { JoinGroupComponent } from './join-group/join-group.component';
+import { GroupMemberComponent } from './groupmember/groupmember.component';
+
+
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -18,6 +21,7 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, children:[
     { path: '', component: GroupListComponent},
     { path: 'group/:id', component: GroupDetailComponent },
+    { path: 'group/:id/members', component: GroupMemberComponent },
     { path: 'profile', component: ProfileComponent },
     { path: 'joingroup', component:JoinGroupComponent }  
   ] }, 
@@ -32,11 +36,12 @@ export const routes: Routes = [
   },
   {
     path: 'group-admin',
-    component: GroupAdminComponent,  // Group Admin 전용 레이아웃을 원하면 별도의 컴포넌트로 교체 가능
+    component: GroupAdminComponent, 
     children: [
       { path: 'manage-groups', component: ManageGroupsComponent }
     ]
   },
-  { path: '', redirectTo: '/dashboard', pathMatch: 'prefix' },  // 기본 경로를 로그인 페이지로 리디렉션
-  { path: '**', redirectTo: '/login' }, // 유효하지 않은 경로 처리
+  { path: '', redirectTo: '/dashboard', pathMatch: 'prefix' }, 
+  { path: '**', redirectTo: '/login' }, 
 ];
+

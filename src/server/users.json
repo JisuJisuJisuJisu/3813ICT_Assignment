@@ -11,8 +11,8 @@
   },
   {
     "id": "si8w9m6m7",
-    "username": "super@super.com",
-    "email": "super@super.com",
+    "username": "super",
+    "email": "super",
     "password": "123",
     "roles": [
       "Super Admin"

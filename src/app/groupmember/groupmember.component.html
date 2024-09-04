@@ -1,0 +1,22 @@
+<div *ngIf="isLoading">로딩 중...</div>
+
+<div *ngIf="errorMessage">{{ errorMessage }}</div>
+
+<div *ngIf="!isLoading && !errorMessage">
+  <h2>Member List</h2>
+  <ul>
+    <li *ngFor="let group of groups" (click)="selectedGroup = group">
+      {{ group.name }}
+    </li>
+  </ul>
+
+  <div *ngIf="selectedGroup">
+    <h3>{{ selectedGroup.name }} - 가입 요청</h3>
+    <ul>
+      <li *ngFor="let user of selectedGroup.pendingUsers">
+        {{ user.username }} ({{ user.email }})
+        <button (click)="approveUser(selectedGroup.id, user.id)">승인</button>
+      </li>
+    </ul>
+  </div>
+</div>

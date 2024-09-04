@@ -4,7 +4,11 @@
     "name": "123",
     "description": "1233",
     "createdBy": "si8w9m6m7",
-    "channels": [],
+    "channels": [
+      {
+        "email": "yy@yy.com"
+      }
+    ],
     "imageUrl": ""
   },
   {
@@ -12,7 +16,11 @@
     "name": "b7",
     "description": "b7",
     "createdBy": "zgwzlp22p",
-    "channels": [],
+    "channels": [
+      {
+        "email": "yy@yy.com"
+      }
+    ],
     "imageUrl": ""
   },
   {
@@ -36,7 +44,11 @@
     "name": "f11",
     "description": "11",
     "createdBy": "gky27a7pi",
-    "channels": [],
+    "channels": [
+      {
+        "email": "yy@yy.com"
+      }
+    ],
     "imageUrl": ""
   },
   {
@@ -54,6 +66,9 @@
         "id": "ybbzs080m",
         "name": "f13.1",
         "description": "13"
+      },
+      {
+        "email": "yy@yy.com"
       }
     ],
     "imageUrl": ""

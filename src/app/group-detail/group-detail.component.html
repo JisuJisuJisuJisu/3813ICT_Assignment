@@ -16,5 +16,9 @@
         <p>Details of the selected channel will appear here.</p>
       </div>
     </div>
+
+    <div *ngIf="isSuperAdmin || isGroupAdmin">
+        <button (click)="goToGroupMembers()">Go to Group Members</button>
+      </div>
   </div>
   
