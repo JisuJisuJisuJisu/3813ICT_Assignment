@@ -38,25 +38,9 @@
     ],
     "groups": [
       {
-        "id": "1wi1uy3fx",
-        "name": "f1",
-        "description": "11",
-        "createdBy": "gky27a7pi",
-        "channels": [],
-        "imageUrl": ""
-      },
-      {
         "id": "c7enyp2eu",
         "name": "f3",
         "description": "33",
-        "createdBy": "gky27a7pi",
-        "channels": [],
-        "imageUrl": ""
-      },
-      {
-        "id": "25me2hdx5",
-        "name": "f9",
-        "description": "f9",
         "createdBy": "gky27a7pi",
         "channels": [],
         "imageUrl": ""
@@ -103,6 +87,20 @@
             "id": "svyj9rho4",
             "name": "14.2",
             "description": "14.2"
+          }
+        ],
+        "imageUrl": ""
+      },
+      {
+        "id": "qc5vl3ozb",
+        "name": "f16",
+        "description": "16",
+        "createdBy": "gky27a7pi",
+        "channels": [
+          {
+            "id": "9xpbogmzl",
+            "name": "16-1",
+            "description": ""
           }
         ],
         "imageUrl": ""

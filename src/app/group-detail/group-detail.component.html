@@ -1,1 +1,20 @@
-<p>group-detail works!</p>
+<div *ngIf="!isLoading && group">
+    <h2>{{ group?.name }}</h2>
+    <p>{{ group?.description ? group.description : 'No description available' }}</p>
+  
+    <h3>Channels</h3>
+    <ul class="nav nav-tabs">
+      <!-- 탭 형식으로 채널 출력 -->
+      <li class="nav-item" *ngFor="let channel of group?.channels">
+        <a class="nav-link" href="#">{{ channel?.name }}</a>
+      </li>
+    </ul>
+  
+    <!-- 선택한 채널의 세부 정보 표시 -->
+    <div class="tab-content">
+      <div class="tab-pane active">
+        <p>Details of the selected channel will appear here.</p>
+      </div>
+    </div>
+  </div>
+  

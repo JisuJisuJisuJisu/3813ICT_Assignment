@@ -4,6 +4,8 @@ import { Group } from '../models/group.model';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-group-list',
@@ -17,7 +19,7 @@ export class GroupListComponent implements OnInit {
 
   @Output() groupSelected = new EventEmitter<Group>();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
     const loggedInUserEmail = sessionStorage.getItem('loggedInUserEmail');
@@ -42,5 +44,6 @@ export class GroupListComponent implements OnInit {
 
   onGroupClick(group: Group): void {
     this.groupSelected.emit(group); // 그룹 선택 시 해당 그룹 객체를 부모 컴포넌트로 전달
+    this.router.navigate(['/dashboard/group', group.id]);
   }
 }

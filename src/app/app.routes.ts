@@ -9,13 +9,15 @@ import { ManageGroupsComponent } from './manage-groups/manage-groups.component';
 import { ManageChannelsComponent } from './manage-channels/manage-channels.component';
 import { GroupListComponent } from './group-list/group-list.component';
 import { GroupDetailComponent } from './group-detail/group-detail.component';
+import { ProfileComponent } from './profile/profile.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'dashboard', component: DashboardComponent, children:[
     { path: '', component: GroupListComponent},
-    { path: 'group/:id', component: GroupDetailComponent } 
+    { path: 'group/:id', component: GroupDetailComponent },
+    { path: 'profile', component: ProfileComponent }  
   ] }, 
   {
     path: 'super-admin',
