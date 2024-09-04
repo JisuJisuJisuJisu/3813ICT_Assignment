@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Group } from '../models/group.model'; // Group 모델을 가져옴
-import { Channel } from '../models/channel.model'; // Channel 모델을 가져옴
+import { Group } from '../models/group.model';
 
 @Component({
   selector: 'app-group-detail',
@@ -10,23 +9,23 @@ import { Channel } from '../models/channel.model'; // Channel 모델을 가져�
   styleUrls: ['./group-detail.component.css']
 })
 export class GroupDetailComponent implements OnInit {
+  group: Group | null = null;
 
-  group: Group | null = null;  // 현재 그룹 정보를 저장
-  userChannels: Channel[] = []; // 채널 목록을 저장
+  @Output() channelsUpdated = new EventEmitter<any[]>();  // 부모로 채널 전달
 
-  constructor(private route: ActivatedRoute, private http: HttpClient) { }
+  constructor(private route: ActivatedRoute, private http: HttpClient) {}
 
   ngOnInit(): void {
-    const groupId = this.route.snapshot.paramMap.get('id'); 
-    console.log('Received Group ID:', groupId);// URL에서 그룹 ID 추출
+    const groupId = this.route.snapshot.paramMap.get('id');  // URL에서 그룹 ID를 추출
+
     if (groupId) {
       this.http.get<Group>(`http://localhost:3000/groups/${groupId}`).subscribe({
         next: (group) => {
           this.group = group;
-          this.userChannels = group.channels;  // 그룹의 채널 목록을 userChannels에 저장
+          this.channelsUpdated.emit(group.channels);  // 채널 정보를 부모로 전달
         },
-        error: (error) => {
-          console.error('그룹 정보를 가져오는 중 오류 발생:', error);
+        error: (err) => {
+          console.error('그룹 정보를 가져오는 중 오류 발생:', err);
         }
       });
     }

@@ -16,8 +16,22 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // 모든 그룹 목록 가져오기
+    if (req.method === 'GET' && req.url === '/groups') {
+        fs.readFile(groupsFilePath, 'utf8', (err, data) => {
+            if (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Internal Server Error' }));
+                return;
+            }
+
+            const groups = JSON.parse(data); // 그룹 데이터 가져오기
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(groups)); // 그룹 데이터를 응답으로 보내기
+        });
+    }
     // 특정 그룹 가져오기
-    if (req.method === 'GET' && req.url.startsWith('/groups/')) {
+    else if (req.method === 'GET' && req.url.startsWith('/groups/')) {
         const groupId = req.url.split('/')[2]; // 그룹 ID 추출
         fs.readFile(groupsFilePath, 'utf8', (err, data) => {
             if (err) {
@@ -38,7 +52,41 @@ const server = http.createServer((req, res) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(group));
         });
-    } 
+    }
+    // 새로운 그룹 생성
+    else if (req.method === 'POST' && req.url === '/groups') {
+        let body = '';
+
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        req.on('end', () => {
+            const newGroup = JSON.parse(body); // 새로운 그룹 정보
+
+            fs.readFile(groupsFilePath, 'utf8', (err, data) => {
+                if (err) {
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'Internal Server Error' }));
+                    return;
+                }
+
+                let groups = data ? JSON.parse(data) : [];
+                groups.push(newGroup); // 새로운 그룹을 배열에 추가
+
+                fs.writeFile(groupsFilePath, JSON.stringify(groups, null, 2), 'utf8', err => {
+                    if (err) {
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ message: 'Internal Server Error' }));
+                        return;
+                    }
+
+                    res.writeHead(201, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(newGroup));
+                });
+            });
+        });
+    }
     // 그룹에 채널 추가 (채널 자체를 별도로 저장하지 않고 그룹 내에 저장)
     else if (req.method === 'POST' && req.url.startsWith('/groups/')) {
         const groupId = req.url.split('/')[2]; // 그룹 ID를 URL에서 추출

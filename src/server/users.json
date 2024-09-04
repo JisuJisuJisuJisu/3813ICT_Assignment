@@ -128,5 +128,15 @@
       "User"
     ],
     "groups": []
+  },
+  {
+    "id": "j8qwpib05",
+    "username": "yy@yy.com",
+    "email": "yy@yy.com",
+    "password": "123",
+    "roles": [
+      "User"
+    ],
+    "groups": []
   }
 ]

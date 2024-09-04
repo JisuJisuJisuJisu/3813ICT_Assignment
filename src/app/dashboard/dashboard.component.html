@@ -43,7 +43,7 @@
                       <i class="fa fa-fw fa-angle-down pull-right"></i>
                     </a>
                     <ul id="submenu-channels" class="collapse">
-                      <li *ngFor="let channel of selectedGroup?.channels">
+                      <li *ngFor="let channel of userChannels">
                         <a href="#"><i class="fa fa-angle-double-right"></i> {{ channel.name }}</a>
                       </li>
                     </ul>
@@ -57,13 +57,13 @@
                 <!-- Super Admin 전용 메뉴 -->
                 <li *ngIf="isSuperAdmin()">
                     <a routerLink="/super-admin/manage-users"><i class="fa fa-fw fa-users"></i> Manage Users</a>
-                  </li>
-                  <li *ngIf="isSuperAdmin()">
+                </li>
+                <li *ngIf="isSuperAdmin()">
                     <a routerLink="/super-admin/manage-groups"><i class="fa fa-fw fa-sitemap"></i> Manage Groups</a>
-                  </li>
-                  <li *ngIf="isSuperAdmin()">
+                </li>
+                <li *ngIf="isSuperAdmin()">
                     <a routerLink="/super-admin/manage-channels"><i class="fa fa-fw fa-comments"></i> Manage Channels</a>
-                  </li>
+                </li>
 
                 <!-- Group Admin 전용 메뉴 -->
                 <li *ngIf="isGroupAdmin() && !isSuperAdmin()">
@@ -77,12 +77,13 @@
                 </li>
             </ul>
         </div>
-        <!-- /.navbar-collapse -->
     </nav>
 
+    <!-- Page Content -->
     <div id="page-wrapper">
         <div class="container-fluid">
-          <!-- 자식 라우트로 GroupListComponent 또는 GroupDetailComponent가 표시됩니다 -->
-          <router-outlet></router-outlet>
+            <!-- router-outlet for displaying GroupList or GroupDetail components -->
+            <router-outlet></router-outlet>
         </div>
-      </div>
+    </div>
+</div>

@@ -18,7 +18,9 @@ import { GroupListComponent } from '../group-list/group-list.component';
 })
 export class DashboardComponent implements OnInit {
   user: User | null = null;
+  userChannels: any[] = [];
   selectedGroup: Group | null = null;  // 선택된 그룹
+  selectedGroupChannels: Channel[] = [];
 
   constructor(private router: Router, private http: HttpClient) {}
 
@@ -46,6 +48,10 @@ export class DashboardComponent implements OnInit {
       console.log('로그인 정보가 없습니다.');
       this.router.navigate(['/login']);
     }
+  }
+
+  onChannelsUpdated(channels: Channel[]): void {
+    this.selectedGroupChannels = channels;  // 자식 컴포넌트로부터 받은 채널 정보 저장
   }
 
   onGroupSelected(group: Group): void {
