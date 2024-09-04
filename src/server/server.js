@@ -19,7 +19,6 @@ const server = http.createServer((req, res) => {
     if (req.method === 'POST' && req.url === '/signup') {
         let body = '';
 
-        // 요청 데이터 수신
         req.on('data', chunk => {
             body += chunk.toString();
         });
@@ -27,7 +26,6 @@ const server = http.createServer((req, res) => {
         req.on('end', () => {
             const newUser = JSON.parse(body);
 
-            // 기존 사용자 목록 읽기
             fs.readFile(usersFilePath, 'utf8', (err, data) => {
                 if (err && err.code !== 'ENOENT') {
                     res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -38,7 +36,6 @@ const server = http.createServer((req, res) => {
                 const users = data ? JSON.parse(data) : [];
                 users.push(newUser);
 
-                // 사용자 목록에 새 사용자 추가 후 파일에 쓰기
                 fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), 'utf8', err => {
                     if (err) {
                         res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -55,7 +52,6 @@ const server = http.createServer((req, res) => {
     } else if (req.method === 'POST' && req.url === '/login') {
         let body = '';
 
-        // 요청 데이터 수신
         req.on('data', chunk => {
             body += chunk.toString();
         });
@@ -63,7 +59,6 @@ const server = http.createServer((req, res) => {
         req.on('end', () => {
             const { email, password } = JSON.parse(body);
 
-            // 사용자 목록 파일 읽기
             fs.readFile(usersFilePath, 'utf8', (err, data) => {
                 if (err && err.code !== 'ENOENT') {
                     res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -85,7 +80,6 @@ const server = http.createServer((req, res) => {
         });
 
     } else if (req.method === 'GET' && req.url === '/users') {
-        // 사용자 목록 파일을 읽어 모든 사용자 정보를 반환
         fs.readFile(usersFilePath, 'utf8', (err, data) => {
             if (err && err.code !== 'ENOENT') {
                 res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -99,7 +93,6 @@ const server = http.createServer((req, res) => {
         });
 
     } else if (req.method === 'PUT' && req.url.startsWith('/users/')) {
-        // 특정 사용자의 정보를 업데이트
         const userId = req.url.split('/')[2];
         let body = '';
 
@@ -134,7 +127,6 @@ const server = http.createServer((req, res) => {
         });
 
     } else if (req.method === 'DELETE' && req.url.startsWith('/users/')) {
-        // 특정 사용자 삭제
         const userId = req.url.split('/')[2];
 
         fs.readFile(usersFilePath, 'utf8', (err, data) => {
@@ -160,7 +152,6 @@ const server = http.createServer((req, res) => {
         });
 
     } else if (req.method === 'GET' && req.url === '/groups') {
-        // 모든 그룹 정보를 반환
         fs.readFile(groupsFilePath, 'utf8', (err, data) => {
             if (err) {
                 res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -172,7 +163,6 @@ const server = http.createServer((req, res) => {
         });
 
     } else if (req.method === 'POST' && req.url === '/groups') {
-        // 새로운 그룹 추가
         let body = '';
 
         req.on('data', chunk => {
@@ -205,20 +195,28 @@ const server = http.createServer((req, res) => {
             });
         });
 
-    } else if (req.method === 'DELETE' && req.url.startsWith('/users/')) {
-        const userId = req.url.split('/').pop();
+    } else if (req.method === 'DELETE' && req.url.startsWith('/groups/')) {
+        const groupId = req.url.split('/').pop();
 
-        fs.readFile(usersFilePath, 'utf8', (err, data) => {
+        fs.readFile(groupsFilePath, 'utf8', (err, data) => {
             if (err) {
                 res.writeHead(500, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ message: 'Internal Server Error' }));
                 return;
             }
 
-            let users = JSON.parse(data);
-            users = users.filter(u => u.id !== userId);
+            let groups = JSON.parse(data);
+            const groupIndex = groups.findIndex(group => group.id === groupId);
 
-            fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), 'utf8', err => {
+            if (groupIndex === -1) {
+                res.writeHead(404, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Group not found' }));
+                return;
+            }
+
+            groups.splice(groupIndex, 1);
+
+            fs.writeFile(groupsFilePath, JSON.stringify(groups, null, 2), 'utf8', err => {
                 if (err) {
                     res.writeHead(500, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ message: 'Internal Server Error' }));
@@ -226,11 +224,11 @@ const server = http.createServer((req, res) => {
                 }
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'User deleted successfully' }));
+                res.end(JSON.stringify({ message: 'Group deleted successfully' }));
             });
         });
 
-    }  else {
+    } else {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Not Found');
     }
