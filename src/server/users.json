@@ -136,5 +136,15 @@
       "User"
     ],
     "groups": []
+  },
+  {
+    "id": "fes6psyln",
+    "username": "kk@kk.com",
+    "email": "kk@kk.com",
+    "password": "123",
+    "roles": [
+      "User"
+    ],
+    "groups": []
   }
 ]

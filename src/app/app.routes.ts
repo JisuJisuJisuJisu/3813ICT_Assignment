@@ -10,6 +10,7 @@ import { ManageChannelsComponent } from './manage-channels/manage-channels.compo
 import { GroupListComponent } from './group-list/group-list.component';
 import { GroupDetailComponent } from './group-detail/group-detail.component';
 import { ProfileComponent } from './profile/profile.component';
+import { JoinGroupComponent } from './join-group/join-group.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -17,7 +18,8 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, children:[
     { path: '', component: GroupListComponent},
     { path: 'group/:id', component: GroupDetailComponent },
-    { path: 'profile', component: ProfileComponent }  
+    { path: 'profile', component: ProfileComponent },
+    { path: 'joingroup', component:JoinGroupComponent }  
   ] }, 
   {
     path: 'super-admin',

@@ -1,0 +1,20 @@
+<div class="container">
+    <h2>Join Groups</h2>
+  
+    <div *ngIf="isLoading">
+      <p>Loading groups...</p>
+    </div>
+  
+    <div *ngIf="errorMessage">
+      <p class="error">{{ errorMessage }}</p>
+    </div>
+  
+    <div *ngIf="!isLoading && !errorMessage">
+      <div *ngFor="let group of groups" class="group-item">
+        <h4>{{ group.name }}</h4>
+        <p>{{ group.description || 'No description available' }}</p>
+        <button (click)="joinGroup(group.id)" class="btn btn-primary">Request to Join</button>
+      </div>
+    </div>
+  </div>
+  
