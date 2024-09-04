@@ -3,19 +3,22 @@ import { CommonModule } from '@angular/common';
 import { User } from '../models/user.model';
 import { Router } from '@angular/router';
 import { Channel } from '../models/channel.model'; 
+import { Group } from '../models/group.model';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { GroupListComponent } from '../group-list/group-list.component';
+
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule,GroupListComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
   user: User | null = null;
-  userChannels: Channel[] = [];
+  selectedGroup: Group | null = null;  // 선택된 그룹
 
   constructor(private router: Router, private http: HttpClient) {}
 
@@ -29,9 +32,7 @@ export class DashboardComponent implements OnInit {
         next: (users: User[]) => {
           this.user = users.find(u => u.email === loggedInUserEmail) || null;
 
-          if (this.user) {
-            this.userChannels = this.getUserChannels(this.user.groups);
-          } else {
+          if (!this.user) {
             console.log('사용자 정보가 없습니다.');
             this.router.navigate(['/login']);
           }
@@ -47,12 +48,9 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  getUserChannels(groups: any[]): Channel[] {
-    const channels: Channel[] = [];
-    groups.forEach(group => {
-      channels.push(...group.channels);
-    });
-    return channels;
+  onGroupSelected(group: Group): void {
+    this.selectedGroup = group;  // 선택된 그룹 저장
+    console.log('Selected group:', group);
   }
 
   isSuperAdmin(): boolean {
@@ -63,3 +61,4 @@ export class DashboardComponent implements OnInit {
     return this.user?.roles.includes('Group Admin') || false;
   }
 }
+

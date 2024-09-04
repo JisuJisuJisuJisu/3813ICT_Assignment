@@ -8,12 +8,14 @@ import { ManageUsersComponent } from './manage-users/manage-users.component';
 import { ManageGroupsComponent } from './manage-groups/manage-groups.component';
 import { ManageChannelsComponent } from './manage-channels/manage-channels.component';
 import { GroupListComponent } from './group-list/group-list.component';
+import { GroupDetailComponent } from './group-detail/group-detail.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'dashboard', component: DashboardComponent, children:[
-    { path: '', component: GroupListComponent}
+    { path: '', component: GroupListComponent},
+    { path: 'group/:id', component: GroupDetailComponent } 
   ] }, 
   {
     path: 'super-admin',

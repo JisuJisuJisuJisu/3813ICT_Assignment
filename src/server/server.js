@@ -16,8 +16,31 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // 특정 그룹 가져오기
+    if (req.method === 'GET' && req.url.startsWith('/groups/')) {
+        const groupId = req.url.split('/')[2]; // 그룹 ID 추출
+        fs.readFile(groupsFilePath, 'utf8', (err, data) => {
+            if (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Internal Server Error' }));
+                return;
+            }
+
+            const groups = JSON.parse(data);
+            const group = groups.find(g => g.id === groupId); // 해당 그룹 찾기
+
+            if (!group) {
+                res.writeHead(404, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Group not found' }));
+                return;
+            }
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(group));
+        });
+    } 
     // 그룹에 채널 추가 (채널 자체를 별도로 저장하지 않고 그룹 내에 저장)
-    if (req.method === 'POST' && req.url.startsWith('/groups/')) {
+    else if (req.method === 'POST' && req.url.startsWith('/groups/')) {
         const groupId = req.url.split('/')[2]; // 그룹 ID를 URL에서 추출
         let body = '';
 
@@ -59,8 +82,9 @@ const server = http.createServer((req, res) => {
             });
         });
 
-    } else if (req.method === 'POST' && req.url === '/signup') {
-        // 사용자 등록
+    } 
+    // 사용자 등록
+    else if (req.method === 'POST' && req.url === '/signup') {
         let body = '';
 
         req.on('data', chunk => {
@@ -93,8 +117,9 @@ const server = http.createServer((req, res) => {
             });
         });
 
-    } else if (req.method === 'POST' && req.url === '/login') {
-        // 로그인
+    } 
+    // 로그인
+    else if (req.method === 'POST' && req.url === '/login') {
         let body = '';
 
         req.on('data', chunk => {
@@ -124,8 +149,9 @@ const server = http.createServer((req, res) => {
             });
         });
 
-    } else if (req.method === 'GET' && req.url === '/users') {
-        // 사용자 목록 조회
+    } 
+    // 사용자 목록 조회
+    else if (req.method === 'GET' && req.url === '/users') {
         fs.readFile(usersFilePath, 'utf8', (err, data) => {
             if (err && err.code !== 'ENOENT') {
                 res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -138,8 +164,9 @@ const server = http.createServer((req, res) => {
             res.end(JSON.stringify(users));
         });
 
-    } else if (req.method === 'PUT' && req.url.startsWith('/users/')) {
-        // 사용자 정보 업데이트
+    } 
+    // 사용자 정보 업데이트
+    else if (req.method === 'PUT' && req.url.startsWith('/users/')) {
         const userId = req.url.split('/')[2];
         let body = '';
 
@@ -173,8 +200,9 @@ const server = http.createServer((req, res) => {
             });
         });
 
-    } else if (req.method === 'DELETE' && req.url.startsWith('/groups/')) {
-        // 그룹 삭제
+    } 
+    // 그룹 삭제
+    else if (req.method === 'DELETE' && req.url.startsWith('/groups/')) {
         const groupId = req.url.split('/').pop();
 
         fs.readFile(groupsFilePath, 'utf8', (err, data) => {

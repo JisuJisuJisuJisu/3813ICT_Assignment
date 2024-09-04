@@ -38,13 +38,16 @@
             <ul class="nav navbar-nav side-nav">
                 <!-- Channels 메뉴 -->
                 <li>
-                    <a href="#" data-toggle="collapse" data-target="#submenu-channels"><i class="fa fa-fw fa-search"></i> Channels <i class="fa fa-fw fa-angle-down pull-right"></i></a>
+                    <a href="#" data-toggle="collapse" data-target="#submenu-channels">
+                      <i class="fa fa-fw fa-search"></i> Channels 
+                      <i class="fa fa-fw fa-angle-down pull-right"></i>
+                    </a>
                     <ul id="submenu-channels" class="collapse">
-                        <li *ngFor="let channel of userChannels">
-                            <a href="#"><i class="fa fa-angle-double-right"></i> {{ channel.name }}</a>
-                        </li>
+                      <li *ngFor="let channel of selectedGroup?.channels">
+                        <a href="#"><i class="fa fa-angle-double-right"></i> {{ channel.name }}</a>
+                      </li>
                     </ul>
-                </li>
+                  </li>
                 
                 <!-- Back to Dashboard 버튼 -->
                 <li>
@@ -79,14 +82,7 @@
 
     <div id="page-wrapper">
         <div class="container-fluid">
-            <!-- Page Heading -->
-            <div class="row" id="main" >
-                <!-- <div class="col-sm-12 col-md-12 well" id="content"> -->
-                    <router-outlet></router-outlet>
-                <!-- </div> -->
-            </div>
-            <!-- /.row -->
+          <!-- 자식 라우트로 GroupListComponent 또는 GroupDetailComponent가 표시됩니다 -->
+          <router-outlet></router-outlet>
         </div>
-        <!-- /.container-fluid -->
-    </div>
-</div>
+      </div>

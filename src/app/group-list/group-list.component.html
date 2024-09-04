@@ -2,12 +2,12 @@
   <div class="container">
     <div class="row">
       <div *ngFor="let group of userGroups" class="col-sm-12 col-md-6 col-lg-4 mb-4">
-        <div class="card text-dark click-col">
+        <div class="card text-dark click-col" (click)="onGroupClick(group)" [routerLink]="['/dashboard/group', group.id]">
           <div class="card-image-top" [style.background-image]="'url(' + group.imageUrl + ')'"></div>
           <div class="card-img-overlay">
             <div class="card-body">
               <h4 class="card-title">
-                <a class="text-light" [href]="group.id">{{ group.name }}</a>
+                <a class="text-light">{{ group.name }}</a>
               </h4>
             </div>
           </div>
