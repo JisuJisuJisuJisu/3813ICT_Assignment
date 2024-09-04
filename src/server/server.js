@@ -214,7 +214,7 @@ const server = http.createServer((req, res) => {
                 return;
             }
 
-            groups.splice(groupIndex, 1);
+            const deletedGroup = groups.splice(groupIndex, 1)[0];
 
             fs.writeFile(groupsFilePath, JSON.stringify(groups, null, 2), 'utf8', err => {
                 if (err) {
@@ -223,8 +223,31 @@ const server = http.createServer((req, res) => {
                     return;
                 }
 
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Group deleted successfully' }));
+                // 이제 users.json 파일에서 이 그룹을 삭제합니다.
+                fs.readFile(usersFilePath, 'utf8', (err, data) => {
+                    if (err) {
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ message: 'Internal Server Error' }));
+                        return;
+                    }
+
+                    let users = JSON.parse(data);
+                    users = users.map(user => {
+                        user.groups = user.groups.filter(group => group.id !== groupId);
+                        return user;
+                    });
+
+                    fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), 'utf8', err => {
+                        if (err) {
+                            res.writeHead(500, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({ message: 'Internal Server Error' }));
+                            return;
+                        }
+
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ message: 'Group and related user data deleted successfully', deletedGroup }));
+                    });
+                });
             });
         });
 

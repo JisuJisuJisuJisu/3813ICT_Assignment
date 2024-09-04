@@ -20,26 +20,25 @@ export class GroupListComponent implements OnInit {
     const loggedInUserEmail = sessionStorage.getItem('loggedInUserEmail');
   
     if (loggedInUserEmail) {
-      // 서버에서 사용자 정보를 가져옴
+      // 서버에서 users.json 파일을 가져와 사용자 이메일과 일치하는 사용자의 그룹을 찾음
       this.http.get<User[]>('http://localhost:3000/users').subscribe({
         next: (users) => {
           const user = users.find(u => u.email === loggedInUserEmail);
   
           if (user) {
-            sessionStorage.setItem('currentUser', JSON.stringify(user));
-            this.userGroups = user.groups;
+            this.userGroups = user.groups; // 사용자의 그룹 정보를 userGroups에 저장
           }
         },
         error: (err) => {
           console.error('사용자 정보를 가져오는 중 오류 발생:', err);
         }
       });
+    } else {
+      console.error('세션에 저장된 사용자 이메일이 없습니다.');
     }
   }
 
   getUserGroups(): Group[] {
-    const userJson = sessionStorage.getItem('currentUser');
-    const user: User = userJson ? JSON.parse(userJson) : null;
-    return user ? user.groups : [];
+    return this.userGroups;
   }
 }
