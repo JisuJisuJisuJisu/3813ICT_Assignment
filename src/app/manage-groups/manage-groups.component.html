@@ -46,8 +46,17 @@
             </div>
             <div class="form-group">
               <label for="groupDescription">Description</label>
+              <!-- 채널 추가 -->
               <textarea class="form-control" id="groupDescription" [(ngModel)]="newGroup.description" name="groupDescription" required></textarea>
             </div>
+            <div class="form-group" *ngFor="let channel of newGroup.channels; let i = index">
+              <label for="channelName{{i}}">Channel Name</label>
+              <input type="text" class="form-control" id="channelName{{i}}" [(ngModel)]="newGroup.channels[i].name" name="channelName{{i}}" required>
+              <label for="channelDescription{{i}}">Channel Description</label>
+              <input type="text" class="form-control" id="channelDescription{{i}}" [(ngModel)]="newGroup.channels[i].description" name="channelDescription{{i}}" required>
+          </div>
+          <button type="button" class="btn btn-link" (click)="addChannel()">+ Add Channel</button>
+
             <button type="submit" class="btn btn-primary">Save</button>
           </form>
         </div>

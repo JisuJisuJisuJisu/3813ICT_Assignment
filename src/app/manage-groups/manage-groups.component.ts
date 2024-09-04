@@ -123,26 +123,18 @@ export class ManageGroupsComponent implements OnInit {
       }
     });
   }
-  
 
-  generateUniqueId(): string {
-    return Math.random().toString(36).substr(2, 9);
+  // 채널 추가 기능
+  addChannel(): void {
+    this.newGroup.channels.push({ 
+      id: this.generateUniqueId(),  // 고유한 ID 생성
+      name: '', 
+      description: '' 
+    });
   }
 
-  onFileSelected(event: any): void {
-    const file: File = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        console.log('File selected:', e.target.result);
-        // 필요한 경우 여기서 이미지 데이터를 처리합니다
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
+  // 새로운 그룹 생성 기능
   onSubmit(): void {
-    // 새로운 그룹 생성
     this.newGroup.id = this.generateUniqueId();
     this.newGroup.createdBy = this.user?.id || '';
 
@@ -174,5 +166,20 @@ export class ManageGroupsComponent implements OnInit {
       }
     });
   }
-}
 
+  generateUniqueId(): string {
+    return Math.random().toString(36).substr(2, 9);
+  }
+
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        console.log('File selected:', e.target.result);
+        // 필요한 경우 여기서 이미지 데이터를 처리합니다
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+}
