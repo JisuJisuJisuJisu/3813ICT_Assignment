@@ -1,1 +1,27 @@
-<p>Profile!</p>
+<div class="container">
+    <h2>Profile</h2>
+    <div *ngIf="user">
+      <div class="form-group">
+        <label for="username">Username:</label>
+        <input id="username" type="text" class="form-control" [(ngModel)]="user.username" />
+      </div>
+  
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input id="email" type="text" class="form-control" [(ngModel)]="user.email" readonly />
+      </div>
+  
+      <div class="form-group">
+        <label for="roles">Roles:</label>
+        <!-- 안전하게 null을 처리 -->
+        <input id="roles" type="text" class="form-control" [value]="user.roles.join(', ') || ''" readonly />
+      </div>
+  
+      <button class="btn btn-primary" (click)="updateProfile()">Update Profile</button>
+    </div>
+  
+    <div *ngIf="!user">
+      <p>사용자 정보를 불러오는 중입니다...</p>
+    </div>
+  </div>
+  

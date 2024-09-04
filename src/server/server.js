@@ -198,8 +198,11 @@ const server = http.createServer((req, res) => {
         });
 
     } 
-    // 사용자 목록 조회
-    else if (req.method === 'GET' && req.url === '/users') {
+    // 사용자 목록 조회 (email 쿼리 파라미터로 사용자 조회)
+    else if (req.method === 'GET' && req.url.startsWith('/users')) {
+        const url = new URL(req.url, `http://${req.headers.host}`);
+        const email = url.searchParams.get('email');  // 이메일 쿼리 파라미터 추출
+
         fs.readFile(usersFilePath, 'utf8', (err, data) => {
             if (err && err.code !== 'ENOENT') {
                 res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -208,11 +211,21 @@ const server = http.createServer((req, res) => {
             }
 
             const users = data ? JSON.parse(data) : [];
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(users));
+            if (email) {
+                const user = users.find(u => u.email === email);
+                if (user) {
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(user));
+                } else {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'User not found' }));
+                }
+            } else {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(users));
+            }
         });
-
-    } 
+    }
     // 사용자 정보 업데이트
     else if (req.method === 'PUT' && req.url.startsWith('/users/')) {
         const userId = req.url.split('/')[2];
