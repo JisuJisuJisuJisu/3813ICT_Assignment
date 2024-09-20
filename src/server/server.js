@@ -16,7 +16,7 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // 모든 그룹 목록 가져오기
+    // get all groups
     // 특정 그룹 가져오기
     else if (req.method === 'GET' && req.url.startsWith('/groups/')) {
         const groupId = req.url.split('/')[2]; // 그룹 ID 추출
