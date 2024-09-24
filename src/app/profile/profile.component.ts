@@ -14,32 +14,46 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule,FormsModule] // CommonModule 추가
 })
 export class ProfileComponent implements OnInit {
-  user: User | null = null;
-  loggedInUserEmail: string | null = null;
+  user: User = {
+    username: '',
+    email: '',
+    roles: [],
+    id: '',
+    password: '',
+    groups: [],
+    interestGroups: []
+  };
+  loggedInUserEmail: string |null = null;
 
   constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
+    // sessionStorage에서 이메일을 가져옴
     this.loggedInUserEmail = sessionStorage.getItem('loggedInUserEmail');
-    
-    if (this.loggedInUserEmail) {
-      this.http.get<User>(`http://localhost:3000/users?email=${this.loggedInUserEmail}`).subscribe({
-        next: (user: User) => {  // 서버에서 단일 사용자 객체가 반환되는 경우
-          this.user = user; // 단일 사용자 객체를 user에 바로 할당
-          if (!this.user) {
-            console.log('사용자 정보를 찾을 수 없습니다.');
-            this.router.navigate(['/login']);
-          }
-        },
-        error: (error) => {
-          console.error('사용자 정보를 불러오는 중 오류가 발생했습니다:', error);
-        }
-      });
-    } else {
+    console.log(this.loggedInUserEmail);
+
+    // 로그인 정보가 없는 경우
+    if (!this.loggedInUserEmail) {
       console.log('로그인 정보가 없습니다.');
-      this.router.navigate(['/login']);
+      this.router.navigate(['/login']);  // 로그인 페이지로 리다이렉트
+      return; // 더 이상 진행하지 않음
     }
+
+    // 이메일이 존재하는 경우 서버에서 사용자 정보를 가져옴
+    this.http.get<User>(`http://localhost:3000/users?email=${this.loggedInUserEmail}`).subscribe({
+      next: (user: User) => {  // 서버에서 단일 사용자 객체가 반환되는 경우
+        this.user = user;
+        if (!this.user) {
+          console.log('사용자 정보를 찾을 수 없습니다.');
+          this.router.navigate(['/login']);
+        }
+      },
+      error: (error) => {
+        console.error('사용자 정보를 불러오는 중 오류가 발생했습니다:', error);
+      }
+    });
   }
+
 
   updateProfile(): void {
     if (this.user) {

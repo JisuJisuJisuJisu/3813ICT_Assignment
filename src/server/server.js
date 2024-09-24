@@ -298,6 +298,38 @@ async function startServer() {
             res.end(JSON.stringify({ message: 'Internal Server Error' }));
         }
     }
+
+    else if (req.method === 'GET' && req.url.startsWith('/users')) {
+    console.log('Received GET request for /users with email query');
+
+    try {
+        // URL에서 email 값을 추출 (URLSearchParams 사용)
+        const url = new URL(req.url, `http://${req.headers.host}`);
+        const email = url.searchParams.get('email');
+
+        if (!email) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ message: 'Email query parameter is missing' }));
+        }
+
+        // 이메일을 기반으로 사용자 검색
+        const user = await db.collection('users').findOne({ email: email });
+        console.log('User from DB:', user);  // 조회된 사용자 데이터 확인
+
+        if (user) {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(user));  // 단일 사용자 정보 반환
+        } else {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'User not found' }));
+        }
+    } catch (error) {
+        console.error('Database error:', error);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Internal Server Error' }));
+    }
+}
+
     
     
     // 사용자 정보 업데이트
