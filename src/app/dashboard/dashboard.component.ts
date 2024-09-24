@@ -43,7 +43,7 @@ export class DashboardComponent implements OnInit {
         this.router.navigate(['/login']);
       }
     } else {
-      console.log('로그인 정보가 없습니다.');
+      console.log('로그인 정보가 없습니다. 얍');
       this.router.navigate(['/login']);
     }
   
@@ -95,4 +95,11 @@ export class DashboardComponent implements OnInit {
   isGroupAdmin(): boolean {
     return this.user?.roles.includes('Group Admin') || false;
   }
+  logout() {
+    // Clear session storage or local storage to log out the user
+    sessionStorage.removeItem('loggedinUser');  // or use localStorage.removeItem if you're using localStorage
+    // Navigate to the login page or the homepage
+    this.router.navigate(['/login']);
+}
+
 }

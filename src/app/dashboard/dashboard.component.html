@@ -22,7 +22,11 @@
         </div>
         <!-- Top Menu Items -->
         <ul class="nav navbar-right top-nav">
-            <li><a href="#" data-placement="bottom" data-toggle="tooltip" href="#" data-original-title="Stats"><i class="fa fa-bar-chart-o"></i></a></li>            
+            <li>
+                <a href="#" (click)="logout()" data-placement="bottom" data-toggle="tooltip" data-original-title="Logout">
+                    <i class="fa fa-sign-out"></i> Logout
+                </a>
+            </li>                   
             <li class="dropdown">
                 <a a routerLink="/dashboard/profile" class="dropdown-toggle" data-toggle="dropdown"> Profile <b class="fa fa-angle-down"></b></a>
             </li>
