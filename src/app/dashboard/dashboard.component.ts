@@ -26,27 +26,27 @@ export class DashboardComponent implements OnInit {
   constructor(private router: Router, private route: ActivatedRoute, private http: HttpClient) {}
 
   ngOnInit() {
-    const loggedInUserEmail = sessionStorage.getItem('loggedInUserEmail');
+    // 세션 스토리지에서 'loggedinUser' 값을 가져옴
+    const loggedInUserEmail = sessionStorage.getItem('loggedinUserEmail');
+    console.log(loggedInUserEmail); // 세션 스토리지에서 가져온 값 확인
+  
     if (loggedInUserEmail) {
-      this.http.get<User[]>(`http://localhost:3000/users`).subscribe({
-        next: (users: User[]) => {
-          this.user = users.find(u => u.email === loggedInUserEmail) || null;
-
-          if (!this.user) {
-            console.log('사용자 정보가 없습니다.');
-            this.router.navigate(['/login']);
-          }
-        },
-        error: (error) => {
-          console.error('사용자 정보를 가져오는 중 오류 발생:', error);
-          this.router.navigate(['/login']);
-        }
-      });
+      // JSON.parse()로 문자열을 객체로 변환
+      this.user = JSON.parse(loggedInUserEmail); 
+  
+      console.log('Logged in user:', this.user);  // 사용자의 전체 정보 출력
+      console.log('User roles:', this.user?.roles);  // 사용자의 역할 출력
+  
+      // 사용자의 정보가 없는 경우 로그인 페이지로 이동
+      if (!this.user) {
+        console.log('사용자 정보가 없습니다.');
+        this.router.navigate(['/login']);
+      }
     } else {
       console.log('로그인 정보가 없습니다.');
       this.router.navigate(['/login']);
     }
-
+  
     // URL 변경에 따라 그룹 선택 및 채널 업데이트
     this.route.paramMap.subscribe(params => {
       const groupId = params.get('id');

@@ -32,7 +32,19 @@ export class LoginComponent {
       this.http.post('http://localhost:3000/login', { email, password }).subscribe({
         next: (response: any) => {
           console.log('Login successful');
-          sessionStorage.setItem('loggedInUserEmail', response.user.email);
+          // 로그인한 사용자의 정보를 객체로 세션 스토리지에 저장
+          const user = {
+            _id: response.user._id,
+            id: response.user.id,
+            username: response.user.username,
+            email: response.user.email,
+            roles: response.user.roles,
+            groups: response.user.groups
+          };
+
+          // JSON 형식으로 변환해서 세션 스토리지에 저장
+          sessionStorage.setItem('loggedinUserEmail', JSON.stringify(user));
+          // sessionStorage.setItem('loggedInUserEmail', response.user.email);
           this.router.navigate(['/dashboard'], { state: { user: response.user } });
         },
         error: (error) => {
