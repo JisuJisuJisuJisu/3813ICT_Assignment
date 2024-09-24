@@ -27,12 +27,12 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     // 세션 스토리지에서 'loggedinUser' 값을 가져옴
-    const loggedInUserEmail = sessionStorage.getItem('loggedinUserEmail');
-    console.log(loggedInUserEmail); // 세션 스토리지에서 가져온 값 확인
+    const loggedInUser = sessionStorage.getItem('loggedinUser');
+    console.log(loggedInUser); // 세션 스토리지에서 가져온 값 확인
   
-    if (loggedInUserEmail) {
+    if (loggedInUser) {
       // JSON.parse()로 문자열을 객체로 변환
-      this.user = JSON.parse(loggedInUserEmail); 
+      this.user = JSON.parse(loggedInUser); 
   
       console.log('Logged in user:', this.user);  // 사용자의 전체 정보 출력
       console.log('User roles:', this.user?.roles);  // 사용자의 역할 출력

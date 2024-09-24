@@ -23,22 +23,22 @@ export class GroupListComponent implements OnInit {
 
   ngOnInit(): void {
     // 세션 스토리지에서 'loggedinUser' 값을 가져옴
-    const loggedInUserEmail = sessionStorage.getItem('loggedinUserEmail');
+    const loggedInUser = sessionStorage.getItem('loggedinUser');
     
     // 가져온 데이터를 콘솔에 출력
-    console.log('세션에서 가져온 loggedInUser:', loggedInUserEmail);
+    console.log('세션에서 가져온 loggedInUser:', loggedInUser);
   
     // 세션 스토리지에 데이터가 없으면 오류 메시지 출력
-    if (!loggedInUserEmail) {
+    if (!loggedInUser) {
       console.error('세션에 저장된 사용자 이메일이 없습니다.');
       return;
     }
   
     // 'loggedinUser'가 JSON 포맷일 경우 파싱
-    const user = JSON.parse(loggedInUserEmail) as User;
+    const user = JSON.parse(loggedInUser) as User;
     console.log('파싱된 사용자 데이터:', user);
-    const loggedInUserEmail2 = user.email;
-    console.log('로그인된 사용자 이메일:', loggedInUserEmail2);
+    const loggedInUserEmail = user.email;
+    console.log('로그인된 사용자 이메일:', loggedInUserEmail);
   
     // 서버에서 사용자 목록을 가져옴
     this.http.get<User[]>('http://localhost:3000/users').subscribe({

@@ -21,7 +21,7 @@ async function startServer() {
         return;
     }
 
-    const server = http.createServer((req, res) => {
+    const server = http.createServer(async (req, res) => {
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -283,18 +283,22 @@ async function startServer() {
     
 
     
-    // 사용자 목록 조회
     else if (req.method === 'GET' && req.url === '/users') {
-        db.collection('users').find({}).toArray((err, users) => {
-            if (err) {
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Internal Server Error' }));
-                return;
-            }
+        console.log('Received GET request for /users');
+    
+        try {
+            const users = await db.collection('users').find({}).toArray();
+            console.log('Users from DB:', users);  // 조회된 데이터를 확인
+    
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(users));
-        });
+        } catch (error) {
+            console.error('Database error:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Internal Server Error' }));
+        }
     }
+    
     
     // 사용자 정보 업데이트
     else if (req.method === 'PUT' && req.url.startsWith('/users/')) {

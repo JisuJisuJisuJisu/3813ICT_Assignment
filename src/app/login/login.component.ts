@@ -43,8 +43,8 @@ export class LoginComponent {
           };
 
           // JSON 형식으로 변환해서 세션 스토리지에 저장
-          sessionStorage.setItem('loggedinUserEmail', JSON.stringify(user));
-          // sessionStorage.setItem('loggedInUserEmail', response.user.email);
+          sessionStorage.setItem('loggedinUser', JSON.stringify(user));
+          sessionStorage.setItem('loggedInUserEmail', response.user.email);
           this.router.navigate(['/dashboard'], { state: { user: response.user } });
         },
         error: (error) => {
