@@ -19,6 +19,7 @@ export class GroupDetailComponent implements OnInit {
   isLoading = true;  // 로딩 상태를 나타내는 변수 추가
   isSuperAdmin = false;
   isGroupAdmin = false;
+  selectedChannel: Channel | null = null; // 선택된 채널 상태 관리
 
   @Output() channelsUpdated = new EventEmitter<Channel[]>();  // 부모로 채널 전달
 
@@ -44,6 +45,12 @@ export class GroupDetailComponent implements OnInit {
       });
     }
   }
+
+  onChannelClick(channel: Channel): void {
+    this.selectedChannel = channel; // 선택한 채널을 상태에 저장
+    console.log('Selected Channel:', this.selectedChannel);
+  }
+
   checkIfSuperAdmin(): boolean {
     // 사용자 권한을 확인하는 로직 구현
     return true; // Super Admin 여부를 리턴
@@ -53,6 +60,7 @@ export class GroupDetailComponent implements OnInit {
     // 사용자 권한을 확인하는 로직 구현
     return true; // Group Admin 여부를 리턴
   }
+
   goToGroupMembers(): void {
     if (this.group && this.group.id) {
       this.router.navigate([`/group/${this.group.id}/members`]);  // group.id 사용

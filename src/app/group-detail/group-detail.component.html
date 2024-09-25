@@ -1,24 +1,38 @@
-<div *ngIf="!isLoading && group">
-    <h2>{{ group.name }}</h2>
-    <p>{{ group.description ? group.description : 'No description available' }}</p>
+<div class="content-container">
+  <!-- 본문 영역 -->
+  <div class="main-content">
+    <!-- 그룹 디테일을 보여줄 때 -->
+    <div *ngIf="!selectedChannel">
+      <h2>{{ group?.name }}</h2>
+      <p>{{ group?.description || 'No description available' }}</p>
   
-    <h3>Channels</h3>
-    <ul class="nav nav-tabs">
-      <!-- 탭 형식으로 채널 출력 -->
-      <li class="nav-item" *ngFor="let channel of group?.channels">
-        <a class="nav-link" href="#">{{ channel?.name }}</a>
-      </li>
-    </ul>
-  
-    <!-- 선택한 채널의 세부 정보 표시 -->
-    <div class="tab-content">
-      <div class="tab-pane active">
-        <p>Details of the selected channel will appear here.</p>
+      <h3>Channels</h3>
+      <ul class="nav nav-tabs">
+        <li class="nav-item" *ngFor="let channel of group?.channels">
+          <a class="nav-link" href="#" (click)="onChannelClick(channel)">{{ channel?.name }}</a>
+        </li>
+      </ul>
+    </div>
+    
+    <!-- 채널 디테일을 보여줄 때 -->
+    <div *ngIf="selectedChannel">
+      <h2>{{ selectedChannel?.name }}</h2>
+      <p>{{ selectedChannel?.description || 'No details available' }}</p>
+      
+      <!-- 채팅 메시지나 추가적인 채널 관련 정보 출력 -->
+      <div class="chat-content">
+        <p>Channel chat content or messages go here...</p>
       </div>
     </div>
-
-    <div *ngIf="isSuperAdmin || isGroupAdmin">
-        <button (click)="goToGroupMembers()">Go to Group Members</button>
-      </div>
   </div>
-  
+
+  <!-- 사이드바: 채널 목록 -->
+  <div id="channel-sidebar" class="open">
+    <h3>Channels</h3>
+    <ul>
+      <li *ngFor="let channel of group?.channels">
+        <a href="#" (click)="onChannelClick(channel)">{{ channel?.name }}</a>
+      </li>
+    </ul>
+  </div>
+</div>

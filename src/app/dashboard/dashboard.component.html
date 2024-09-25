@@ -11,7 +11,93 @@
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-                <span class="sr-only">Toggle navigation</span>
+                <span class="sr-only">Toggle navigation</span><link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+                <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+                <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+                <!------ Include the above in your HEAD tag ---------->
+                
+                <div id="throbber" style="display:none; min-height:120px;"></div>
+                <div id="noty-holder"></div>
+                <div id="wrapper">
+                    <!-- Navigation -->
+                    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+                        <!-- Brand and toggle get grouped for better mobile display -->
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                            <a class="navbar-brand" href="#">
+                                <!-- Brand logo or text -->
+                            </a>
+                        </div>
+                        <!-- Top Menu Items -->
+                        <ul class="nav navbar-right top-nav">
+                            <li>
+                                <a href="#" (click)="logout()" data-placement="bottom" data-toggle="tooltip" data-original-title="Logout">
+                                    <i class="fa fa-sign-out"></i> Logout
+                                </a>
+                            </li>                   
+                            <li class="dropdown">
+                                <a a routerLink="/dashboard/profile" class="dropdown-toggle" data-toggle="dropdown"> Profile <b class="fa fa-angle-down"></b></a>
+                            </li>
+                        </ul>
+                        <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
+                        <div class="collapse navbar-collapse navbar-ex1-collapse">
+                            <ul class="nav navbar-nav side-nav">
+                                <!-- Channels 메뉴 -->
+                                <li>
+                                    <a href="#" data-toggle="collapse" data-target="#submenu-channels">
+                                      <i class="fa fa-fw fa-search"></i> Channels 
+                                      <i class="fa fa-fw fa-angle-down pull-right"></i>
+                                    </a>
+                                    <ul id="submenu-channels" class="collapse">
+                                      <li *ngFor="let channel of selectedGroupChannels">
+                                        <a href="#"><i class="fa fa-angle-double-right"></i> {{ channel.name }}</a>
+                                      </li>
+                                    </ul>
+                                  </li>
+                                
+                                <!-- Back to Dashboard 버튼 -->
+                                <li>
+                                    <a routerLink="/dashboard"><i class="fa fa-fw fa-arrow-left"></i> Back to Dashboard</a>
+                                </li>
+                                <li>
+                                    <a routerLink="/dashboard/joingroup"><i class="fa fa-fw fa-arrow-left"></i> Join Groups</a>
+                                </li>
+                                
+                                <!-- Super Admin 전용 메뉴 -->
+                                <li *ngIf="isSuperAdmin()">
+                                    <a routerLink="/super-admin/manage-users"><i class="fa fa-fw fa-users"></i> Manage Users</a>
+                                </li>
+                                <li *ngIf="isSuperAdmin()">
+                                    <a routerLink="/super-admin/manage-groups"><i class="fa fa-fw fa-sitemap"></i> Manage Groups</a>
+                                </li>
+                                <li *ngIf="isSuperAdmin()">
+                                    <a routerLink="/super-admin/manage-channels"><i class="fa fa-fw fa-comments"></i> Manage Channels</a>
+                                </li>
+                
+                                <!-- Group Admin 전용 메뉴 -->
+                                <li *ngIf="isGroupAdmin() && !isSuperAdmin()">
+                                    <a href="#" onclick="window.location.href='create-groups-url';"><i class="fa fa-fw fa-plus"></i> Create Groups</a>
+                                </li>
+                                <li *ngIf="isGroupAdmin() && !isSuperAdmin()">
+                                    <a routerLink="/group-admin/manage-groups"><i class="fa fa-fw fa-sitemap"></i> Manage My Groups</a>
+                                </li>
+                                <li *ngIf="isGroupAdmin() && !isSuperAdmin()">
+                                    <a href="#" onclick="window.location.href='manage-channels-url';"><i class="fa fa-fw fa-comments"></i> Manage Channels</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+                
+                    <!-- Page Content -->
+
+
+                    
+                </div>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -40,11 +126,7 @@
                       <i class="fa fa-fw fa-search"></i> Channels 
                       <i class="fa fa-fw fa-angle-down pull-right"></i>
                     </a>
-                    <ul id="submenu-channels" class="collapse">
-                      <li *ngFor="let channel of selectedGroupChannels">
-                        <a href="#"><i class="fa fa-angle-double-right"></i> {{ channel.name }}</a>
-                      </li>
-                    </ul>
+                   
                   </li>
                 
                 <!-- Back to Dashboard 버튼 -->
@@ -84,7 +166,6 @@
     <div id="page-wrapper">
         <div class="container-fluid">
             
-            <app-group-detail (channelsUpdated)="onChannelsUpdated($event)"></app-group-detail>
             <router-outlet></router-outlet>
         </div>
     </div>

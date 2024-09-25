@@ -142,3 +142,36 @@
 .navbar-brand {
     padding: 5px 15px;
 }
+
+#channel-sidebar {
+    position: fixed;
+    top: 0;
+    right: -300px; /* 처음에는 화면 오른쪽으로 숨겨져 있음 */
+    width: 300px;
+    height: 100%;
+    background-color: #222;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    transition: right 0.3s ease; /* 부드러운 슬라이딩 효과 */
+    /* z-index: 2000; */
+  }
+  
+  #channel-sidebar.open {
+    right: 0; /* 열린 상태에서 화면에 표시됨 */
+  }
+  
+  #channel-sidebar ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  #channel-sidebar li {
+    padding: 15px;
+    border-bottom: 1px solid #333;
+  }
+  
+  #channel-sidebar a {
+    color: #fff;
+    text-decoration: none;
+  }
+  

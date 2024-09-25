@@ -1,7 +1,67 @@
 h2 {
-    margin-top: 50px; /* 페이지의 맨 위에서 여백을 추가합니다 */
-    padding: 0;
-    white-space: nowrap; /* 텍스트가 잘리지 않도록 설정합니다 */
-    overflow: hidden; /* 부모 요소를 벗어나는 텍스트를 숨깁니다 */
-    text-overflow: ellipsis; /* 텍스트가 너무 길 경우 생략 기호(...)를 추가합니다 */
-  }
+  margin-top: 30px;
+  padding: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 전체 컨테이너: 본문과 사이드바를 감싸는 요소 */
+.content-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* 본문 영역 */
+.main-content {
+  flex-grow: 1;
+  padding: 50px;
+  padding-left: 200px; /* 사이드바가 있을 때 여백 */
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* 그룹 디테일의 사이드바 */
+#channel-sidebar {
+  position: fixed;
+  top: 0;
+  left: -400px; /* 기본적으로 숨김 */
+  width: 200px;
+  height: 100%;
+  background-color: rgba(34, 34, 34, 0.9);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+  transition: left 0.3s ease-in-out;
+}
+
+#channel-sidebar.open {
+  left: 200px; /* 대시보드 사이드바가 열렸을 때 그룹 디테일 사이드바를 옆으로 밀기 */
+}
+
+#channel-sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+#channel-sidebar li {
+  padding: 20px;
+  margin-left: 30px;
+  border-bottom: 1px solid #333;
+}
+#channel-sidebar li:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Change the background color on hover */
+}
+
+#channel-sidebar a {
+  color: #fff;
+  text-decoration: none;
+}
+
+#channel-sidebar a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* 사이드바가 열리면 본문이 사이드바 공간만큼 오른쪽으로 밀림 */
+#channel-sidebar.open ~ .main-content {
+  margin-left: 600px; /* 두 개의 사이드바가 열렸을 때 본문을 더 많이 밀기 */
+}

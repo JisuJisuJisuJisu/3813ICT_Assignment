@@ -22,6 +22,7 @@ export class DashboardComponent implements OnInit {
   loggedInUserEmail: string | null = null;
   selectedGroup: Group | null = null;
   selectedGroupChannels: Channel[] = [];
+ 
 
   constructor(private router: Router, private route: ActivatedRoute, private http: HttpClient) {}
 
@@ -29,6 +30,7 @@ export class DashboardComponent implements OnInit {
     // 세션 스토리지에서 'loggedinUser' 값을 가져옴
     const loggedInUser = sessionStorage.getItem('loggedinUser');
     console.log(loggedInUser); // 세션 스토리지에서 가져온 값 확인
+  
   
     if (loggedInUser) {
       // JSON.parse()로 문자열을 객체로 변환
@@ -56,10 +58,10 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  onChannelsUpdated(channels: Channel[]): void {
-    console.log('Channels received from child component:', channels);
-    this.selectedGroupChannels = channels; // 자식 컴포넌트로부터 받은 채널 정보 저장
-  }
+  // onChannelsUpdated(channels: Channel[]): void {
+  //   console.log('Channels received from child component:', channels);
+  //   this.selectedGroupChannels = channels; // 자식 컴포넌트로부터 받은 채널 정보 저장
+  // }
 
   onGroupSelected(group: Group): void {
     this.selectedGroup = group; // 선택된 그룹 저장
@@ -101,5 +103,6 @@ export class DashboardComponent implements OnInit {
     // Navigate to the login page or the homepage
     this.router.navigate(['/login']);
 }
+
 
 }
