@@ -66,7 +66,10 @@ changeUserRole(userId: string, newRole: string, callback?: () => void): void {
   if (user) {
       user.roles = [newRole];
 
-      this.http.put(`http://localhost:3000/users/${userId}`, user).subscribe({
+      // _id 필드를 삭제하고 PUT 요청을 보냄
+      const { _id, ...updatedUserData } = user;
+
+      this.http.put(`http://localhost:3000/users/${userId}`, updatedUserData).subscribe({
           next: () => {
               console.log(`Role changed to: ${newRole} for user with ID: ${userId}`);
               
@@ -91,6 +94,7 @@ changeUserRole(userId: string, newRole: string, callback?: () => void): void {
       });
   }
 }
+
 
 
 

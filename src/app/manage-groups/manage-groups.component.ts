@@ -103,18 +103,19 @@ export class ManageGroupsComponent implements OnInit {
       alert('You do not have permission to delete this group.');
     }
   }
-  
+
   updateUserInStorage(user: User): void {
     // 로컬 스토리지의 users 배열 업데이트
     let storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
     storedUsers = storedUsers.map((u: User) => u.id === user.id ? user : u);
     localStorage.setItem('users', JSON.stringify(storedUsers));
-  
+
     // currentUser 업데이트
     localStorage.setItem('currentUser', JSON.stringify(user));
-  
-    // 서버에 사용자 정보 PUT 요청
-    this.http.put(`http://localhost:3000/users/${user.id}`, user).subscribe({
+
+    // 서버에 사용자 정보 PUT 요청 (서버에 보내기 전에 _id를 삭제하여 수정되지 않도록 함)
+    const { _id, ...updatedUserData } = user;  // _id 필드를 제외한 나머지 데이터를 전송
+    this.http.put(`http://localhost:3000/users/${user.id}`, updatedUserData).subscribe({
       next: () => {
         console.log('사용자 정보가 성공적으로 갱신되었습니다.');
       },
@@ -147,13 +148,13 @@ export class ManageGroupsComponent implements OnInit {
         this.groups.push(group);
 
         // 로컬 스토리지에 그룹 추가
-        let storedGroups = JSON.parse(localStorage.getItem('groups') || '[]');
+        const storedGroups = JSON.parse(localStorage.getItem('groups') || '[]');
         storedGroups.push(group);
         localStorage.setItem('groups', JSON.stringify(storedGroups));
 
         // 현재 사용자에 그룹 추가
         if (this.user) {
-          this.user.groups.push(group);
+          this.user.groups.push(group);  // 서버에서 받은 그룹 정보 사용
           this.updateUserInStorage(this.user);
         }
 

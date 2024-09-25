@@ -21,18 +21,17 @@
             </a>
         </div>
         <!-- Top Menu Items -->
-        <ul class="nav navbar-right top-nav">
-            <li><a href="#" data-placement="bottom" data-toggle="tooltip" href="#" data-original-title="Stats"><i class="fa fa-bar-chart-o"></i></a></li>            
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin User <b class="fa fa-angle-down"></b></a>
-                <ul class="dropdown-menu">
-                    <li><a href="#"><i class="fa fa-fw fa-user"></i> Edit Profile</a></li>
-                    <li><a href="#"><i class="fa fa-fw fa-cog"></i> Change Password</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#"><i class="fa fa-fw fa-power-off"></i> Logout</a></li>
-                </ul>
-            </li>
-        </ul>
+       <!-- Top Menu Items -->
+       <ul class="nav navbar-right top-nav">
+        <li>
+            <a href="#" (click)="logout()" data-placement="bottom" data-toggle="tooltip" data-original-title="Logout">
+                <i class="fa fa-sign-out"></i> Logout
+            </a>
+        </li>                   
+        <li class="dropdown">
+            <a a routerLink="/dashboard/profile" class="dropdown-toggle" data-toggle="dropdown"> Profile <b class="fa fa-angle-down"></b></a>
+        </li>
+    </ul>
         <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav side-nav">
@@ -50,6 +49,10 @@
                 <li>
                     <a href="#" onclick="window.location.href='dashboard-url';"><i class="fa fa-fw fa-arrow-left"></i> Back to Dashboard</a>
                 </li>
+                <li>
+                    <a routerLink="/dashboard/joingroup"><i class="fa fa-fw fa-arrow-left"></i> Join Groups</a>
+                </li>
+                
                 
                 <!-- Super Admin 전용 메뉴 -->
                 <li *ngIf="isSuperAdmin()">

@@ -14,6 +14,7 @@ import { User } from '../models/user.model';  // User 모델 가져오기
 export class SuperAdminComponent implements OnInit {
   user: User | null = null;  // 초기값을 null로 설정하여 서버에서 실제 사용자 정보를 가져옵니다.
   userChannels = [];  // 사용자가 가입한 채널 목록
+  router: any;
 
   constructor(private http: HttpClient) {}
 
@@ -58,5 +59,11 @@ export class SuperAdminComponent implements OnInit {
   isGroupAdmin(): boolean {
     return this.user?.roles.includes('Group Admin') || false;
   }
+  logout() {
+    // Clear session storage or local storage to log out the user
+    sessionStorage.removeItem('loggedinUser');  // or use localStorage.removeItem if you're using localStorage
+    // Navigate to the login page or the homepage
+    this.router.navigate(['/login']);
+}
 }
 
