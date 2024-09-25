@@ -20,8 +20,9 @@ export const routes: Routes = [
   { path: 'signup', component: SignupComponent },
   { path: 'dashboard', component: DashboardComponent, children:[
     { path: '', component: GroupListComponent},
-    { path: 'group/:id', component: GroupDetailComponent },
-    { path: 'group/:id/members', component: GroupMemberComponent },
+    { path: 'group/:id', component: GroupDetailComponent, children: [
+      { path: 'members', component: GroupMemberComponent } // GroupDetailComponent의 자식 경로로 이동
+    ]},
     { path: 'profile', component: ProfileComponent },
     { path: 'joingroup', component:JoinGroupComponent }  
   ] }, 

@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { Group } from '../models/group.model';
@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
   templateUrl: './group-detail.component.html',
   styleUrls: ['./group-detail.component.css'],
   standalone: true,
-  imports: [CommonModule]  
+  imports: [CommonModule,RouterModule]  
 })
 export class GroupDetailComponent implements OnInit {
   group: Group | null = null;
@@ -61,9 +61,10 @@ export class GroupDetailComponent implements OnInit {
     return true; // Group Admin 여부를 리턴
   }
 
-  goToGroupMembers(): void {
+  // 그룹 멤버 및 Pending Users 관리 페이지로 이동하는 메서드
+  goToGroupMembers(...args: []): void {
     if (this.group && this.group.id) {
-      this.router.navigate([`/group/${this.group.id}/members`]);  // group.id 사용
+      this.router.navigate([`/dashboard/group/${this.group.id}/members`]); // group.id 사용
     } else {
       console.error('Group ID가 존재하지 않습니다.');
     }

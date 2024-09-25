@@ -1,29 +1,18 @@
 <div class="content-container">
   <!-- 본문 영역 -->
   <div class="main-content">
-    <!-- 그룹 디테일을 보여줄 때 -->
+    <!-- 기본 그룹 디테일을 보여줌 -->
     <div *ngIf="!selectedChannel">
       <h2>{{ group?.name }}</h2>
       <p>{{ group?.description || 'No description available' }}</p>
-  
-      <h3>Channels</h3>
-      <ul class="nav nav-tabs">
-        <li class="nav-item" *ngFor="let channel of group?.channels">
-          <a class="nav-link" href="#" (click)="onChannelClick(channel)">{{ channel?.name }}</a>
-        </li>
-      </ul>
+
+      <button (click)="goToGroupMembers()" class="btn btn-primary">
+        Manage Members / Pending Users
+      </button>
     </div>
-    
-    <!-- 채널 디테일을 보여줄 때 -->
-    <div *ngIf="selectedChannel">
-      <h2>{{ selectedChannel?.name }}</h2>
-      <p>{{ selectedChannel?.description || 'No details available' }}</p>
-      
-      <!-- 채팅 메시지나 추가적인 채널 관련 정보 출력 -->
-      <div class="chat-content">
-        <p>Channel chat content or messages go here...</p>
-      </div>
-    </div>
+
+    <!-- 채널 디테일을 <router-outlet>으로 대체 -->
+    <router-outlet></router-outlet>
   </div>
 
   <!-- 사이드바: 채널 목록 -->
