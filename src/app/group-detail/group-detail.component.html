@@ -4,7 +4,7 @@
     <!-- 기본 그룹 디테일을 보여줌 -->
     <div *ngIf="!selectedChannel">
       <h2>{{ group?.name }}</h2>
-      <p>{{ group?.description || 'No description available' }}</p>
+      <p *ngIf="showGroupDescription">{{ group?.description || 'No description available' }}</p>
 
       <button (click)="goToGroupMembers()" class="btn btn-primary">
         Manage Members / Pending Users

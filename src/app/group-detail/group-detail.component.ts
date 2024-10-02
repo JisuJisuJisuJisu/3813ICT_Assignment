@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
   templateUrl: './group-detail.component.html',
   styleUrls: ['./group-detail.component.css'],
   standalone: true,
-  imports: [CommonModule,RouterModule]  
+  imports: [CommonModule, RouterModule]  
 })
 export class GroupDetailComponent implements OnInit {
   group: Group | null = null;
@@ -20,6 +20,7 @@ export class GroupDetailComponent implements OnInit {
   isSuperAdmin = false;
   isGroupAdmin = false;
   selectedChannel: Channel | null = null; // 선택된 채널 상태 관리
+  showGroupDescription = true;  // 그룹 설명을 보여줄지 여부
 
   @Output() channelsUpdated = new EventEmitter<Channel[]>();  // 부모로 채널 전달
 
@@ -64,6 +65,7 @@ export class GroupDetailComponent implements OnInit {
   // 그룹 멤버 및 Pending Users 관리 페이지로 이동하는 메서드
   goToGroupMembers(...args: []): void {
     if (this.group && this.group.id) {
+      this.showGroupDescription = false;  // 그룹 설명 숨기기
       this.router.navigate([`/dashboard/group/${this.group.id}/members`]); // group.id 사용
     } else {
       console.error('Group ID가 존재하지 않습니다.');
