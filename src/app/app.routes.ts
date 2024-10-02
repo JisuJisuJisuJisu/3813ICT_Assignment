@@ -12,6 +12,7 @@ import { GroupDetailComponent } from './group-detail/group-detail.component';
 import { ProfileComponent } from './profile/profile.component';
 import { JoinGroupComponent } from './join-group/join-group.component';
 import { GroupMemberComponent } from './groupmember/groupmember.component';
+import { ChannelComponent } from './channel/channel.component';
 
 
 
@@ -21,7 +22,8 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, children:[
     { path: '', component: GroupListComponent},
     { path: 'group/:id', component: GroupDetailComponent, children: [
-      { path: 'members', component: GroupMemberComponent } // GroupDetailComponent의 자식 경로로 이동
+      { path: 'members', component: GroupMemberComponent }, // GroupDetailComponent의 자식 경로로 이동
+      { path: 'channel/:channelId', component: ChannelComponent } 
     ]},
     { path: 'profile', component: ProfileComponent },
     { path: 'joingroup', component:JoinGroupComponent }  

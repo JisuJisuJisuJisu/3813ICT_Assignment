@@ -50,6 +50,8 @@ export class GroupDetailComponent implements OnInit {
   onChannelClick(channel: Channel): void {
     this.selectedChannel = channel; // 선택한 채널을 상태에 저장
     console.log('Selected Channel:', this.selectedChannel);
+    console.log('Group ID:', this.group?.id);
+    console.log('hello');
   }
 
   checkIfSuperAdmin(): boolean {
@@ -70,5 +72,6 @@ export class GroupDetailComponent implements OnInit {
     } else {
       console.error('Group ID가 존재하지 않습니다.');
     }
+    console.log('hello');
   }
 }

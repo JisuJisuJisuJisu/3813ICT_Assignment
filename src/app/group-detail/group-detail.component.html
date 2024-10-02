@@ -19,8 +19,10 @@
   <div id="channel-sidebar" class="open">
     <h3>Channels</h3>
     <ul>
-      <li *ngFor="let channel of group?.channels">
-        <a href="#" (click)="onChannelClick(channel)">{{ channel?.name }}</a>
+      <li *ngFor="let channel of group?.channels" 
+          [routerLink]="['/dashboard/group', group?.id, 'channel', channel?.id]" 
+          (click)="onChannelClick(channel)" class="channel-item">
+        <a>{{ channel?.name }}</a>
       </li>
     </ul>
   </div>
