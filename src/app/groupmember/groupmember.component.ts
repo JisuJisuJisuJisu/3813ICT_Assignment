@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-
 interface User {
   id: string;
   email: string;
@@ -27,7 +26,9 @@ interface Group {
 export class GroupMemberComponent implements OnInit {
   groups: Group[] = [];
   selectedGroup: Group | null = null;
+  allUsers: User[] = [];  // 전체 유저 리스트
   isLoading: boolean = true;
+  showAllUsers: boolean = false;  // 멤버 리스트와 전체 유저 리스트 전환 여부
   errorMessage: string | null = null;
 
   constructor(private http: HttpClient) {}
@@ -49,6 +50,26 @@ export class GroupMemberComponent implements OnInit {
           this.isLoading = false;
         }
       });
+  }
+
+  // 전체 유저 리스트를 불러오는 함수
+  fetchAllUsers(): void {
+    this.http.get<User[]>('http://localhost:3000/users')
+      .subscribe({
+        next: (users) => {
+          this.allUsers = users;
+          this.showAllUsers = true;  // 전체 유저 리스트 표시
+        },
+        error: (error) => {
+          console.error('전체 유저를 불러오는 중 오류 발생:', error);
+          this.errorMessage = '유저 리스트를 불러오는 데 실패했습니다.';
+        }
+      });
+  }
+
+  // Invite 버튼 클릭 시 전체 유저 리스트를 표시
+  inviteUser(): void {
+    this.fetchAllUsers();  // 전체 유저 리스트 로드
   }
 
   approveUser(groupId: string, userId: string): void {
