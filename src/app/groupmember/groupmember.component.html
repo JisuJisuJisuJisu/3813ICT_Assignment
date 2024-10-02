@@ -1,21 +1,37 @@
-<div *ngIf="isLoading">로딩 중...</div>
+<div *ngIf="isLoading" class="text-center">
+  <div class="spinner-border" role="status">
+    <span class="sr-only">로딩 중...</span>
+  </div>
+</div>
 
-<div *ngIf="errorMessage">{{ errorMessage }}</div>
+<div *ngIf="errorMessage" class="alert alert-danger">
+  {{ errorMessage }}
+</div>
 
 <div *ngIf="!isLoading && !errorMessage">
-  <h2>Member List</h2>
-  <ul>
-    <li *ngFor="let group of groups" (click)="selectedGroup = group">
+  
+  <!-- Member List 제목과 Invite 버튼을 한 줄에 배치 -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Member List</h2>
+    <button class="button-74 ml-auto">Invite</button>
+  </div>
+
+  <ul class="list-group mb-4">
+    <li *ngFor="let group of groups" class="list-group-item list-group-item-action"
+        (click)="selectedGroup = group" 
+        [class.active]="selectedGroup === group">
       {{ group.name }}
     </li>
   </ul>
 
   <div *ngIf="selectedGroup">
     <h3>{{ selectedGroup.name }} - 가입 요청</h3>
-    <ul>
-      <li *ngFor="let user of selectedGroup.pendingUsers">
-        {{ user.username }} ({{ user.email }})
-        <button (click)="approveUser(selectedGroup.id, user.id)">승인</button>
+    <ul class="list-group">
+      <li *ngFor="let user of selectedGroup.pendingUsers" class="list-group-item d-flex justify-content-between align-items-center">
+        <span>
+          {{ user.username }} ({{ user.email }}) {{ user.roles }}
+        </span>
+        <button class="btn btn-success btn-sm" (click)="approveUser(selectedGroup.id, user.id)">승인</button>
       </li>
     </ul>
   </div>
