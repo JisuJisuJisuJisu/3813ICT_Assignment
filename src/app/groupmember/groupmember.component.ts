@@ -52,26 +52,47 @@ export class GroupMemberComponent implements OnInit {
       });
   }
 
-  // 전체 유저 리스트를 불러오는 함수
   fetchAllUsers(): void {
     this.http.get<User[]>('http://localhost:3000/users')
       .subscribe({
         next: (users) => {
-          this.allUsers = users;
-          this.showAllUsers = true;  // 전체 유저 리스트 표시
+          console.log('유저 리스트 불러오기 성공:', users);  // 디버깅 로그
+          this.allUsers = users;  // 데이터 할당
+          this.showAllUsers = true;  // 전체 유저 리스트 표시 상태 변경
         },
         error: (error) => {
-          console.error('전체 유저를 불러오는 중 오류 발생:', error);
+          console.error('전체 유저를 불러오는 중 오류 발생:', error);  // 에러 로그
           this.errorMessage = '유저 리스트를 불러오는 데 실패했습니다.';
         }
       });
-  }
+}
+
 
   // Invite 버튼 클릭 시 전체 유저 리스트를 표시
   inviteUser(): void {
+    console.log("hello");
     this.fetchAllUsers();  // 전체 유저 리스트 로드
+    
   }
-
+  inviteUserToGroup(groupId: string | undefined, userId: string): void {
+    if (!groupId) {
+      alert('그룹이 선택되지 않았습니다.');
+      return;  // groupId가 없으면 함수 실행 중단
+    }
+    this.http.post(`http://localhost:3000/groups/invite`, { groupId, userId })
+      .subscribe({
+        next: () => {
+          alert('초대가 성공적으로 보내졌습니다.');
+          this.fetchGroups();  // 초대 후 그룹 목록 다시 로드
+        },
+        error: (error) => {
+          console.error('초대 중 오류 발생:', error);
+          alert('초대에 실패했습니다.');
+        }
+      });
+  }
+  
+  
   approveUser(groupId: string, userId: string): void {
     this.http.put(`http://localhost:3000/groups/approve/${groupId}`, { userId })
       .subscribe({

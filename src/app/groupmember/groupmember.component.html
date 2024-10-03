@@ -10,28 +10,41 @@
 
 <div *ngIf="!isLoading && !errorMessage">
   
-  <!-- Member List 제목과 Invite 버튼을 한 줄에 배치 -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">Member List</h2>
-    <button class="button-74 ml-auto">Invite</button>
+  <!-- Invite 버튼 클릭 시 전체 유저 리스트가 보여지도록 showAllUsers에 따라 변경 -->
+  <div *ngIf="!showAllUsers">
+    <!-- Member List 제목과 Invite 버튼을 한 줄에 배치 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">Member List</h2>
+      <button class="button-74 ml-auto" (click)="inviteUser()">Invite</button>
+    </div>
+
+    <ul class="list-group mb-4">
+      <li *ngFor="let group of groups" class="list-group-item list-group-item-action"
+          (click)="selectedGroup = group" 
+          [class.active]="selectedGroup === group">
+        {{ group.name }}
+      </li>
+    </ul>
+
+    <div *ngIf="selectedGroup">
+      <h3>{{ selectedGroup.name }} - 가입 요청</h3>
+      <ul class="list-group">
+        <li *ngFor="let user of selectedGroup.pendingUsers" class="list-group-item d-flex justify-content-between align-items-center">
+          <span>
+            {{ user.username }} ({{ user.email }}) {{ user.roles }}
+          </span>
+          <button class="btn btn-success btn-sm" (click)="approveUser(selectedGroup.id, user.id)">승인</button>
+        </li>
+      </ul>
+    </div>
   </div>
 
-  <ul class="list-group mb-4">
-    <li *ngFor="let group of groups" class="list-group-item list-group-item-action"
-        (click)="selectedGroup = group" 
-        [class.active]="selectedGroup === group">
-      {{ group.name }}
-    </li>
-  </ul>
-
-  <div *ngIf="selectedGroup">
-    <h3>{{ selectedGroup.name }} - 가입 요청</h3>
-    <ul class="list-group">
-      <li *ngFor="let user of selectedGroup.pendingUsers" class="list-group-item d-flex justify-content-between align-items-center">
-        <span>
-          {{ user.username }} ({{ user.email }}) {{ user.roles }}
-        </span>
-        <button class="btn btn-success btn-sm" (click)="approveUser(selectedGroup.id, user.id)">승인</button>
+  <!-- showAllUsers가 true일 때 전체 유저 리스트를 보여줌 -->
+  <div *ngIf="showAllUsers">
+    <h3>전체 유저 목록</h3>
+    <ul class="list-group mb-4">
+      <li *ngFor="let user of allUsers" class="list-group-item">
+        {{ user.username }} ({{ user.email }}) - {{ user.roles }}
       </li>
     </ul>
   </div>
