@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 interface User {
   id: string;
@@ -14,6 +15,7 @@ interface Group {
   id: string;
   name: string;
   pendingUsers: User[];
+  members: User[];
 }
 
 @Component({
@@ -24,24 +26,37 @@ interface Group {
   styleUrls: ['./groupmember.component.css']
 })
 export class GroupMemberComponent implements OnInit {
-  groups: Group[] = [];
+  groupId: string | null = null;  // URL에서 가져온 groupId 저장
   selectedGroup: Group | null = null;
-  allUsers: User[] = [];  // 전체 유저 리스트
+  allUsers: User[] = [];
   isLoading: boolean = true;
-  showAllUsers: boolean = false;  // 멤버 리스트와 전체 유저 리스트 전환 여부
+  showAllUsers: boolean = false;
   errorMessage: string | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    this.fetchGroups();
+    // URL에서 groupId를 가져옴
+    this.route.parent?.paramMap.subscribe(params => {
+      this.groupId = params.get('id'); // 부모 경로에서 'id' 파라미터 가져오기
+      console.log('Group ID from URL:', this.groupId);
+
+      if (this.groupId) {
+        this.fetchGroupDetails(this.groupId);
+      } else {
+        console.error('그룹 ID가 없습니다.');
+        this.isLoading = false;
+      }
+    });
   }
 
-  fetchGroups(): void {
-    this.http.get<Group[]>('http://localhost:3000/groups')
+  // 그룹 세부 사항 가져오기
+  fetchGroupDetails(groupId: string): void {
+    this.http.get<Group>(`http://localhost:3000/groups/${groupId}`)
       .subscribe({
-        next: (groups) => {
-          this.groups = groups;
+        next: (group) => {
+          console.log('Fetched Group:', group);
+          this.selectedGroup = group;
           this.isLoading = false;
         },
         error: (error) => {
@@ -52,57 +67,46 @@ export class GroupMemberComponent implements OnInit {
       });
   }
 
+  // Invite 버튼 클릭 시 전체 유저 리스트를 표시
+  inviteUser(): void {
+    this.fetchAllUsers();  // 전체 유저 리스트 로드
+  }
+
+  // 전체 유저 리스트 가져오기
   fetchAllUsers(): void {
     this.http.get<User[]>('http://localhost:3000/users')
       .subscribe({
         next: (users) => {
-          console.log('유저 리스트 불러오기 성공:', users);  // 디버깅 로그
-          this.allUsers = users;  // 데이터 할당
-          this.showAllUsers = true;  // 전체 유저 리스트 표시 상태 변경
+          console.log('Fetched Users:', users);
+          this.allUsers = users;
+          this.showAllUsers = true;
         },
         error: (error) => {
-          console.error('전체 유저를 불러오는 중 오류 발생:', error);  // 에러 로그
+          console.error('유저 리스트를 불러오는 중 오류 발생:', error);
           this.errorMessage = '유저 리스트를 불러오는 데 실패했습니다.';
         }
       });
-}
-
-
-  // Invite 버튼 클릭 시 전체 유저 리스트를 표시
-  inviteUser(): void {
-    console.log("hello");
-    this.fetchAllUsers();  // 전체 유저 리스트 로드
-    
   }
+
+  // 특정 유저를 그룹에 초대
   inviteUserToGroup(groupId: string | undefined, userId: string): void {
-    if (!groupId) {
+    console.log('groupId:', groupId);
+    console.log('userId:', userId);
+
+    if (!this.selectedGroup || !this.selectedGroup.id) {
       alert('그룹이 선택되지 않았습니다.');
-      return;  // groupId가 없으면 함수 실행 중단
+      return;
     }
-    this.http.post(`http://localhost:3000/groups/invite`, { groupId, userId })
+
+    this.http.post(`http://localhost:3000/group/${this.selectedGroup.id}/invite`, { groupId: this.selectedGroup.id, userId })
       .subscribe({
         next: () => {
           alert('초대가 성공적으로 보내졌습니다.');
-          this.fetchGroups();  // 초대 후 그룹 목록 다시 로드
+          this.fetchGroupDetails(this.selectedGroup!.id);  // 그룹 정보를 다시 불러옴
         },
         error: (error) => {
           console.error('초대 중 오류 발생:', error);
           alert('초대에 실패했습니다.');
-        }
-      });
-  }
-  
-  
-  approveUser(groupId: string, userId: string): void {
-    this.http.put(`http://localhost:3000/groups/approve/${groupId}`, { userId })
-      .subscribe({
-        next: () => {
-          alert('사용자가 승인되었습니다.');
-          this.fetchGroups();  // 다시 그룹 목록을 불러와서 상태 업데이트
-        },
-        error: (error) => {
-          console.error('사용자 승인 중 오류 발생:', error);
-          alert('사용자 승인에 실패했습니다.');
         }
       });
   }

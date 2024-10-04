@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { User } from '../models/user.model';
 import { Group } from '../models/group.model';
 import { CommonModule } from '@angular/common';
@@ -16,7 +16,7 @@ import { Router } from '@angular/router';
 })
 export class GroupListComponent implements OnInit {
   userGroups: Group[] = [];
-
+  @Input() selectedGroup: Group | null = null;
   @Output() groupSelected = new EventEmitter<Group>();
 
   constructor(private http: HttpClient, private router: Router) {}

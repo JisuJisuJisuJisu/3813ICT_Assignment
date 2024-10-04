@@ -75,7 +75,7 @@ else if (req.method === 'POST' && req.url === '/groups') {
                 delete newGroup._id;  // _id 필드가 존재할 경우 삭제하여 자동 생성
             }
             newGroup.pendingUsers = [];  // pendingUsers 필드 초기화
-
+            newGroup.members = [];  // 정식 멤버 목록 초기화
             // 그룹 생성 및 저장
             const result = await db.collection('groups').insertOne(newGroup);
 
@@ -137,7 +137,8 @@ else if (req.method === 'POST' && req.url === '/groups') {
 
                 const result = await db.collection('groups').updateOne(
                     { id: groupId }, // groupId로 그룹 식별
-                    { $push: { channels: newChannel } } // 새로운 채널 추가
+                    { $push: { channels: newChannel } }, // 새로운 채널 추가
+                    { $push: { pendingUsers: userId } }
                 );
 
                 if (result.matchedCount === 0) {
@@ -200,6 +201,45 @@ else if (req.method === 'POST' && req.url === '/groups') {
         });
     }
     
+    // 그룹에 사용자를 초대하는 라우트
+    else if (req.method === 'POST' && req.url.endsWith('/invite')) {
+        console.log("helloo");
+        const groupId = req.url.split('/')[2]; // 그룹 ID 추출
+        let body = '';
+    
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+    
+        req.on('end', async () => {
+            const { userId } = JSON.parse(body);
+            console.log('Invite user to group:', { groupId, userId }); // 요청 데이터 로그 출력
+    
+            try {
+                const groupUpdateResult = await db.collection('groups').updateOne(
+                    { id: groupId },
+                    { $push: { pendingUsers: userId } } // 초대할 유저 추가
+                );
+    
+                console.log('groupUpdateResult:', groupUpdateResult); // 업데이트 결과 로그 출력
+    
+                if (groupUpdateResult.matchedCount === 0) {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'Group not found' }));
+                    return;
+                }
+    
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'User invited successfully' }));
+            } catch (error) {
+                console.error('Error inviting user:', error); // 서버 로그에 에러 출력
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Internal Server Error', error: error.toString() }));
+            }
+        });
+    }
+    
+    
 
     // 가입 승인 처리
     else if (req.method === 'PUT' && req.url.startsWith('/groups/approve/')) {
@@ -217,7 +257,9 @@ else if (req.method === 'POST' && req.url === '/groups') {
                 // 그룹에서 사용자의 가입 요청 승인 처리
                 const groupUpdateResult = await db.collection('groups').updateOne(
                     { id: groupId },
-                    { $pull: { pendingUsers: userId } }
+                    { $pull: { pendingUsers: userId },
+                    $push: { members: userId } 
+                }
                 );
     
                 if (groupUpdateResult.matchedCount === 0) {
