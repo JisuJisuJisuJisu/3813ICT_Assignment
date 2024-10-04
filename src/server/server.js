@@ -1,5 +1,6 @@
 const http = require('http');
 const { MongoClient } = require('mongodb');
+
 const uri = "mongodb://localhost:27017";
 const client = new MongoClient(uri);
 
@@ -239,7 +240,110 @@ else if (req.method === 'POST' && req.url === '/groups') {
         });
     }
     
-    
+        // 그룹 요청 승인
+       // 그룹 요청 승인
+// 가입 승인 처리
+    else if (req.method === 'PUT' && req.url.startsWith('/groups/approve/')) {
+        const groupId = req.url.split('/')[3]; // 그룹 ID 추출
+        let body = '';
+
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        req.on('end', async () => {
+            const { userId } = JSON.parse(body); // 사용자 ID 가져오기
+
+            try {
+                // 그룹에서 사용자의 가입 요청 승인 처리
+                const group = await db.collection('groups').findOne({ id: groupId });
+                if (!group) {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'Group not found' }));
+                    return;
+                }
+
+                // 그룹 업데이트: pendingUsers에서 제거하고 members에 추가
+                const groupUpdateResult = await db.collection('groups').updateOne(
+                    { id: groupId },
+                    {
+                        $pull: { pendingUsers: userId },
+                        $push: { members: userId }
+                    }
+                );
+
+                if (groupUpdateResult.matchedCount === 0) {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'Group not found' }));
+                    return;
+                }
+
+                // 사용자 문서에 그룹 정보 추가
+                const userUpdateResult = await db.collection('users').updateOne(
+                    { id: userId },
+                    { $push: { groups: { id: group.id, name: group.name, description: group.description, createdBy: group.createdBy, channels: group.channels, imageUrl: group.imageUrl, pendingUsers: group.pendingUsers } } }
+                );
+
+                if (userUpdateResult.matchedCount === 0) {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'User not found' }));
+                    return;
+                }
+
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'User approved successfully' }));
+            } catch (error) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Internal Server Error', error: error.toString() }));
+            }
+        });
+    }
+
+
+
+    // 그룹 요청 거절
+    else if (req.method === 'PUT' && req.url.startsWith('/groups/reject/')) {
+        const parts = req.url.split('/'); // URL을 '/'로 분할
+        const groupId = parts.length > 3 ? parts[3] : null; // 그룹 ID 추출
+
+        // 그룹 ID가 유효한지 확인
+        if (!groupId) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: '그룹 ID가 필요합니다.' }));
+            return;
+        }
+
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString(); // 본문 데이터를 수신
+        });
+
+        req.on('end', async () => {
+            const { userId } = JSON.parse(body); // JSON으로 파싱하여 userId 가져오기
+
+            try {
+                const result = await db.collection('groups').updateOne(
+                    { id: groupId },
+                    { $pull: { pendingUsers: userId } }
+                );
+
+                if (result.matchedCount === 0) {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: '그룹을 찾을 수 없습니다.' }));
+                    return;
+                }
+
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: '가입 요청이 거절되었습니다.' }));
+            } catch (error) {
+                console.error('가입 요청 거절 중 오류 발생:', error);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: '서버 오류가 발생했습니다.' }));
+            }
+        });
+    }
+
+
 
     // 가입 승인 처리
     else if (req.method === 'PUT' && req.url.startsWith('/groups/approve/')) {
