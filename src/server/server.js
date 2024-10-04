@@ -1,5 +1,6 @@
 const http = require('http');
 const { MongoClient } = require('mongodb');
+const setupSocket = require('./socket');
 
 const uri = "mongodb://localhost:27017";
 const client = new MongoClient(uri);
@@ -508,7 +509,68 @@ else if (req.method === 'POST' && req.url === '/groups') {
     }
 }
 
-    
+        // 채널에 새로운 메시지 추가하기
+    else if (req.method === 'POST' && req.url === '/messages') {
+        let body = '';
+
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        req.on('end', async () => {
+            try {
+                const newMessage = JSON.parse(body);
+
+                // 메시지 필수 필드가 있는지 확인
+                const { channelId, userId, message } = newMessage;
+                if (!channelId || !userId || !message) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'Missing required fields: channelId, userId, message' }));
+                    return;
+                }
+
+                // MongoDB에 메시지 저장
+                const result = await db.collection('messages').insertOne({
+                    channelId,
+                    userId,
+                    message,
+                    timestamp: new Date()
+                });
+
+                res.writeHead(201, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Message saved successfully', messageId: result.insertedId }));
+            } catch (error) {
+                console.error('메시지 저장 중 오류 발생:', error);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Internal Server Error' }));
+            }
+        });
+    }
+
+    // 특정 채널의 모든 메시지 가져오기
+    else if (req.method === 'GET' && req.url.startsWith('/messages')) {
+        try {
+            // URL에서 channelId 값을 추출 (URLSearchParams 사용)
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const channelId = url.searchParams.get('channelId');
+
+            if (!channelId) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                return res.end(JSON.stringify({ message: 'channelId query parameter is missing' }));
+            }
+
+            // 특정 채널의 메시지를 모두 가져오기
+            const messages = await db.collection('messages').find({ channelId: channelId }).toArray();
+            
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(messages));
+        } catch (error) {
+            console.error('메시지 가져오기 중 오류 발생:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Internal Server Error' }));
+        }
+    }
+
     
     // 사용자 정보 업데이트
     else if (req.method === 'PUT' && req.url.startsWith('/users/')) {
@@ -594,6 +656,8 @@ else if (req.method === 'POST' && req.url === '/groups') {
     }
 });// 이하의 요청 처리 로직 구현
     
+
+setupSocket(server, db);
 
     const PORT = 3000;
     server.listen(PORT, () => {

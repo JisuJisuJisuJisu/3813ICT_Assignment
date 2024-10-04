@@ -8,14 +8,14 @@ interface User {
   id: string;
   email: string;
   username: string;
-  roles: string;
+  roles: string[];
 }
 
 interface Group {
   id: string;
   name: string;
   pendingUsers: string[];
-  members: User[];
+  members: string[]; // members는 이제 User 객체가 아닌 사용자 ID만을 저장
 }
 
 @Component({
@@ -32,6 +32,7 @@ export class GroupMemberComponent implements OnInit {
   isLoading: boolean = true;
   showAllUsers: boolean = false;
   errorMessage: string | null = null;
+  memberDetails: User[] = []; // 멤버의 상세 정보를 저장
 
   constructor(private http: HttpClient, private route: ActivatedRoute) {}
 
@@ -57,7 +58,7 @@ export class GroupMemberComponent implements OnInit {
         next: (group) => {
           console.log('Fetched Group:', group);
           this.selectedGroup = group;
-          this.isLoading = false;
+          this.fetchAllUsers(); // 전체 유저 리스트를 불러와서 멤버 정보를 매핑
         },
         error: (error) => {
           console.error('그룹을 불러오는 중 오류 발생:', error);
@@ -67,11 +68,6 @@ export class GroupMemberComponent implements OnInit {
       });
   }
 
-  // Invite 버튼 클릭 시 전체 유저 리스트를 표시
-  inviteUser(): void {
-    this.fetchAllUsers();  // 전체 유저 리스트 로드
-  }
-
   // 전체 유저 리스트 가져오기
   fetchAllUsers(): void {
     this.http.get<User[]>('http://localhost:3000/users')
@@ -79,13 +75,30 @@ export class GroupMemberComponent implements OnInit {
         next: (users) => {
           console.log('Fetched Users:', users);
           this.allUsers = users;
-          this.showAllUsers = true;
+          this.mapMemberDetails();
+          this.isLoading = false;
         },
         error: (error) => {
           console.error('유저 리스트를 불러오는 중 오류 발생:', error);
           this.errorMessage = '유저 리스트를 불러오는 데 실패했습니다.';
+          this.isLoading = false;
         }
       });
+  }
+
+  // 그룹 멤버 ID를 전체 유저 정보와 매핑하여 상세 정보 생성
+  mapMemberDetails(): void {
+    if (this.selectedGroup) {
+      this.memberDetails = this.selectedGroup.members
+        .map(memberId => this.allUsers.find(user => user.id === memberId))
+        .filter((user): user is User => user !== undefined);
+      console.log('Mapped Member Details:', this.memberDetails);
+    }
+  }
+
+  // Invite 버튼 클릭 시 전체 유저 리스트를 표시
+  inviteUser(): void {
+    this.showAllUsers = true;  // 전체 유저 리스트를 보여줌
   }
 
   // 특정 유저를 그룹에 초대

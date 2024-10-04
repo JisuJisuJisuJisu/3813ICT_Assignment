@@ -20,9 +20,9 @@
 
     <!-- 그룹의 정식 멤버 리스트 -->
     <ul class="list-group mb-4">
-      <li *ngFor="let member of selectedGroup?.members" class="list-group-item d-flex justify-content-between align-items-center">
+      <li *ngFor="let member of memberDetails" class="list-group-item d-flex justify-content-between align-items-center">
         <span>
-          {{ member.username }} ({{ member.email }}) - {{ member.roles }}
+          {{ member.username }} ({{ member.email }}) - {{ member.roles.join(', ') }}
         </span>
       </li>
     </ul>
@@ -34,7 +34,7 @@
     <ul class="list-group mb-4">
       <li *ngFor="let user of allUsers" class="list-group-item d-flex justify-content-between align-items-center">
         <span>
-          {{ user.username }} ({{ user.email }}) - {{ user.roles }}
+          {{ user.username }} ({{ user.email }}) - {{ user.roles.join(', ') }}
         </span>
         <!-- 기본적으로 invite 버튼을 표시하고, pendingUsers에 포함된 경우만 pending 버튼을 표시 -->
         <button *ngIf="!selectedGroup?.pendingUsers?.includes(user.id)" class="btn btn-primary btn-sm" (click)="inviteUserToGroup(selectedGroup?.id, user.id)">
@@ -48,4 +48,3 @@
     </ul>
   </div>
 </div>
-
