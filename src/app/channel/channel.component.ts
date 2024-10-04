@@ -14,10 +14,11 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ChannelComponent implements OnInit, OnDestroy {
   private socket: Socket | null = null;
-  messages: { username: string, text: string }[] = []; // 메시지 리스트
+  messages: { userId: string | null, message: string }[] = []; // 메시지 리스트
   newMessage: string = ''; // 새로운 메시지 입력 필드
   channelId: string = ''; // 채널 ID - 실제 채널 ID를 넣어주세요.
   username: string = ''; // 사용자의 사용자 이름
+  userId: string = ''; // 사용자의 ID
 
   constructor(private http: HttpClient, private route: ActivatedRoute) {}
 
@@ -27,6 +28,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
     if (loggedInUser) {
       const user = JSON.parse(loggedInUser);
       this.username = user.username;
+      this.userId = user._id; // 사용자 ID 가져오기
     }
 
     // URL에서 채널 ID 가져오기
@@ -63,7 +65,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
 
   // MongoDB에서 채팅 히스토리 가져오기
   loadMessageHistory(): void {
-    this.http.get<{ username: string, text: string }[]>(`http://localhost:3000/messages?channelId=${this.channelId}`)
+    this.http.get<{ userId: string | null, message: string }[]>(`http://localhost:3000/messages?channelId=${this.channelId}`)
       .subscribe({
         next: (data) => {
           this.messages = data; // 서버로부터 가져온 메시지 히스토리를 메시지 리스트에 저장
@@ -81,7 +83,8 @@ export class ChannelComponent implements OnInit, OnDestroy {
       const messageData = {
         channelId: this.channelId, // 실제 채널 ID
         message: this.newMessage,
-        username: this.username // 세션에서 가져온 사용자 이름
+        username: this.username, // 세션에서 가져온 사용자 이름
+        userId: this.userId // 세션에서 가져온 사용자 ID
       };
       this.socket.emit('send-message', messageData); // 서버로 메시지 전송
       console.log('서버로 메시지를 보냈습니다:', messageData);

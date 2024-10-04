@@ -4,7 +4,7 @@
     <div class="message-list">
       <!-- 수신한 메시지를 여기에 표시 -->
       <div *ngFor="let message of messages">
-        <strong>{{ message.username }}:</strong> {{ message.text }}
+        <strong>{{ message.userId || 'Unknown' }}:</strong> {{ message.message }}
       </div>
     </div>
   
