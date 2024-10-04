@@ -14,7 +14,7 @@ interface User {
 interface Group {
   id: string;
   name: string;
-  pendingUsers: User[];
+  pendingUsers: string[];
   members: User[];
 }
 

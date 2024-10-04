@@ -36,11 +36,16 @@
         <span>
           {{ user.username }} ({{ user.email }}) - {{ user.roles }}
         </span>
-        <button class="btn btn-primary btn-sm" (click)="inviteUserToGroup(selectedGroup?.id, user.id)">
+        <!-- 기본적으로 invite 버튼을 표시하고, pendingUsers에 포함된 경우만 pending 버튼을 표시 -->
+        <button *ngIf="!selectedGroup?.pendingUsers?.includes(user.id)" class="btn btn-primary btn-sm" (click)="inviteUserToGroup(selectedGroup?.id, user.id)">
           Invite
         </button>
-        
+        <!-- pendingUser인 경우 비활성화된 버튼을 표시 -->
+        <button *ngIf="selectedGroup?.pendingUsers?.includes(user.id)" class="btn btn-danger btn-sm" disabled>
+          Pending
+        </button>
       </li>
     </ul>
   </div>
 </div>
+
