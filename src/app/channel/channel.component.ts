@@ -23,7 +23,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
   constructor(private http: HttpClient, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    // 세션 스토리지에서 사용자 정보 가져오기
+    //get User data from session Storage
     const loggedInUser = sessionStorage.getItem('loggedinUser');
     if (loggedInUser) {
       const user = JSON.parse(loggedInUser);
@@ -31,7 +31,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
       this.userId = user._id; // 사용자 ID 가져오기
     }
 
-    // URL에서 채널 ID 가져오기
+    // get Channel ID from URL
     this.route.paramMap.subscribe(params => {
       this.channelId = params.get('channelId') || ''; // URL에서 채널 ID 가져오기
       if (this.channelId) {
