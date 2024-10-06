@@ -25,7 +25,9 @@ export class SignupComponent {
   }
 
   onSubmit() {
+    console.log('Form submission triggered');
     if (this.signupForm.valid) {
+      console.log('Form is valid');
       const { email, password } = this.signupForm.value;
   
       // 고유 ID 생성
@@ -48,14 +50,21 @@ export class SignupComponent {
       this.http.post('http://localhost:3000/signup', newUser).subscribe({
         next: (response: any) => {
           console.log('Signup successful', response);
-  
+          
           // 로컬 스토리지에 새 사용자 저장
           const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
           storedUsers.push(response); // 서버로부터 받은 데이터를 로컬 스토리지에 저장
           localStorage.setItem('users', JSON.stringify(storedUsers));
   
           // 로그인 페이지로 리디렉션
-          this.router.navigate(['/login']);
+          console.log('Navigating to login page...');
+          this.router.navigate(['/login']).then((navigated) => {
+            if (navigated) {
+              console.log('Navigation to login successful!');
+            } else {
+              console.error('Navigation to login failed.');
+            }
+          });
         },
         error: (error) => {
           console.error('There was an error during signup!', error);
@@ -63,5 +72,4 @@ export class SignupComponent {
       });
     }
   }
-  
 }

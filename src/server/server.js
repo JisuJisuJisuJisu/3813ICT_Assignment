@@ -189,7 +189,6 @@ else if (req.method === 'POST' && req.url === '/groups') {
     }
     
     //그룹에 채널 추가
-// 그룹에 채널 추가
     else if (req.method === 'POST' && req.url.startsWith('/groups/')) {
         const groupId = req.url.split('/')[2];
         let body = '';
@@ -309,7 +308,7 @@ else if (req.method === 'POST' && req.url === '/groups') {
         });
     }
     
-// 가입 승인 처리
+    // 가입 승인 처리
     else if (req.method === 'PUT' && req.url.startsWith('/groups/approve/')) {
         const groupId = req.url.split('/')[3]; // 그룹 ID 추출
         let body = '';
@@ -459,30 +458,31 @@ else if (req.method === 'POST' && req.url === '/groups') {
     // 사용자 등록
     else if (req.method === 'POST' && req.url === '/signup') {
         let body = '';
-    
+      
         req.on('data', chunk => {
-            body += chunk.toString();
-            console.log('Receiving data chunk:', chunk.toString()); 
+          body += chunk.toString();
+          console.log('Receiving data chunk:', chunk.toString()); 
         });
-    
-        req.on('end', () => {
+      
+        req.on('end', async () => {
+          try {
             const newUser = JSON.parse(body);
-            newUser.interestGroups = [];  // 사용자의 관심 그룹 목록 초기화
+            newUser.interestGroups = []; // 사용자의 관심 그룹 목록 초기화
             console.log('Attempting to register new user:', newUser);
-    
-            db.collection('users').insertOne(newUser, (err, result) => {
-                if (err) {
-                    console.error('Database insertion error:', err); 
-                    res.writeHead(500, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Internal Server Error' }));
-                    return;
-                }
-                console.log('New user registered successfully:', result);
-                res.writeHead(201, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(newUser));
-            });
+      
+            const result = await db.collection('users').insertOne(newUser);
+            console.log('New user registered successfully:', result);
+      
+            res.writeHead(201, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(newUser));
+          } catch (err) {
+            console.error('Database insertion error:', err);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Internal Server Error' }));
+          }
         });
-    }
+      }
+      
     // 로그인
     else if (req.method === 'POST' && req.url === '/login') {
         let body = '';

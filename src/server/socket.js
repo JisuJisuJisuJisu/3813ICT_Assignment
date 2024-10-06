@@ -28,6 +28,7 @@ function setupSocket(server, db) {
           groupId: data.groupId || null, // 그룹 ID가 있으면 저장, 없으면 null
           channelId,
           userId,
+          username, // username 필드 추가
           message,
           timestamp: new Date()
         });
