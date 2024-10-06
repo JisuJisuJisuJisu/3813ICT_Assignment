@@ -107,8 +107,8 @@ async function startServer() {
                 }
             });
         }
-        // 특정 그룹 가져오기
-        else if (req.method === 'GET' && req.url.startsWith('/groups/')) {
+    // 특정 그룹 가져오기
+    else if (req.method === 'GET' && req.url.startsWith('/groups/')) {
             const groupId = req.url.split('/')[2]; // 그룹 ID 추출
         
             try {
@@ -126,52 +126,52 @@ async function startServer() {
                 res.writeHead(500, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ message: 'Internal Server Error' }));
             }
-        }
+    }
         
   // 새로운 그룹 생성
-else if (req.method === 'POST' && req.url === '/groups') {
-    let body = '';
+    else if (req.method === 'POST' && req.url === '/groups') {
+            let body = '';
 
-    req.on('data', chunk => {
-        body += chunk.toString();
-    });
+            req.on('data', chunk => {
+                body += chunk.toString();
+            });
 
-    req.on('end', async () => {
-        try {
-            const newGroup = JSON.parse(body);
+            req.on('end', async () => {
+                try {
+                    const newGroup = JSON.parse(body);
 
-            // 새로운 그룹 생성 시 MongoDB의 _id 필드를 자동 생성하도록 설정
-            if (newGroup._id) {
-                delete newGroup._id;  // _id 필드가 존재할 경우 삭제하여 자동 생성
-            }
-            newGroup.pendingUsers = [];  // pendingUsers 필드 초기화
-            newGroup.members = [];  // 정식 멤버 목록 초기화
-            // 그룹 생성 및 저장
-            const result = await db.collection('groups').insertOne(newGroup);
+                    // 새로운 그룹 생성 시 MongoDB의 _id 필드를 자동 생성하도록 설정
+                    if (newGroup._id) {
+                        delete newGroup._id;  // _id 필드가 존재할 경우 삭제하여 자동 생성
+                    }
+                    newGroup.pendingUsers = [];  // pendingUsers 필드 초기화
+                    newGroup.members = [];  // 정식 멤버 목록 초기화
+                    // 그룹 생성 및 저장
+                    const result = await db.collection('groups').insertOne(newGroup);
 
-            // 삽입된 그룹의 정보를 가져오기 위해 다시 한 번 조회
-            const insertedGroup = await db.collection('groups').findOne({ _id: result.insertedId });
+                    // 삽입된 그룹의 정보를 가져오기 위해 다시 한 번 조회
+                    const insertedGroup = await db.collection('groups').findOne({ _id: result.insertedId });
 
-            // 그룹이 저장된 후, 생성한 사용자의 groups 필드에 그룹 추가
-            const createdBy = newGroup.createdBy;
-            if (createdBy) {
-                await db.collection('users').updateOne(
-                    { id: createdBy },
-                    { $push: { groups: { id: insertedGroup.id, name: insertedGroup.name, description: insertedGroup.description } } }
-                );
-            }
+                    // 그룹이 저장된 후, 생성한 사용자의 groups 필드에 그룹 추가
+                    const createdBy = newGroup.createdBy;
+                    if (createdBy) {
+                        await db.collection('users').updateOne(
+                            { id: createdBy },
+                            { $push: { groups: { id: insertedGroup.id, name: insertedGroup.name, description: insertedGroup.description } } }
+                        );
+                    }
 
-            res.writeHead(201, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(insertedGroup));  // 생성된 그룹 반환
-        } catch (error) {
-            console.error('Error inserting group:', error);
-            if (!res.headersSent) {  // 응답 헤더가 전송되지 않았을 때만 응답을 전송
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Internal Server Error' }));
-            }
-        }
-    });
-}
+                    res.writeHead(201, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(insertedGroup));  // 생성된 그룹 반환
+                } catch (error) {
+                    console.error('Error inserting group:', error);
+                    if (!res.headersSent) {  // 응답 헤더가 전송되지 않았을 때만 응답을 전송
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ message: 'Internal Server Error' }));
+                    }
+                }
+            });
+    }
 
     
     //모든 그룹 가져오기
@@ -681,35 +681,34 @@ else if (req.method === 'POST' && req.url === '/groups') {
         }
     }
     // 그룹 삭제
-    else if (req.method === 'DELETE' && req.url.startsWith('/groups/')) {
-        const groupId = req.url.split('/').pop();
-    
-        db.collection('groups').deleteOne({ id: groupId }, async (err, result) => {
-            if (err) {
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Internal Server Error' }));
-                return;
-            }
-            if (result.deletedCount === 0) {
-                res.writeHead(404, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Group not found' }));
-                return;
-            }
-    
-            // 사용자 문서에서 삭제된 그룹 ID 제거
-            await db.collection('users').updateMany(
-                { groups: groupId },
-                { $pull: { groups: groupId } }
-            );
-    
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: 'Group and related user data deleted successfully' }));
-        });
+    // 그룹 삭제
+else if (req.method === 'DELETE' && req.url.startsWith('/groups/')) {
+    const groupId = req.url.split('/').pop();
+
+    try {
+        // 그룹 데이터베이스에서 그룹 삭제
+        const groupResult = await db.collection('groups').deleteOne({ id: groupId });
+        if (groupResult.deletedCount === 0) {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Group not found' }));
+            return;
+        }
+
+        // 사용자 데이터베이스에서 삭제된 그룹 제거
+        await db.collection('users').updateMany(
+            { "groups.id": groupId },
+            { $pull: { groups: { id: groupId } } }
+        );
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Group and related user data deleted successfully' }));
+    } catch (err) {
+        console.error('Error deleting group:', err);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Internal Server Error' }));
     }
-     else {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('Not Found');
-    }
+}
+
 });// 이하의 요청 처리 로직 구현
     
 

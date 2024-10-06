@@ -19,13 +19,13 @@ export class ManageGroupsComponent implements OnInit {
   user: User | null = null; // 현재 로그인한 사용자 정보
   isSuperAdmin: boolean = false; // 현재 사용자가 Super Admin인지 여부
   showModal: boolean = false; // 모달 가시성 제어
+  successMessage: string = ''; // 성공 메시지
   router: any;
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
     this.loadUser();
-    this.loadGroups();
   }
 
   loadUser(): void {
@@ -39,6 +39,7 @@ export class ManageGroupsComponent implements OnInit {
           if (this.user) {
             this.isSuperAdmin = this.user.roles.includes('Super Admin');
             console.log('현재 사용자:', this.user);
+            this.loadGroups(); // 사용자가 로드된 후 그룹 데이터를 로드합니다.
           } else {
             console.log('사용자를 찾을 수 없습니다.');
             // 로그인이 필요한 경우 로그인 페이지로 리디렉션
@@ -57,6 +58,7 @@ export class ManageGroupsComponent implements OnInit {
   }
 
   loadGroups(): void {
+    console.log("HeEELLLo");
     this.http.get<Group[]>(`http://localhost:3000/groups`).subscribe({
       next: (groups: Group[]) => {
         if (this.isSuperAdmin) {
@@ -64,7 +66,7 @@ export class ManageGroupsComponent implements OnInit {
         } else {
           this.groups = groups.filter(group => group.createdBy === this.user?.id); // Group Admin은 자신이 생성한 그룹만 볼 수 있음
         }
-
+        console.log("Loaded Groups:", this.groups);
         // 로컬 스토리지에 그룹 저장
         localStorage.setItem('groups', JSON.stringify(this.groups));
       },
@@ -94,6 +96,10 @@ export class ManageGroupsComponent implements OnInit {
             this.user.groups = this.user.groups.filter(group => group.id !== groupId);
             this.updateUserInStorage(this.user);
           }
+
+          // 성공 메시지 설정
+          this.successMessage = `Group with ID ${groupId} deleted successfully.`;
+          this.clearMessageAfterTimeout();
         },
         error: (error) => {
           console.error('그룹 삭제 중 오류 발생:', error);
@@ -161,6 +167,10 @@ export class ManageGroupsComponent implements OnInit {
         // 폼 리셋 및 모달 닫기
         this.newGroup = { id: '', name: '', description: '', createdBy: '', channels: [], imageUrl: '' };
         this.showModal = false;
+
+        // 성공 메시지 설정
+        this.successMessage = 'New group created successfully.';
+        this.clearMessageAfterTimeout();
       },
       error: (error) => {
         console.error('그룹 생성 중 오류 발생:', error);
@@ -182,5 +192,11 @@ export class ManageGroupsComponent implements OnInit {
       };
       reader.readAsDataURL(file);
     }
+  }
+
+  clearMessageAfterTimeout(): void {
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 5000); // 5초 후에 메시지 초기화
   }
 }

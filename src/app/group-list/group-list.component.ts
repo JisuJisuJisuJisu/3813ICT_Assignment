@@ -6,7 +6,6 @@ import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 
-
 @Component({
   selector: 'app-group-list',
   templateUrl: './group-list.component.html',
@@ -25,30 +24,22 @@ export class GroupListComponent implements OnInit {
     // 세션 스토리지에서 'loggedinUser' 값을 가져옴
     const loggedInUser = sessionStorage.getItem('loggedinUser');
     
-    // 가져온 데이터를 콘솔에 출력
-    console.log('세션에서 가져온 loggedInUser:', loggedInUser);
-  
-    // 세션 스토리지에 데이터가 없으면 오류 메시지 출력
     if (!loggedInUser) {
-      console.error('세션에 저장된 사용자 이메일이 없습니다.');
+      console.error('세션에 저장된 사용자 정보가 없습니다.');
       return;
     }
   
-    // 'loggedinUser'가 JSON 포맷일 경우 파싱
     const user = JSON.parse(loggedInUser) as User;
-    console.log('파싱된 사용자 데이터:', user);
     const loggedInUserEmail = user.email;
-    console.log('로그인된 사용자 이메일:', loggedInUserEmail);
   
-    // 서버에서 사용자 목록을 가져옴
+    // 서버에서 사용자 목록을 가져와서 그룹 정보 업데이트
     this.http.get<User[]>('http://localhost:3000/users').subscribe({
       next: (users) => {
-        console.log('Fetched users:', users); 
         const foundUser = users.find(u => u.email === loggedInUserEmail);
   
         if (foundUser) {
-          console.log('User groups:', foundUser.groups);
           this.userGroups = foundUser.groups;
+          console.log('사용자의 그룹 목록:', this.userGroups);
         } else {
           console.error('사용자를 찾을 수 없습니다.');
         }
