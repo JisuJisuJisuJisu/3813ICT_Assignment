@@ -7,10 +7,11 @@ const client = new MongoClient(uri);
 const fs = require('fs');
 const path = require('path');
 
+
 // multer 설정 (이미지 저장 경로 및 파일 이름)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadDir = 'server/uploads/profile-images';
+        const uploadDir = './uploads/profile-images';
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true }); // 폴더가 없으면 생성
         }
@@ -52,6 +53,27 @@ async function startServer() {
             return;
         }
 
+        // 정적 파일 제공: 이미지 파일 직접 서빙
+        else if (req.method === 'GET' && req.url.startsWith('/uploads/profile-images/')) {
+            console.log("heyyyy!");
+            const filePath = path.join(__dirname, 'uploads', 'profile-images', path.basename(req.url));
+            console.log("Requested file path:", filePath);
+        
+            fs.access(filePath, fs.constants.F_OK, (err) => {
+                if (err) {
+                    console.error("File not found:", filePath);
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'File not found' }));
+                    return;
+                }
+        
+                // 파일이 존재할 경우 클라이언트에 전송
+                res.writeHead(200, { 'Content-Type': 'image/png' }); // 여기서는 PNG 형식으로 가정
+                const readStream = fs.createReadStream(filePath);
+                readStream.pipe(res);
+            });
+        }
+        
 
         // 프로필 이미지 업로드 처리
         else if (req.method === 'POST' && req.url === '/upload-profile-image') {
@@ -106,11 +128,6 @@ async function startServer() {
             }
         }
         
-        
-
-
-
-   // 새로운 그룹 생성
   // 새로운 그룹 생성
 else if (req.method === 'POST' && req.url === '/groups') {
     let body = '';
@@ -161,7 +178,7 @@ else if (req.method === 'POST' && req.url === '/groups') {
     else if (req.method === 'GET' && req.url === '/groups') {
         try {
             const groups = await db.collection('groups').find({}).toArray();
-            console.log('Groups data:', groups);
+            // console.log('Groups data:', groups);
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(groups));
         } catch (error) {
@@ -256,7 +273,7 @@ else if (req.method === 'POST' && req.url === '/groups') {
     
     // 그룹에 사용자를 초대하는 라우트
     else if (req.method === 'POST' && req.url.endsWith('/invite')) {
-        console.log("helloo");
+        
         const groupId = req.url.split('/')[2]; // 그룹 ID 추출
         let body = '';
     
@@ -292,8 +309,6 @@ else if (req.method === 'POST' && req.url === '/groups') {
         });
     }
     
-        // 그룹 요청 승인
-       // 그룹 요청 승인
 // 가입 승인 처리
     else if (req.method === 'PUT' && req.url.startsWith('/groups/approve/')) {
         const groupId = req.url.split('/')[3]; // 그룹 ID 추출
@@ -351,8 +366,6 @@ else if (req.method === 'POST' && req.url === '/groups') {
         });
     }
 
-
-
     // 그룹 요청 거절
     else if (req.method === 'PUT' && req.url.startsWith('/groups/reject/')) {
         const parts = req.url.split('/'); // URL을 '/'로 분할
@@ -394,8 +407,6 @@ else if (req.method === 'POST' && req.url === '/groups') {
             }
         });
     }
-
-
 
     // 가입 승인 처리
     else if (req.method === 'PUT' && req.url.startsWith('/groups/approve/')) {
@@ -514,7 +525,7 @@ else if (req.method === 'POST' && req.url === '/groups') {
     
         try {
             const users = await db.collection('users').find({}).toArray();
-            console.log('Users from DB:', users);  // 조회된 데이터를 확인
+            // console.log('Users from DB:', users);  // 조회된 데이터를 확인
     
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(users));
@@ -617,8 +628,6 @@ else if (req.method === 'POST' && req.url === '/groups') {
             res.end(JSON.stringify({ message: 'Internal Server Error' }));
         }
     }
-
-    
     // 사용자 정보 업데이트
     else if (req.method === 'PUT' && req.url.startsWith('/users/')) {
         const userId = req.url.split('/')[2];
