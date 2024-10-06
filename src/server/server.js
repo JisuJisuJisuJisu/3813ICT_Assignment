@@ -421,8 +421,6 @@ else if (req.method === 'POST' && req.url === '/groups') {
             });
         });
     }
-    
-    // 로그인
     // 로그인
     else if (req.method === 'POST' && req.url === '/login') {
         let body = '';
