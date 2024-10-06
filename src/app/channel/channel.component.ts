@@ -14,7 +14,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ChannelComponent implements OnInit, OnDestroy {
   private socket: Socket | null = null;
-  messages: { userId: string | null, message: string }[] = []; // 메시지 리스트
+  messages: { userId: string | null, username: string, message: string }[] = []; // 메시지 리스트
   newMessage: string = ''; // 새로운 메시지 입력 필드
   channelId: string = ''; // 채널 ID - 실제 채널 ID를 넣어주세요.
   username: string = ''; // 사용자의 사용자 이름
@@ -56,16 +56,20 @@ export class ChannelComponent implements OnInit, OnDestroy {
       this.socket.emit('join-channel', this.channelId);
     }
 
-    // 예시로 채널에서 새로운 메시지를 수신
+    // 새로운 메시지를 수신
     this.socket.on('new-message', (message) => {
       console.log('새로운 메시지 수신:', message);
-      this.messages.push(message); // 수신한 메시지를 메시지 리스트에 추가
+      this.messages.push({ 
+        userId: message.userId, 
+        username: message.username, // 서버에서 받은 username 사용
+        message: message.text // 서버에서 받은 메시지 내용 사용
+      }); // 수신한 메시지를 메시지 리스트에 추가
     });
   }
 
   // MongoDB에서 채팅 히스토리 가져오기
   loadMessageHistory(): void {
-    this.http.get<{ userId: string | null, message: string }[]>(`http://localhost:3000/messages?channelId=${this.channelId}`)
+    this.http.get<{ userId: string | null, username: string, message: string }[]>(`http://localhost:3000/messages?channelId=${this.channelId}`)
       .subscribe({
         next: (data) => {
           this.messages = data; // 서버로부터 가져온 메시지 히스토리를 메시지 리스트에 저장
@@ -86,9 +90,13 @@ export class ChannelComponent implements OnInit, OnDestroy {
         username: this.username, // 세션에서 가져온 사용자 이름
         userId: this.userId // 세션에서 가져온 사용자 ID
       };
-      this.socket.emit('send-message', messageData); // 서버로 메시지 전송
+
+      // 서버로 메시지 전송
+      this.socket.emit('send-message', messageData);
       console.log('서버로 메시지를 보냈습니다:', messageData);
-      this.newMessage = ''; // 메시지 입력 필드 초기화
+
+      // 메시지 입력 필드 초기화
+      this.newMessage = '';
     }
   }
 }

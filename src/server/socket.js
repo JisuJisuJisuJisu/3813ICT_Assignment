@@ -20,7 +20,7 @@ function setupSocket(server, db) {
     // 사용자가 메시지를 보낼 때
     socket.on('send-message', async (data) => {
       console.log('메시지 수신:', data);
-      const { channelId, message, userId } = data;
+      const { channelId, message, userId, username } = data; // username도 추가
 
       // MongoDB에 메시지 저장
       try {
@@ -33,7 +33,7 @@ function setupSocket(server, db) {
         });
 
         // 메시지를 해당 채널에 있는 모든 사용자에게 전송
-        io.to(channelId).emit('new-message', { username: userId, text: message });
+        io.to(channelId).emit('new-message', { userId, username, text: message }); // userId와 username 모두 전송
       } catch (error) {
         console.error('메시지 저장 중 오류 발생:', error);
       }

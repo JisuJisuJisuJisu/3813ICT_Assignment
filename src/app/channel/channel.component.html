@@ -1,17 +1,15 @@
 <div class="chat-container">
-    <h2>Channel Chat</h2>
-    
-    <div class="message-list">
-      <!-- 수신한 메시지를 여기에 표시 -->
-      <div *ngFor="let message of messages">
-        <strong>{{ message.userId || 'Unknown' }}:</strong> {{ message.message }}
-      </div>
-    </div>
+  <h2>Channel Chat</h2>
   
-    <div class="message-input">
-      <input type="text" [(ngModel)]="newMessage" placeholder="메시지를 입력하세요..." />
-      <button (click)="sendMessage()">Send</button>
+  <div class="message-list">
+    <!-- 수신한 메시지를 여기에 표시 -->
+    <div *ngFor="let message of messages">
+      <strong>{{ message.username || 'Unknown' }}:</strong> {{ message.message }}
     </div>
   </div>
-  
-  
+
+  <div class="message-input">
+    <input type="text" [(ngModel)]="newMessage" placeholder="메시지를 입력하세요..." />
+    <button (click)="sendMessage()">Send</button>
+  </div>
+</div>
