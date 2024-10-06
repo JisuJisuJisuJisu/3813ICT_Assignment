@@ -18,11 +18,6 @@ body, html {
     background-color: rgba(0, 0, 0, 0.4) !important;
 }
 
-.card-header {
-    border-radius: 15px 15px 0 0 !important;
-    border-bottom: 0 !important;
-}
-
 .card-footer {
     border-radius: 0 0 15px 15px !important;
     border-top: 0 !important;
