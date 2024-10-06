@@ -8,9 +8,9 @@
         <div class="card">
           <div class="card-body">
             <div class="d-flex flex-column align-items-center text-center">
-              <img src="images/basicprofile.jpg" class="rounded-circle" width="150">
-              <button class="btn btn-primary" >Change Profile Image</button>
-                <input type="file" #fileInput  style="display: none;" />
+              <img [src]="user.profileImage || 'images/basicprofile.jpg'" class="rounded-circle" width="150">
+              <button class="btn btn-primary" (click)="fileInput.click()">Change Profile Image</button>
+              <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" />
               <div class="mt-3">
                 <input id="username" type="text" class="form-control" [(ngModel)]="user.username" />
                 <p class="text-secondary mb-1">Full Stack Developer</p>

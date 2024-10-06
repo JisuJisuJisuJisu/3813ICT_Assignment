@@ -9,5 +9,6 @@ export interface User {
     roles: string[];  
     groups: Group[];   
     interestGroups: Group[];  
+    profileImage?: string;
 }
 

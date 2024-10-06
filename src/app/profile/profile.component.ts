@@ -20,11 +20,13 @@ export class ProfileComponent implements OnInit {
     id: '',
     password: '',
     groups: [],
-    interestGroups: []
+    interestGroups: [],
+    profileImage:''
   };
   
   userGroups: any[] = []; // 사용자 그룹을 저장할 변수
   loggedInUserEmail: string | null = null;
+  selectedFile: File | null = null;
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -57,6 +59,34 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  onFileSelected(event: any): void {
+    this.selectedFile = event.target.files[0];
+    this.uploadProfileImage();
+  }
+
+  uploadProfileImage(): void {
+    if (!this.selectedFile) {
+      alert('파일을 선택하세요');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('profileImage', this.selectedFile);
+    formData.append('userId', this.user.id);
+
+    this.http.post('http://localhost:3000/upload-profile-image', formData)
+      .subscribe({
+        next: (response: any) => {
+          console.log('이미지 업로드 성공:', response);
+          this.user.profileImage = response.imageUrl; // 서버에서 받은 이미지 URL을 저장
+        },
+        error: (error) => {
+          console.error('이미지 업로드 실패:', error);
+        }
+      });
+  }
+  
+  
   // 사용자가 속한 그룹을 가져오는 메서드
   fetchUserGroups(userId: string): void {
     this.http.get<any[]>(`http://localhost:3000/groups`).subscribe({

@@ -1,9 +1,27 @@
 const http = require('http');
 const { MongoClient } = require('mongodb');
 const setupSocket = require('./socket');
-
+const multer = require('multer');
 const uri = "mongodb://localhost:27017";
 const client = new MongoClient(uri);
+const fs = require('fs');
+const path = require('path');
+
+// multer 설정 (이미지 저장 경로 및 파일 이름)
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = 'server/uploads/profile-images';
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true }); // 폴더가 없으면 생성
+        }
+        cb(null, uploadDir); // 이미지 파일 저장 경로 설정
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname)); // 파일 이름 설정
+    }
+});
+
+const upload = multer({ storage });
 
 async function startServer() {
     async function connectDB() {
@@ -34,6 +52,39 @@ async function startServer() {
             return;
         }
 
+
+        // 프로필 이미지 업로드 처리
+        else if (req.method === 'POST' && req.url === '/upload-profile-image') {
+            upload.single('profileImage')(req, res, async function (err) {
+                if (err) {
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    return res.end(JSON.stringify({ message: 'Image upload failed', error: err.toString() }));
+                }
+
+                // 파일이 성공적으로 업로드된 경우
+                const userId = req.body.userId; // 사용자 ID 가져오기
+                const imageUrl = `/uploads/profile-images/${req.file.filename}`; // 이미지 파일 경로 설정
+
+                // MongoDB에 이미지 경로 업데이트
+                try {
+                    const result = await db.collection('users').updateOne(
+                        { id: userId },
+                        { $set: { profileImage: imageUrl } }
+                    );
+
+                    if (result.matchedCount === 0) {
+                        res.writeHead(404, { 'Content-Type': 'application/json' });
+                        return res.end(JSON.stringify({ message: 'User not found' }));
+                    }
+
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'Image uploaded successfully', imageUrl }));
+                } catch (error) {
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'Internal Server Error', error: error.toString() }));
+                }
+            });
+        }
         // 특정 그룹 가져오기
         else if (req.method === 'GET' && req.url.startsWith('/groups/')) {
             const groupId = req.url.split('/')[2]; // 그룹 ID 추출
@@ -457,8 +508,6 @@ else if (req.method === 'POST' && req.url === '/groups') {
             }
         });
     }
-    
-
     
     else if (req.method === 'GET' && req.url === '/users') {
         console.log('Received GET request for /users');
