@@ -51,6 +51,7 @@ export class GroupListComponent implements OnInit {
   }
   
   onGroupClick(group: Group): void {
+    console.log('Selected Group:', group); 
     this.groupSelected.emit(group); // 그룹 선택 시 해당 그룹 객체를 부모 컴포넌트로 전달
     this.router.navigate(['/dashboard/group', group.id]);
   }

@@ -48,24 +48,29 @@ export class ChannelComponent implements OnInit, OnDestroy {
   }
 
   // Socket.IO 서버와 연결 설정
-  setupSocketConnection(): void {
-    this.socket = io('http://localhost:3000'); // 서버 주소로 연결
-
-    // 채널에 참여
-    if (this.socket) {
-      this.socket.emit('join-channel', this.channelId);
-    }
-
-    // 새로운 메시지를 수신
-    this.socket.on('new-message', (message) => {
-      console.log('새로운 메시지 수신:', message);
-      this.messages.push({ 
-        userId: message.userId, 
-        username: message.username, // 서버에서 받은 username 사용
-        message: message.text // 서버에서 받은 메시지 내용 사용
-      }); // 수신한 메시지를 메시지 리스트에 추가
-    });
+setupSocketConnection(): void {
+  if (this.socket) {
+    // 기존에 등록된 'new-message' 리스너 제거
+    this.socket.off('new-message');
+    this.socket.disconnect();
   }
+
+  this.socket = io('http://localhost:3000'); // 서버 주소로 연결
+
+  // 채널에 참여
+  this.socket.emit('join-channel', this.channelId);
+
+  // 새로운 메시지를 수신
+  this.socket.on('new-message', (message) => {
+    console.log('새로운 메시지 수신:', message);
+    this.messages.push({ 
+      userId: message.userId, 
+      username: message.username, // 서버에서 받은 username 사용
+      message: message.text // 서버에서 받은 메시지 내용 사용
+    }); // 수신한 메시지를 메시지 리스트에 추가
+  });
+}
+
 
   // MongoDB에서 채팅 히스토리 가져오기
   loadMessageHistory(): void {

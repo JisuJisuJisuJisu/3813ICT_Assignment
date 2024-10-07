@@ -7,10 +7,25 @@
                     <div class="message-list">
                         <!-- 동적으로 메시지 표시 -->
                         <div *ngFor="let message of messages">
-                            <strong>{{ message.username || 'Unknown' }}:</strong> {{ message.message }}
+                            <!-- 내가 보낸 메시지 -->
+                            <div *ngIf="message.userId === userId" class="d-flex justify-content-end mb-4">
+                                <div class="msg_cotainer_send">
+                                    <strong>{{ message.username || 'Unknown' }}:</strong> {{ message.message }}
+                                    <span class="msg_time_send">8:55 AM, Today</span>
+                                </div>
+                            </div>
+
+                            <!-- 다른 사용자가 보낸 메시지 -->
+                            <div *ngIf="message.userId !== userId" class="d-flex justify-content-start mb-4">
+                                <div class="msg_cotainer">
+                                    <strong>{{ message.username || 'Unknown' }}:</strong> {{ message.message }}
+                                    <span class="msg_time">8:55 AM, Today</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
                 <div class="card-footer">
                     <!-- Chat Input -->
                     <div class="input-group">
@@ -23,5 +38,4 @@
             </div>
         </div>
     </div>
-  </div>
-  
+</div>

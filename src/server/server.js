@@ -58,6 +58,31 @@ async function startServer() {
     // 정적 파일 제공: 이미지 파일 서빙
     app.use('/uploads/profile-images', express.static(path.join(__dirname, 'uploads', 'profile-images')));
     
+    app.post('/upload-profile-image', upload.single('profileImage'), async (req, res) => {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+        const userId = req.body.userId;
+        const imageUrl = `/uploads/profile-images/${req.file.filename}`;
+
+        try {
+            // MongoDB에 이미지 경로 업데이트
+            const result = await db.collection('users').updateOne(
+                { id: userId },
+                { $set: { profileImage: imageUrl } }
+            );
+
+            if (result.matchedCount === 0) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            res.status(200).json({ message: 'Image uploaded successfully', imageUrl });
+        } catch (error) {
+            console.error('Error updating user:', error);
+            res.status(500).json({ message: 'Internal Server Error', error: error.toString() });
+        }
+    });
+
         // 모든 그룹 가져오기
     app.get('/groups', async (req, res) => {
         try {
@@ -159,22 +184,24 @@ app.post('/groups/:groupId/channels', async (req, res) => {
     }
 });
 
-// 가입 승인 처리
 app.put('/groups/approve/:groupId', async (req, res) => {
-    console.log('PUT request received for approval');  // 요청이 제대로 왔는지 확인
-    console.log('Params:', req.params);
-    console.log('Body:', req.body);
+    console.log('PUT request received for approval');
     const { groupId } = req.params; // URL에서 groupId 추출
-    const { userId } = req.body; // 사용자 ID 가져오기
-   
-    console.log('Approving join request for groupId:', groupId, 'userId:', userId);
+    const { userId } = req.body; // 요청 본문에서 userId 추출
+
     try {
-        console.log('Entered try block');
+        // 1. 그룹 정보를 먼저 조회
+        const group = await db.collection('groups').findOne({ id: groupId });
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        // 2. 그룹 업데이트: pendingUsers에서 제거하고 members에 추가
         const groupUpdateResult = await db.collection('groups').updateOne(
-            { id: groupId }, // _id가 아닌 id 필드로 검색
+            { id: groupId }, // id로 그룹 검색
             {
-                $pull: { pendingUsers: userId },
-                $push: { members: userId }
+                $pull: { pendingUsers: userId }, // pendingUsers 배열에서 해당 userId 제거
+                $push: { members: userId } // members 배열에 userId 추가
             }
         );
 
@@ -182,21 +209,26 @@ app.put('/groups/approve/:groupId', async (req, res) => {
             return res.status(404).json({ message: 'Group not found' });
         }
 
+        // 3. 사용자의 groups 배열에 그룹의 전체 정보 추가
         const userUpdateResult = await db.collection('users').updateOne(
             { id: userId },
-            { $push: { groups: groupId } }
+            {
+                // 중복 없이 그룹 전체 데이터를 추가 ($addToSet 사용 시 중복 방지)
+                $addToSet: { groups: group } // group 객체 전체 추가
+            }
         );
 
         if (userUpdateResult.matchedCount === 0) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.status(200).json({ message: 'User approved successfully' });
+        res.status(200).json({ message: 'User approved successfully', group });
     } catch (error) {
         console.error('Error during approval process:', error);
         res.status(500).json({ message: 'Internal Server Error', error: error.toString() });
     }
 });
+
 
 // 그룹 요청 거절
 app.put('/groups/reject/:groupId', async (req, res) => {
