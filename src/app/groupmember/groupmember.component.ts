@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
 interface User {
+  interestGroups: any;
   id: string;
   email: string;
   username: string;
@@ -29,8 +30,10 @@ export class GroupMemberComponent implements OnInit {
   groupId: string | null = null;  // URL에서 가져온 groupId 저장
   selectedGroup: Group | null = null;
   allUsers: User[] = [];
+  interestedUsers: User[] = [];  // 요청을 보낸 유저들
   isLoading: boolean = true;
   showAllUsers: boolean = false;
+  showInterestUsers: boolean = false;  // 요청 보낸 유저 리스트를 보여줄지 여부
   errorMessage: string | null = null;
   memberDetails: User[] = []; // 멤버의 상세 정보를 저장
 
@@ -120,6 +123,66 @@ export class GroupMemberComponent implements OnInit {
         error: (error) => {
           console.error('초대 중 오류 발생:', error);
           alert('초대에 실패했습니다.');
+        }
+      });
+  }
+
+  // Request 버튼 클릭 시 요청 보낸 유저 리스트를 가져옴
+  requestUser() {
+    if (!this.selectedGroup || !this.selectedGroup.id) {
+      alert('그룹이 선택되지 않았습니다.');
+      return;
+    }
+
+    this.showInterestUsers = true;  // 관심 유저 리스트를 보여줌
+
+    // InterestGroups에 해당 그룹 ID가 포함된 유저들을 필터링
+    this.interestedUsers = this.allUsers.filter(user => 
+      user.interestGroups && user.interestGroups.includes(this.selectedGroup!.id)
+    );
+
+    // 필터링된 유저 리스트를 출력 (콘솔 로그 또는 화면에 표시)
+    console.log('Users interested in this group:', this.interestedUsers);
+  }
+
+  // 유저를 그룹에 승인
+  allowUserToJoin(groupId: string | undefined, userId: string): void {
+    if (!this.selectedGroup || !this.selectedGroup.id) {
+      alert('그룹이 선택되지 않았습니다.');
+      return;
+    }
+
+    // 서버에 요청하여 사용자를 그룹에 추가 (members)하고, pendingUsers에서 제거
+    this.http.put(`http://localhost:3000/groups/approve/${groupId}`, { userId })
+      .subscribe({
+        next: () => {
+          alert('사용자가 승인되었습니다.');
+          this.fetchGroupDetails(this.selectedGroup!.id);  // 그룹 정보를 다시 불러옴
+        },
+        error: (error) => {
+          console.error('사용자 승인 중 오류 발생:', error);
+          alert('사용자 승인이 실패했습니다.');
+        }
+      });
+  }
+
+  // 유저를 그룹에서 거부
+  rejectUserFromGroup(groupId: string | undefined, userId: string): void {
+    if (!this.selectedGroup || !this.selectedGroup.id) {
+      alert('그룹이 선택되지 않았습니다.');
+      return;
+    }
+
+    // 서버에 요청하여 사용자를 pendingUsers에서 제거
+    this.http.put(`http://localhost:3000/groups/reject/${groupId}`, { userId })
+      .subscribe({
+        next: () => {
+          alert('사용자가 거부되었습니다.');
+          this.fetchGroupDetails(this.selectedGroup!.id);  // 그룹 정보를 다시 불러옴
+        },
+        error: (error) => {
+          console.error('사용자 거부 중 오류 발생:', error);
+          alert('사용자 거부가 실패했습니다.');
         }
       });
   }

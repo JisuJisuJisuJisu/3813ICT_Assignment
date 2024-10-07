@@ -209,12 +209,13 @@ app.put('/groups/approve/:groupId', async (req, res) => {
             return res.status(404).json({ message: 'Group not found' });
         }
 
-        // 3. 사용자의 groups 배열에 그룹의 전체 정보 추가
+        // 3. 사용자의 groups 배열에 그룹의 전체 정보 추가 및 interestGroups에서 그룹 제거
         const userUpdateResult = await db.collection('users').updateOne(
             { id: userId },
             {
                 // 중복 없이 그룹 전체 데이터를 추가 ($addToSet 사용 시 중복 방지)
-                $addToSet: { groups: group } // group 객체 전체 추가
+                $addToSet: { groups: group }, // group 객체 전체 추가
+                $pull: { interestGroups: groupId } // interestGroups에서 해당 groupId 제거
             }
         );
 
@@ -228,6 +229,7 @@ app.put('/groups/approve/:groupId', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error', error: error.toString() });
     }
 });
+
 
 
 // 그룹 요청 거절
@@ -251,36 +253,53 @@ app.put('/groups/reject/:groupId', async (req, res) => {
     }
 });
 
+app.get('/users/:email/interest-groups', async (req, res) => {
+    const { email } = req.params;
+    
+    try {
+      // 이메일로 사용자 조회
+      const user = await db.collection('users').findOne({ email: email });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      res.status(200).json(user.interestGroups || []);
+    } catch (error) {
+      res.status(500).json({ message: 'Internal Server Error', error: error.toString() });
+    }
+});
 
 // 가입 요청 처리
 app.post('/groups/:groupId/join', async (req, res) => {
     const { groupId } = req.params; // 그룹 ID 추출
-    const { userId } = req.body; // 사용자 ID 가져오기
+    const { email } = req.body; // 사용자 이메일 가져오기
 
     try {
+        // 그룹의 pendingUsers에 사용자 추가
         const groupUpdateResult = await db.collection('groups').updateOne(
             { id: groupId },
-            { $push: { pendingUsers: userId } }
+            { $push: { pendingUsers: email } }
         );
 
         if (groupUpdateResult.matchedCount === 0) {
             return res.status(404).json({ message: 'Group not found' });
         }
 
+        // 사용자의 interestGroups에 그룹 추가
         const userUpdateResult = await db.collection('users').updateOne(
-            { id: userId },
+            { email: email }, // email로 사용자 찾기
             { $push: { interestGroups: groupId } }
         );
 
         if (userUpdateResult.matchedCount === 0) {
             return res.status(404).json({ message: 'User not found' });
         }
-
+        
         res.status(200).json({ message: 'Join request submitted successfully' });
     } catch (err) {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
 
 // 그룹에 사용자를 초대하는 라우트
 app.post('/group/:groupId/invite', async (req, res) => {

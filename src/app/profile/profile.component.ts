@@ -52,6 +52,7 @@ export class ProfileComponent implements OnInit {
           this.router.navigate(['/login']);
         } else {
           this.fetchUserGroups(this.user.id); // Fetch user groups
+          this.fetchInterestGroups();
         }
       },
       error: (error) => {
@@ -60,6 +61,18 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  // Fetch user's interest groups
+fetchInterestGroups(): void {
+  this.http.get<any[]>(`http://localhost:3000/users/${this.user.email}/interest-groups`).subscribe({
+    next: (groups: any[]) => {
+      this.user.interestGroups = groups; // Save interest groups
+      console.log('Interest Groups:', this.user.interestGroups);
+    },
+    error: (error) => {
+      console.error('Error fetching interest groups:', error);
+    }
+  });
+}
   // Handle file selection for profile image
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];

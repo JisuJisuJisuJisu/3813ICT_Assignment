@@ -12,10 +12,16 @@
   
   <!-- Invite 버튼 클릭 시 전체 유저 리스트가 보여지도록 showAllUsers에 따라 변경 -->
   <div *ngIf="!showAllUsers">
-    <!-- Member List 제목과 Invite 버튼을 한 줄에 배치 -->
+    <!-- Member List 제목과 Invite, Request 버튼을 한 줄에 배치 -->
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2 class="mb-0">Member List</h2>
-      <button class="button-74 ml-auto" (click)="inviteUser()">Invite</button>
+      <div class="ml-auto">
+        <!-- Invite 버튼 -->
+        <button class="button-74 mr-2" (click)="inviteUser()">Invite</button>
+        
+        <!-- Request 버튼 -->
+        <button class="button-74" (click)="requestUser()">Request</button>
+      </div>
     </div>
 
     <!-- 그룹의 정식 멤버 리스트 -->
@@ -24,6 +30,22 @@
         <span>
           {{ member.username }} ({{ member.email }}) - {{ member.roles.join(', ') }}
         </span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- 관심 있는 유저 목록을 보여줌 -->
+  <div *ngIf="showInterestUsers && interestedUsers.length > 0">
+    <h3>Requested Users</h3>
+    <ul class="list-group mb-4">
+      <li *ngFor="let user of interestedUsers" class="list-group-item d-flex justify-content-between align-items-center">
+        <span>{{ user.username }} ({{ user.email }}) - {{ user.roles.join(', ') }}</span>
+
+        <!-- Allow 버튼 -->
+        <button class="btn btn-success btn-sm mr-2" (click)="allowUserToJoin(selectedGroup?.id, user.id)">Allow</button>
+
+        <!-- Reject 버튼 -->
+        <button class="btn btn-danger btn-sm" (click)="rejectUserFromGroup(selectedGroup?.id, user.id)">Reject</button>
       </li>
     </ul>
   </div>

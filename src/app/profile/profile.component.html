@@ -70,6 +70,15 @@
                 </ul>
               </div>
             </div>
+            <div class="card h-100">
+              <h6 class="d-flex align-items-center mb-3">Interest Groups</h6>
+              <ul class="list-group">
+                <li *ngFor="let group of user.interestGroups" class="list-group-item d-flex justify-content-between align-items-center">
+                  {{ group.name }}  <!-- 그룹 이름 표시 -->
+                  <span class="badge badge-primary badge-pill">{{ group.id }}</span>  <!-- 그룹 ID 표시 -->
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
