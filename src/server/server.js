@@ -445,6 +445,7 @@ app.post('/messages', async (req, res) => {
 
 
 // 특정 채널의 모든 메시지 가져오기
+// 특정 채널의 모든 메시지 가져오기
 app.get('/messages', async (req, res) => {
     const { channelId } = req.query;  // 쿼리 파라미터에서 channelId 추출
 
@@ -459,11 +460,29 @@ app.get('/messages', async (req, res) => {
         // 각 메시지 작성자의 profileImage 추가
         const messagesWithUserProfile = await Promise.all(
             messages.map(async (message) => {
-                const user = await db.collection('users').findOne({ id: message.userId });
-                return {
-                    ...message,
-                    profileImageUrl: user ? user.profileImage : null // 프로필 이미지 추가
-                };
+                try {
+                    // userId를 ObjectId로 변환하여 사용자 정보 조회
+                    const user = await db.collection('users').findOne({ _id: new ObjectId(message.userId) });
+
+                    if (!user) {
+                        console.error(`User with id ${message.userId} not found`);
+                        return {
+                            ...message,
+                            profileImageUrl: '/default/path/to/image.png' // 사용자 없을 때 기본 이미지 제공
+                        };
+                    }
+
+                    return {
+                        ...message,
+                        profileImageUrl: user.profileImage || '/default/path/to/image.png' // 사용자 이미지 없을 때 기본 이미지 제공
+                    };
+                } catch (err) {
+                    console.error(`Error fetching user with id ${message.userId}:`, err);
+                    return {
+                        ...message,
+                        profileImageUrl: '/default/path/to/image.png' // 오류 발생 시 기본 이미지 제공
+                    };
+                }
             })
         );
 
@@ -473,7 +492,6 @@ app.get('/messages', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
 // 사용자 정보 업데이트
 app.put('/users/:userId', async (req, res) => {
     const { userId } = req.params; // URL에서 userId 추출
