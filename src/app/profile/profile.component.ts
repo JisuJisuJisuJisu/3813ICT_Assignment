@@ -33,6 +33,7 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     // Retrieve email from sessionStorage
     this.loggedInUserEmail = sessionStorage.getItem('loggedInUserEmail');
+    console.log(sessionStorage.getItem('loggedInUserEmail')); 
     console.log(this.loggedInUserEmail);
 
     // If no login information is found

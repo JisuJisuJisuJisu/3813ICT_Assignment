@@ -66,7 +66,7 @@ changeUserRole(userId: string, newRole: string, callback?: () => void): void {
   if (user) {
       user.roles = [newRole];
 
-      // _id 필드를 삭제하고 PUT 요청을 보냄
+      // MongoDB에서는 _id 필드가 수정되지 않도록 _id 필드를 삭제한 데이터를 전송
       const { _id, ...updatedUserData } = user;
 
       this.http.put(`http://localhost:3000/users/${userId}`, updatedUserData).subscribe({
@@ -94,9 +94,6 @@ changeUserRole(userId: string, newRole: string, callback?: () => void): void {
       });
   }
 }
-
-
-
 
 updateLocalStorageUser(userId: string): void {
   this.http.get<User>(`http://localhost:3000/users/${userId}`).subscribe({

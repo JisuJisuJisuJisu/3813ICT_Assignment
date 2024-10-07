@@ -7,6 +7,8 @@ const socketIO = require('socket.io');
 const http = require('http');
 const cors = require('cors');
 const setupSocket = require('./socket');
+const { ObjectId } = require('mongodb');
+
 
 const app = express();
 const uri = "mongodb://localhost:27017";
@@ -318,6 +320,7 @@ app.get('/users/email', async (req, res) => {
     console.log('Received GET request for /users with email query');
     const { email } = req.query;  // 쿼리 파라미터에서 이메일 추출
 
+    console.log('Email parameter received:', email); 
     if (!email) {
         return res.status(400).json({ message: 'Email query parameter is missing' });
     }
@@ -334,6 +337,25 @@ app.get('/users/email', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+// 사용자 정보 가져오기
+app.get('/users/:userId', async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const user = await db.collection('users').findOne({ id: userId }); // id 필드로 사용자 조회
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json(user); // 사용자 정보 반환
+    } catch (err) {
+        console.error('Error fetching user:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
 
 // 채널에 새로운 메시지 추가하기
 app.post('/messages', async (req, res) => {
@@ -378,14 +400,16 @@ app.get('/messages', async (req, res) => {
     }
 });
 
+
 // 사용자 정보 업데이트
 app.put('/users/:userId', async (req, res) => {
     const { userId } = req.params; // URL에서 userId 추출
     const updatedUser = req.body;  // 요청 본문에서 업데이트할 사용자 정보 추출
 
     try {
+        // _id 대신 id 필드로 사용자 업데이트
         const result = await db.collection('users').updateOne(
-            { id: userId },
+            { id: userId },  // id 필드를 사용하여 사용자를 식별
             { $set: updatedUser }
         );
 
@@ -399,6 +423,7 @@ app.put('/users/:userId', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
 
 // 사용자 삭제
 app.delete('/users/:userId', async (req, res) => {
