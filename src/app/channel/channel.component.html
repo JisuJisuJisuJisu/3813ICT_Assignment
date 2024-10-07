@@ -3,15 +3,14 @@
         <div class="chat">
             <div class="card">
                 <div class="card-body msg_card_body">
-                    <div class="message-list">
+                    <div class="message-list w-100" > <!-- 전체 너비 사용 -->
                         <!-- 동적으로 메시지 표시 -->
-                        <div *ngFor="let message of messages">
+                        <div *ngFor="let message of messages" class="message-item">
                             <!-- 내가 보낸 메시지 -->
                             <div *ngIf="message.userId === userId" class="d-flex justify-content-end mb-4">
                                 <div class="d-flex align-items-center">
                                     <div class="msg_cotainer_send">
                                         <strong>{{ message.username || 'Unknown' }}:</strong> {{ message.message }}
-                                        
                                     </div>
                                     <div class="img_cont_msg ml-2">
                                         <img [src]="'http://localhost:3000' + message.profileImageUrl" class="user_img_msg" alt="user image"> <!-- 사용자 이미지 -->
@@ -27,7 +26,6 @@
                                     </div>
                                     <div class="msg_cotainer">
                                         <strong>{{ message.username || 'Unknown' }}:</strong> {{ message.message }}
-                                        
                                     </div>
                                 </div>
                             </div>

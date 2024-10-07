@@ -6,6 +6,29 @@ body, html {
     background: linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
 }
 
+.message-list {
+    width: 800px; /* 전체 너비 */
+}
+
+.message-item {
+    width: 100%; /* 개별 메시지 항목이 전체 너비를 사용하도록 */
+}
+
+.msg_card_body {
+    overflow-y: auto;
+    height: calc(100vh - 160px); /* 메시지 창의 높이를 조정 */
+}
+
+.d-flex {
+    display: flex;
+    align-items: center;
+}
+
+.justify-content-start, .justify-content-end {
+    display: flex;
+    align-items: center;
+}
+
 .input-group {
     display: flex;
     align-items: center;
@@ -21,9 +44,9 @@ body, html {
     flex: 1;
     background-color: rgba(0, 0, 0, 0.3);
     border: none;
-    padding: 10px;
+    padding: 5px;
     color: white;
-    height: 60px;
+    height: 40px;
     border-radius: 10px 0 0 10px;
     font-size: 14px;
 }
@@ -49,8 +72,8 @@ body, html {
 }
 
 .card {
-    height: calc(80vh); /* 화면 비율에 맞추어 높이 설정 */
-    max-width: 90%;
+    height: calc(90vh); /* 화면 비율에 맞추어 높이 증가 */
+    max-width: 100%;
     border-radius: 15px !important;
     background-color: rgba(0, 0, 0, 0.4) !important;
     position: relative;
@@ -60,11 +83,6 @@ body, html {
     padding: 0.75rem 0 !important;
     overflow-y: auto;
     white-space: nowrap;
-}
-
-.msg_card_body {
-    overflow-y: auto;
-    height: calc(100vh - 160px); /* 카드 높이에 따라 자동 조정 */
 }
 
 .card-header {
@@ -79,163 +97,32 @@ body, html {
     height: 70px; /* footer 높이 유지 */
 }
 
-.container {
-    align-content: center;
-}
-
-.search {
-    border-radius: 15px 0 0 15px !important;
-    background-color: rgba(0, 0, 0, 0.3) !important;
-    border: 0 !important;
-    color: white !important;
-}
-
-.search:focus {
-    box-shadow: none !important;
-    outline: 0px !important;
-}
-
-.type_msg {
-    background-color: rgba(0, 0, 0, 0.3) !important;
-    border: 0 !important;
-    color: white !important;
-    height: 60px !important;
-    overflow-y: auto;
-}
-
-.type_msg:focus {
-    box-shadow: none !important;
-    outline: 0px !important;
-}
-
-.attach_btn {
-    border-radius: 15px 0 0 15px !important;
-    background-color: rgba(0, 0, 0, 0.3) !important;
-    border: 0 !important;
-    color: white !important;
-    cursor: pointer;
-}
-
-.send_btn {
-    border-radius: 0 15px 15px 0 !important;
-    background-color: rgba(0, 0, 0, 0.3) !important;
-    border: 0 !important;
-    color: white !important;
-    cursor: pointer;
-}
-
-.contacts {
-    list-style: none;
-    padding: 0;
-}
-
-.contacts li {
-    width: 100% !important;
-    padding: 5px 10px;
-    margin-bottom: 15px !important;
-}
-
-.active {
-    background-color: rgba(0, 0, 0, 0.3);
-}
-
-.user_img {
-    height: 70px;
-    width: 70px;
-    border: 1.5px solid #f5f6fa;
-}
-
-.user_img_msg {
-    height: 40px;
-    width: 40px;
-    border: 1.5px solid #f5f6fa;
-    border-radius: 50%; /* 동그란 프로필 사진 */
-}
-
-.img_cont {
-    position: relative;
-    height: 70px;
-    width: 70px;
-}
-
-.img_cont_msg {
-    height: 40px;
-    width: 40px;
-}
-
-.online_icon {
-    position: absolute;
-    height: 15px;
-    width: 15px;
-    background-color: #4cd137;
-    border-radius: 50%;
-    bottom: 0.2em;
-    right: 0.4em;
-    border: 1.5px solid white;
-}
-
-.offline {
-    background-color: #c23616 !important;
-}
-
-.user_info {
+.msg_cotainer, .msg_cotainer_send {
+    display: flex; /* 수평 정렬 */
+    align-items: center; /* 세로 가운데 정렬 */
     margin-top: auto;
     margin-bottom: auto;
-    margin-left: 15px;
+    border-radius: 25px;
+    padding: 10px;
+    position: relative;
+    max-width: 75%; /* 메시지 박스 최대 너비 설정 */
+    word-wrap: break-word;
+    margin-bottom: 15px;
 }
 
-.user_info span {
-    font-size: 20px;
-    color: white;
-}
-
-.user_info p {
-    font-size: 10px;
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.video_cam {
-    margin-left: 50px;
-    margin-top: 5px;
-}
-
-.video_cam span {
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    margin-right: 20px;
-}
-
+/* 상대방이 보낸 메시지 - 왼쪽에 정렬 */
 .msg_cotainer {
-    display: flex; /* 수평 정렬 */
-    align-items: center; /* 세로 가운데 정렬 */
-    margin-top: auto;
-    margin-bottom: auto;
-    border-radius: 25px;
-    background-color: #82ccdd;
-    padding: 10px;
-    position: relative;
-    max-width: 60%;
-    word-wrap: break-word;
-    margin-bottom: 15px;
-    margin-left: 0; /* 왼쪽 끝에 붙음 */
-    margin-right: auto;
+    background-color: #82ccdd; /* 상대방 메시지 배경색 */
+    margin-left: 10px;
+    margin-right: auto; /* 왼쪽 정렬 */
 }
 
+/* 내가 보낸 메시지 - 오른쪽에 정렬 */
 .msg_cotainer_send {
-    display: flex; /* 수평 정렬 */
-    align-items: center; /* 세로 가운데 정렬 */
-    margin-top: auto;
-    margin-bottom: auto;
-    border-radius: 25px;
-    background-color: #78e08f;
-    padding: 10px;
-    position: relative;
-    max-width: 60%;
-    word-wrap: break-word;
-    margin-bottom: 15px;
-    margin-left: auto; /* 오른쪽 끝에 붙음 */
+    background-color: #78e08f; /* 내가 보낸 메시지 배경색 */
     margin-right: 0;
+    margin-left: 800px; /* 오른쪽 정렬 */
+    align-self: flex-end; /* 오른쪽에 완전히 붙이기 */
 }
 
 .img_cont_msg {
@@ -244,7 +131,8 @@ body, html {
     align-items: center;
     height: 40px;
     width: 40px;
-    margin-right: 10px; /* 메시지와 프로필 사이 간격 */
+    margin-left: 10px;
+    margin-right: 1px; /* 메시지와 프로필 사이 간격 */
 }
 
 .user_img_msg {
@@ -252,56 +140,4 @@ body, html {
     width: 40px;
     border-radius: 50%; /* 동그란 프로필 이미지 */
     border: 1.5px solid #f5f6fa;
-}
-
-.msg_head {
-    position: relative;
-}
-
-#action_menu_btn {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    color: white;
-    cursor: pointer;
-    font-size: 20px;
-}
-
-.action_menu {
-    z-index: 1;
-    position: absolute;
-    padding: 15px 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
-    border-radius: 15px;
-    top: 30px;
-    right: 15px;
-    display: none;
-}
-
-.action_menu ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.action_menu ul li {
-    width: 100%;
-    padding: 10px 15px;
-    margin-bottom: 5px;
-}
-
-.action_menu ul li i {
-    padding-right: 10px;
-}
-
-.action_menu ul li:hover {
-    cursor: pointer;
-    background-color: rgba(0, 0, 0, 0.2);
-}
-
-@media (max-width: 576px) {
-    .contacts_card {
-        margin-bottom: 15px !important;
-    }
 }
