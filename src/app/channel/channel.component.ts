@@ -62,6 +62,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
     // 새로운 메시지를 수신
     this.socket.on('new-message', (message) => {
       console.log('새로운 메시지 수신:', message);
+      console.log('프로필 이미지 URL:',  message.profileImageUrl); // 여기서 profileImageUrl로 변경
       this.messages.push({
         userId: message.userId,
         username: message.username, // 서버에서 받은 사용자 이름 사용

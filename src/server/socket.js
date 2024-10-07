@@ -1,3 +1,4 @@
+const { ObjectId } = require('mongodb'); // ObjectId 추가
 const socketIo = require('socket.io');
 
 function setupSocket(server, db) {
@@ -22,8 +23,17 @@ function setupSocket(server, db) {
       console.log('메시지 수신:', data);
       const { channelId, message, userId, username } = data; // username도 추가
 
-      // MongoDB에 메시지 저장
       try {
+        // MongoDB에서 사용자 프로필 이미지 조회
+        console.log('사용자 조회 시작, userId:', userId); 
+
+        // userId를 ObjectId로 변환하여 조회
+        const user = await db.collection('users').findOne({ _id: new ObjectId(userId) });
+        console.log('조회된 사용자 정보:', user); 
+        
+        const profileImageUrl = user ? user.profileImage : null; // 사용자 프로필 이미지 가져오기
+
+        // MongoDB에 메시지 저장
         await db.collection('messages').insertOne({
           groupId: data.groupId || null, // 그룹 ID가 있으면 저장, 없으면 null
           channelId,
@@ -33,8 +43,13 @@ function setupSocket(server, db) {
           timestamp: new Date()
         });
 
-        // 메시지를 해당 채널에 있는 모든 사용자에게 전송
-        io.to(channelId).emit('new-message', { userId, username, text: message }); // userId와 username 모두 전송
+        // 메시지를 해당 채널에 있는 모든 사용자에게 전송 (프로필 이미지 포함)
+        io.to(channelId).emit('new-message', { 
+          userId, 
+          username, 
+          text: message, 
+          profileImageUrl // 사용자 프로필 이미지 추가
+        });
       } catch (error) {
         console.error('메시지 저장 중 오류 발생:', error);
       }

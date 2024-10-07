@@ -14,7 +14,7 @@
                                         
                                     </div>
                                     <div class="img_cont_msg ml-2">
-                                        <img [src]="message.profileImageUrl" class="user_img_msg" alt="user image"> <!-- 사용자 이미지 -->
+                                        <img [src]="'http://localhost:3000' + message.profileImageUrl" class="user_img_msg" alt="user image"> <!-- 사용자 이미지 -->
                                     </div>
                                 </div>
                             </div>
@@ -23,7 +23,7 @@
                             <div *ngIf="message.userId !== userId" class="d-flex justify-content-start mb-4">
                                 <div class="d-flex align-items-center">
                                     <div class="img_cont_msg mr-2">
-                                        <img [src]="message.profileImageUrl" class="user_img_msg" alt="user image"> <!-- 상대방 이미지 -->
+                                        <img [src]="'http://localhost:3000' + message.profileImageUrl" class="user_img_msg" alt="user image"> <!-- 상대방 이미지 -->
                                     </div>
                                     <div class="msg_cotainer">
                                         <strong>{{ message.username || 'Unknown' }}:</strong> {{ message.message }}

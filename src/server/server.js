@@ -393,17 +393,29 @@ app.get('/users/:userId', async (req, res) => {
     }
 });
 
-
-
 // 채널에 새로운 메시지 추가하기
 app.post('/messages', async (req, res) => {
+    console.log("hello");
     try {
+        console.log("hello2");
         const { channelId, userId, message } = req.body;  // 요청 본문에서 필요한 필드 추출
 
         // 필수 필드가 모두 있는지 확인
         if (!channelId || !userId || !message) {
             return res.status(400).json({ message: 'Missing required fields: channelId, userId, message' });
         }
+
+        console.log('요청된 userId:', userId);
+        // 작성자 정보 조회 (profileImage 포함)
+        const user = await db.collection('users').findOne({ id: userId });
+        console.log('조회된 사용자 정보:', user);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // 로그로 user 정보 확인
+        console.log('사용자 정보:', user);
 
         // MongoDB에 메시지 저장
         const result = await db.collection('messages').insertOne({
@@ -413,12 +425,24 @@ app.post('/messages', async (req, res) => {
             timestamp: new Date()
         });
 
-        res.status(201).json({ message: 'Message saved successfully', messageId: result.insertedId });
+        // 저장된 메시지와 함께 작성자의 profileImage를 반환
+        const savedMessage = {
+            messageId: result.insertedId,
+            userId,
+            username: user.username,
+            profileImage: user.profileImage,  // 프로필 이미지 URL 추가
+            message,
+            timestamp: new Date()
+        };
+
+        console.log('저장된 메시지:', savedMessage); // 확인을 위한 로그 추가
+        res.status(201).json({ message: 'Message saved successfully', savedMessage });
     } catch (error) {
         console.error('메시지 저장 중 오류 발생:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
 
 // 특정 채널의 모든 메시지 가져오기
 app.get('/messages', async (req, res) => {
@@ -431,13 +455,24 @@ app.get('/messages', async (req, res) => {
     try {
         // 특정 채널의 모든 메시지 가져오기
         const messages = await db.collection('messages').find({ channelId }).toArray();
-        res.status(200).json(messages);
+
+        // 각 메시지 작성자의 profileImage 추가
+        const messagesWithUserProfile = await Promise.all(
+            messages.map(async (message) => {
+                const user = await db.collection('users').findOne({ id: message.userId });
+                return {
+                    ...message,
+                    profileImageUrl: user ? user.profileImage : null // 프로필 이미지 추가
+                };
+            })
+        );
+
+        res.status(200).json(messagesWithUserProfile);
     } catch (error) {
         console.error('메시지 가져오기 중 오류 발생:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
 
 // 사용자 정보 업데이트
 app.put('/users/:userId', async (req, res) => {
