@@ -1,12 +1,21 @@
-const http = require('http');
+const express = require('express');
 const { MongoClient } = require('mongodb');
-const setupSocket = require('./socket');
 const multer = require('multer');
-const uri = "mongodb://localhost:27017";
-const client = new MongoClient(uri);
 const fs = require('fs');
 const path = require('path');
+const socketIO = require('socket.io');
+const http = require('http');
+const cors = require('cors');
+const setupSocket = require('./socket');
 
+const app = express();
+const uri = "mongodb://localhost:27017";
+const client = new MongoClient(uri);
+const server = http.createServer(app); // http 서버 생성
+// const io = require('./socket')(server, db); 
+
+app.use(express.json()); // JSON 형식의 요청 본문을 자동으로 파싱
+app.use(cors());
 
 // multer 설정 (이미지 저장 경로 및 파일 이름)
 const storage = multer.diskStorage({
@@ -24,674 +33,400 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-async function startServer() {
-    async function connectDB() {
-        try {
-            await client.connect();
-            console.log("MongoDB에 성공적으로 연결되었습니다.");
-            return client.db('s5310537'); // MongoDB 데이터베이스를 반환
-        } catch (error) {
-            console.error('MongoDB 연결 실패:', error);
-            return null; // 연결 실패 시 null 반환
-        }
+// MongoDB 연결 함수
+async function connectDB() {
+    try {
+        await client.connect();
+        console.log("MongoDB에 성공적으로 연결되었습니다.");
+        return client.db('s5310537'); // MongoDB 데이터베이스를 반환
+    } catch (error) {
+        console.error('MongoDB 연결 실패:', error);
+        return null;
     }
+}
 
+// 서버 시작 함수
+async function startServer() {
     const db = await connectDB();
     if (!db) {
         console.log("데이터베이스 연결 실패. 서버를 시작할 수 없습니다.");
         return;
     }
 
-    const server = http.createServer(async (req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    // 정적 파일 제공: 이미지 파일 서빙
+    app.use('/uploads/profile-images', express.static(path.join(__dirname, 'uploads', 'profile-images')));
 
-        if (req.method === 'OPTIONS') {
-            res.writeHead(204);
-            res.end();
-            return;
-        }
-
-        // 정적 파일 제공: 이미지 파일 직접 서빙
-        else if (req.method === 'GET' && req.url.startsWith('/uploads/profile-images/')) {
-            console.log("heyyyy!");
-            const filePath = path.join(__dirname, 'uploads', 'profile-images', path.basename(req.url));
-            console.log("Requested file path:", filePath);
-        
-            fs.access(filePath, fs.constants.F_OK, (err) => {
-                if (err) {
-                    console.error("File not found:", filePath);
-                    res.writeHead(404, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'File not found' }));
-                    return;
-                }
-        
-                // 파일이 존재할 경우 클라이언트에 전송
-                res.writeHead(200, { 'Content-Type': 'image/png' }); // 여기서는 PNG 형식으로 가정
-                const readStream = fs.createReadStream(filePath);
-                readStream.pipe(res);
-            });
-        }
-        
-
-        // 프로필 이미지 업로드 처리
-        else if (req.method === 'POST' && req.url === '/upload-profile-image') {
-            upload.single('profileImage')(req, res, async function (err) {
-                if (err) {
-                    res.writeHead(500, { 'Content-Type': 'application/json' });
-                    return res.end(JSON.stringify({ message: 'Image upload failed', error: err.toString() }));
-                }
-
-                // 파일이 성공적으로 업로드된 경우
-                const userId = req.body.userId; // 사용자 ID 가져오기
-                const imageUrl = `/uploads/profile-images/${req.file.filename}`; // 이미지 파일 경로 설정
-
-                // MongoDB에 이미지 경로 업데이트
-                try {
-                    const result = await db.collection('users').updateOne(
-                        { id: userId },
-                        { $set: { profileImage: imageUrl } }
-                    );
-
-                    if (result.matchedCount === 0) {
-                        res.writeHead(404, { 'Content-Type': 'application/json' });
-                        return res.end(JSON.stringify({ message: 'User not found' }));
-                    }
-
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Image uploaded successfully', imageUrl }));
-                } catch (error) {
-                    res.writeHead(500, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Internal Server Error', error: error.toString() }));
-                }
-            });
-        }
-    // 특정 그룹 가져오기
-    else if (req.method === 'GET' && req.url.startsWith('/groups/')) {
-            const groupId = req.url.split('/')[2]; // 그룹 ID 추출
-        
-            try {
-                const group = await db.collection('groups').findOne({ id: groupId });
-                
-                if (!group) {
-                    res.writeHead(404, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Group not found' }));
-                    return;
-                }
-        
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(group));
-            } catch (error) {
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Internal Server Error' }));
-            }
-    }
-        
-  // 새로운 그룹 생성
-    else if (req.method === 'POST' && req.url === '/groups') {
-            let body = '';
-
-            req.on('data', chunk => {
-                body += chunk.toString();
-            });
-
-            req.on('end', async () => {
-                try {
-                    const newGroup = JSON.parse(body);
-
-                    // 새로운 그룹 생성 시 MongoDB의 _id 필드를 자동 생성하도록 설정
-                    if (newGroup._id) {
-                        delete newGroup._id;  // _id 필드가 존재할 경우 삭제하여 자동 생성
-                    }
-                    newGroup.pendingUsers = [];  // pendingUsers 필드 초기화
-                    newGroup.members = [];  // 정식 멤버 목록 초기화
-                    // 그룹 생성 및 저장
-                    const result = await db.collection('groups').insertOne(newGroup);
-
-                    // 삽입된 그룹의 정보를 가져오기 위해 다시 한 번 조회
-                    const insertedGroup = await db.collection('groups').findOne({ _id: result.insertedId });
-
-                    // 그룹이 저장된 후, 생성한 사용자의 groups 필드에 그룹 추가
-                    const createdBy = newGroup.createdBy;
-                    if (createdBy) {
-                        await db.collection('users').updateOne(
-                            { id: createdBy },
-                            { $push: { groups: { id: insertedGroup.id, name: insertedGroup.name, description: insertedGroup.description } } }
-                        );
-                    }
-
-                    res.writeHead(201, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(insertedGroup));  // 생성된 그룹 반환
-                } catch (error) {
-                    console.error('Error inserting group:', error);
-                    if (!res.headersSent) {  // 응답 헤더가 전송되지 않았을 때만 응답을 전송
-                        res.writeHead(500, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ message: 'Internal Server Error' }));
-                    }
-                }
-            });
-    }
-
+    // 여기에 다른 라우트들을 추가해 나갈 거야.
     
-    //모든 그룹 가져오기
-    else if (req.method === 'GET' && req.url === '/groups') {
+        // 모든 그룹 가져오기
+    app.get('/groups', async (req, res) => {
         try {
             const groups = await db.collection('groups').find({}).toArray();
-            // console.log('Groups data:', groups);
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(groups));
+            res.status(200).json(groups);  // 그룹 리스트 반환
         } catch (error) {
             console.error('Error reading groups data:', error);
-            res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: 'Internal Server Error' }));
+            res.status(500).json({ message: 'Internal Server Error' });
         }
-    }
-    
-    //그룹에 채널 추가
-    else if (req.method === 'POST' && req.url.startsWith('/groups/')) {
-        const groupId = req.url.split('/')[2];
-        let body = '';
+    });
 
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
+    // 특정 그룹 가져오기
+    app.get('/groups/:groupId', async (req, res) => {
+        const { groupId } = req.params; // 그룹 ID 추출
 
-        req.on('end', async () => {
-            try {
-                const newChannel = JSON.parse(body);
-
-                // _id 필드가 있을 경우 삭제하여 MongoDB가 자동 생성하도록 함
-                delete newChannel._id;
-
-                const result = await db.collection('groups').updateOne(
-                    { id: groupId }, // groupId로 그룹 식별
-                    { $push: { channels: newChannel } }, // 새로운 채널 추가
-                    { $push: { pendingUsers: userId } }
-                );
-
-                if (result.matchedCount === 0) {
-                    res.writeHead(404, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Group not found' }));
-                    return;
-                }
-
-                res.writeHead(201, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Channel added successfully', group: groupId }));
-            } catch (error) {
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Internal Server Error' }));
-            }
-        });
-    }
-
-    
-    // 가입 요청 처리
-    else if (req.method === 'POST' && req.url.startsWith('/groups/')) {
-        const groupId = req.url.split('/')[2]; // 그룹 ID 추출
-        let body = '';
-    
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-    
-        req.on('end', async () => {
-            const { userId } = JSON.parse(body); // 사용자 ID 가져오기
-    
-            try {
-                const groupUpdateResult = await db.collection('groups').updateOne(
-                    { id: groupId },
-                    { $push: { pendingUsers: userId } }
-                );
-    
-                if (groupUpdateResult.matchedCount === 0) {
-                    res.writeHead(404, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Group not found' }));
-                    return;
-                }
-    
-                const userUpdateResult = await db.collection('users').updateOne(
-                    { id: userId },
-                    { $push: { interestGroups: groupId } }
-                );
-    
-                if (userUpdateResult.matchedCount === 0) {
-                    res.writeHead(404, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'User not found' }));
-                    return;
-                }
-    
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Join request submitted successfully' }));
-            } catch (err) {
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Internal Server Error' }));
-            }
-        });
-    }
-    
-    // 그룹에 사용자를 초대하는 라우트
-    else if (req.method === 'POST' && req.url.endsWith('/invite')) {
-        
-        const groupId = req.url.split('/')[2]; // 그룹 ID 추출
-        let body = '';
-    
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-    
-        req.on('end', async () => {
-            const { userId } = JSON.parse(body);
-            console.log('Invite user to group:', { groupId, userId }); // 요청 데이터 로그 출력
-    
-            try {
-                const groupUpdateResult = await db.collection('groups').updateOne(
-                    { id: groupId },
-                    { $push: { pendingUsers: userId } } // 초대할 유저 추가
-                );
-    
-                console.log('groupUpdateResult:', groupUpdateResult); // 업데이트 결과 로그 출력
-    
-                if (groupUpdateResult.matchedCount === 0) {
-                    res.writeHead(404, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Group not found' }));
-                    return;
-                }
-    
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'User invited successfully' }));
-            } catch (error) {
-                console.error('Error inviting user:', error); // 서버 로그에 에러 출력
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Internal Server Error', error: error.toString() }));
-            }
-        });
-    }
-    
-    // 가입 승인 처리
-    else if (req.method === 'PUT' && req.url.startsWith('/groups/approve/')) {
-        const groupId = req.url.split('/')[3]; // 그룹 ID 추출
-        let body = '';
-
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-
-        req.on('end', async () => {
-            const { userId } = JSON.parse(body); // 사용자 ID 가져오기
-
-            try {
-                // 그룹에서 사용자의 가입 요청 승인 처리
-                const group = await db.collection('groups').findOne({ id: groupId });
-                if (!group) {
-                    res.writeHead(404, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Group not found' }));
-                    return;
-                }
-
-                // 그룹 업데이트: pendingUsers에서 제거하고 members에 추가
-                const groupUpdateResult = await db.collection('groups').updateOne(
-                    { id: groupId },
-                    {
-                        $pull: { pendingUsers: userId },
-                        $push: { members: userId }
-                    }
-                );
-
-                if (groupUpdateResult.matchedCount === 0) {
-                    res.writeHead(404, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Group not found' }));
-                    return;
-                }
-
-                // 사용자 문서에 그룹 정보 추가
-                const userUpdateResult = await db.collection('users').updateOne(
-                    { id: userId },
-                    { $push: { groups: { id: group.id, name: group.name, description: group.description, createdBy: group.createdBy, channels: group.channels, imageUrl: group.imageUrl, pendingUsers: group.pendingUsers } } }
-                );
-
-                if (userUpdateResult.matchedCount === 0) {
-                    res.writeHead(404, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'User not found' }));
-                    return;
-                }
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'User approved successfully' }));
-            } catch (error) {
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Internal Server Error', error: error.toString() }));
-            }
-        });
-    }
-
-    // 그룹 요청 거절
-    else if (req.method === 'PUT' && req.url.startsWith('/groups/reject/')) {
-        const parts = req.url.split('/'); // URL을 '/'로 분할
-        const groupId = parts.length > 3 ? parts[3] : null; // 그룹 ID 추출
-
-        // 그룹 ID가 유효한지 확인
-        if (!groupId) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: '그룹 ID가 필요합니다.' }));
-            return;
-        }
-
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString(); // 본문 데이터를 수신
-        });
-
-        req.on('end', async () => {
-            const { userId } = JSON.parse(body); // JSON으로 파싱하여 userId 가져오기
-
-            try {
-                const result = await db.collection('groups').updateOne(
-                    { id: groupId },
-                    { $pull: { pendingUsers: userId } }
-                );
-
-                if (result.matchedCount === 0) {
-                    res.writeHead(404, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: '그룹을 찾을 수 없습니다.' }));
-                    return;
-                }
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: '가입 요청이 거절되었습니다.' }));
-            } catch (error) {
-                console.error('가입 요청 거절 중 오류 발생:', error);
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: '서버 오류가 발생했습니다.' }));
-            }
-        });
-    }
-
-    // 가입 승인 처리
-    else if (req.method === 'PUT' && req.url.startsWith('/groups/approve/')) {
-        const groupId = req.url.split('/')[2]; // 그룹 ID 추출
-        let body = '';
-    
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-    
-        req.on('end', async () => {
-            const { userId } = JSON.parse(body); // 사용자 ID 가져오기
-    
-            try {
-                // 그룹에서 사용자의 가입 요청 승인 처리
-                const groupUpdateResult = await db.collection('groups').updateOne(
-                    { id: groupId },
-                    { $pull: { pendingUsers: userId },
-                    $push: { members: userId } 
-                }
-                );
-    
-                if (groupUpdateResult.matchedCount === 0) {
-                    res.writeHead(404, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Group not found' }));
-                    return;
-                }
-    
-                // 사용자 문서에 그룹 추가
-                const userUpdateResult = await db.collection('users').updateOne(
-                    { id: userId },
-                    { $push: { groups: groupId } }
-                );
-    
-                if (userUpdateResult.matchedCount === 0) {
-                    res.writeHead(404, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'User not found' }));
-                    return;
-                }
-    
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'User approved successfully' }));
-            } catch (error) {
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Internal Server Error', error: error.toString() }));
-            }
-        });
-    }
-    
-    // 사용자 등록
-    else if (req.method === 'POST' && req.url === '/signup') {
-        let body = '';
-      
-        req.on('data', chunk => {
-          body += chunk.toString();
-          console.log('Receiving data chunk:', chunk.toString()); 
-        });
-      
-        req.on('end', async () => {
-          try {
-            const newUser = JSON.parse(body);
-            newUser.interestGroups = []; // 사용자의 관심 그룹 목록 초기화
-            console.log('Attempting to register new user:', newUser);
-      
-            const result = await db.collection('users').insertOne(newUser);
-            console.log('New user registered successfully:', result);
-      
-            res.writeHead(201, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(newUser));
-          } catch (err) {
-            console.error('Database insertion error:', err);
-            res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: 'Internal Server Error' }));
-          }
-        });
-      }
-      
-    // 로그인
-    else if (req.method === 'POST' && req.url === '/login') {
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-    
-        req.on('end', async () => {  // 비동기 함수로 변경
-            try {
-                const { email, password } = JSON.parse(body);
-                console.log(`Login attempt for email: ${email}, with password: ${password}`);
-    
-                try {
-                    const user = await db.collection('users').findOne({ email: email, password: password });
-                    if (!user) {
-                        console.log('No user found with that email and password');
-                        res.writeHead(401, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ message: 'Invalid email or password' }));
-                        return;
-                    }
-                    
-                    console.log('Login successful:', user);
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Login successful', user }));
-                } catch (dbError) {
-                    console.error('Database query error:', dbError);
-                    res.writeHead(500, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Internal Server Error', error: dbError.toString() }));
-                }
-            } catch (parseError) {
-                console.error('Error parsing the body:', parseError);
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Bad request', error: parseError.toString() }));
-            }
-        });
-    }
-    
-    else if (req.method === 'GET' && req.url === '/users') {
-        console.log('Received GET request for /users');
-    
         try {
-            const users = await db.collection('users').find({}).toArray();
-            // console.log('Users from DB:', users);  // 조회된 데이터를 확인
-    
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(users));
-        } catch (error) {
-            console.error('Database error:', error);
-            res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: 'Internal Server Error' }));
-        }
-    }
+            const group = await db.collection('groups').findOne({ id: groupId });
+            
+            if (!group) {
+                return res.status(404).json({ message: 'Group not found' });
+            }
 
-    else if (req.method === 'GET' && req.url.startsWith('/users')) {
-    console.log('Received GET request for /users with email query');
+            res.status(200).json(group);  // 그룹 정보 반환
+        } catch (error) {
+            console.error('Error fetching group:', error);
+            res.status(500).json({ message: 'Internal Server Error' });
+        }
+    });
+    // 새로운 그룹 생성
+app.post('/groups', async (req, res) => {
+    try {
+        let newGroup = req.body;
+
+        // MongoDB가 _id를 자동 생성하므로, 수동으로 _id 필드를 삭제
+        if (newGroup._id) {
+            delete newGroup._id;
+        }
+
+        newGroup.pendingUsers = [];  // pendingUsers 필드 초기화
+        newGroup.members = [];  // members 필드 초기화
+
+        // 그룹 생성 및 MongoDB에 저장
+        const result = await db.collection('groups').insertOne(newGroup);
+
+        // 생성된 그룹 다시 조회
+        const insertedGroup = await db.collection('groups').findOne({ _id: result.insertedId });
+
+        // 생성한 사용자의 그룹 리스트에 추가
+        const createdBy = newGroup.createdBy;
+        if (createdBy) {
+            await db.collection('users').updateOne(
+                { id: createdBy },
+                { $push: { groups: { id: insertedGroup.id, name: insertedGroup.name, description: insertedGroup.description } } }
+            );
+        }
+
+        // 성공적으로 생성된 그룹 반환
+        res.status(201).json(insertedGroup);
+
+    } catch (error) {
+        console.error('Error inserting group:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+        // 모든 그룹 가져오기
+app.get('/groups', async (req, res) => {
+    try {
+        const groups = await db.collection('groups').find({}).toArray();
+        res.status(200).json(groups);  // 그룹 리스트 반환
+    } catch (error) {
+        console.error('Error reading groups data:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// 그룹에 채널 추가
+app.post('/groups/:groupId/channels', async (req, res) => {
+    const { groupId } = req.params; // URL에서 groupId 추출
+    const newChannel = req.body;
+
+    // MongoDB가 _id를 자동 생성하므로, 수동으로 _id 필드를 삭제
+    delete newChannel._id;
 
     try {
-        // URL에서 email 값을 추출 (URLSearchParams 사용)
-        const url = new URL(req.url, `http://${req.headers.host}`);
-        const email = url.searchParams.get('email');
+        const result = await db.collection('groups').updateOne(
+            { id: groupId }, // 그룹을 groupId로 식별
+            { $push: { channels: newChannel } } // 새로운 채널 추가
+        );
 
-        if (!email) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            return res.end(JSON.stringify({ message: 'Email query parameter is missing' }));
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: 'Group not found' });
         }
 
-        // 이메일을 기반으로 사용자 검색
-        const user = await db.collection('users').findOne({ email: email });
-        console.log('User from DB:', user);  // 조회된 사용자 데이터 확인
+        res.status(201).json({ message: 'Channel added successfully', group: groupId });
 
+    } catch (error) {
+        console.error('Error adding channel:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// 가입 요청 처리
+app.post('/groups/:groupId/join', async (req, res) => {
+    const { groupId } = req.params; // 그룹 ID 추출
+    const { userId } = req.body; // 사용자 ID 가져오기
+
+    try {
+        const groupUpdateResult = await db.collection('groups').updateOne(
+            { id: groupId },
+            { $push: { pendingUsers: userId } }
+        );
+
+        if (groupUpdateResult.matchedCount === 0) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        const userUpdateResult = await db.collection('users').updateOne(
+            { id: userId },
+            { $push: { interestGroups: groupId } }
+        );
+
+        if (userUpdateResult.matchedCount === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({ message: 'Join request submitted successfully' });
+    } catch (err) {
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// 그룹에 사용자를 초대하는 라우트
+app.post('/groups/:groupId/invite', async (req, res) => {
+    const { groupId } = req.params; // 그룹 ID 추출
+    const { userId } = req.body; // 사용자 ID 가져오기
+
+    try {
+        const groupUpdateResult = await db.collection('groups').updateOne(
+            { id: groupId },
+            { $push: { pendingUsers: userId } }
+        );
+
+        if (groupUpdateResult.matchedCount === 0) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        res.status(200).json({ message: 'User invited successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Internal Server Error', error: error.toString() });
+    }
+});
+
+// 가입 승인 처리
+app.put('/groups/:groupId/approve', async (req, res) => {
+    const { groupId } = req.params; // 그룹 ID 추출
+    const { userId } = req.body; // 사용자 ID 가져오기
+
+    try {
+        const groupUpdateResult = await db.collection('groups').updateOne(
+            { id: groupId },
+            {
+                $pull: { pendingUsers: userId },
+                $push: { members: userId }
+            }
+        );
+
+        if (groupUpdateResult.matchedCount === 0) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        const userUpdateResult = await db.collection('users').updateOne(
+            { id: userId },
+            { $push: { groups: groupId } }
+        );
+
+        if (userUpdateResult.matchedCount === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({ message: 'User approved successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Internal Server Error', error: error.toString() });
+    }
+});
+
+// 그룹 요청 거절
+app.put('/groups/:groupId/reject', async (req, res) => {
+    const { groupId } = req.params; // 그룹 ID 추출
+    const { userId } = req.body; // 사용자 ID 가져오기
+
+    try {
+        const result = await db.collection('groups').updateOne(
+            { id: groupId },
+            { $pull: { pendingUsers: userId } }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        res.status(200).json({ message: 'Join request rejected successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Internal Server Error', error: error.toString() });
+    }
+});
+
+// 사용자 등록
+app.post('/signup', async (req, res) => {
+    try {
+        const newUser = req.body;  // 요청 본문에서 사용자 데이터 가져오기
+        newUser.interestGroups = [];  // 관심 그룹 목록 초기화
+        console.log('Attempting to register new user:', newUser);
+
+        const result = await db.collection('users').insertOne(newUser);
+        console.log('New user registered successfully:', result);
+
+        res.status(201).json(newUser);  // 성공적으로 등록된 사용자 반환
+    } catch (err) {
+        console.error('Database insertion error:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// 로그인
+app.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;  // 요청 본문에서 이메일과 비밀번호 추출
+        console.log(`Login attempt for email: ${email}, with password: ${password}`);
+
+        const user = await db.collection('users').findOne({ email, password });
+        if (!user) {
+            console.log('No user found with that email and password');
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        console.log('Login successful:', user);
+        res.status(200).json({ message: 'Login successful', user });
+    } catch (err) {
+        console.error('Database query error:', err);
+        res.status(500).json({ message: 'Internal Server Error', error: err.toString() });
+    }
+});
+
+// 모든 사용자 조회
+app.get('/users', async (req, res) => {
+    console.log('Received GET request for /users');
+    try {
+        const users = await db.collection('users').find({}).toArray();
+        res.status(200).json(users);  // 사용자 리스트 반환
+    } catch (error) {
+        console.error('Database error:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// 특정 이메일을 기반으로 사용자 조회
+app.get('/users/email', async (req, res) => {
+    console.log('Received GET request for /users with email query');
+    const { email } = req.query;  // 쿼리 파라미터에서 이메일 추출
+
+    if (!email) {
+        return res.status(400).json({ message: 'Email query parameter is missing' });
+    }
+
+    try {
+        const user = await db.collection('users').findOne({ email });
         if (user) {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(user));  // 단일 사용자 정보 반환
+            res.status(200).json(user);  // 단일 사용자 정보 반환
         } else {
-            res.writeHead(404, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: 'User not found' }));
+            res.status(404).json({ message: 'User not found' });
         }
     } catch (error) {
         console.error('Database error:', error);
-        res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'Internal Server Error' }));
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-}
+});
 
-        // 채널에 새로운 메시지 추가하기
-    else if (req.method === 'POST' && req.url === '/messages') {
-        let body = '';
+// 채널에 새로운 메시지 추가하기
+app.post('/messages', async (req, res) => {
+    try {
+        const { channelId, userId, message } = req.body;  // 요청 본문에서 필요한 필드 추출
 
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-
-        req.on('end', async () => {
-            try {
-                const newMessage = JSON.parse(body);
-
-                // 메시지 필수 필드가 있는지 확인
-                const { channelId, userId, message } = newMessage;
-                if (!channelId || !userId || !message) {
-                    res.writeHead(400, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'Missing required fields: channelId, userId, message' }));
-                    return;
-                }
-
-                // MongoDB에 메시지 저장
-                const result = await db.collection('messages').insertOne({
-                    channelId,
-                    userId,
-                    message,
-                    timestamp: new Date()
-                });
-
-                res.writeHead(201, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Message saved successfully', messageId: result.insertedId }));
-            } catch (error) {
-                console.error('메시지 저장 중 오류 발생:', error);
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: 'Internal Server Error' }));
-            }
-        });
-    }
-
-    // 특정 채널의 모든 메시지 가져오기
-    else if (req.method === 'GET' && req.url.startsWith('/messages')) {
-        try {
-            // URL에서 channelId 값을 추출 (URLSearchParams 사용)
-            const url = new URL(req.url, `http://${req.headers.host}`);
-            const channelId = url.searchParams.get('channelId');
-
-            if (!channelId) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                return res.end(JSON.stringify({ message: 'channelId query parameter is missing' }));
-            }
-
-            // 특정 채널의 메시지를 모두 가져오기
-            const messages = await db.collection('messages').find({ channelId: channelId }).toArray();
-            
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(messages));
-        } catch (error) {
-            console.error('메시지 가져오기 중 오류 발생:', error);
-            res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: 'Internal Server Error' }));
+        // 필수 필드가 모두 있는지 확인
+        if (!channelId || !userId || !message) {
+            return res.status(400).json({ message: 'Missing required fields: channelId, userId, message' });
         }
-    }
-    // 사용자 정보 업데이트
-    else if (req.method === 'PUT' && req.url.startsWith('/users/')) {
-        const userId = req.url.split('/')[2];
-        let body = '';
-    
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-    
-        req.on('end', () => {
-            const updatedUser = JSON.parse(body);
-    
-            db.collection('users').updateOne(
-                { id: userId },
-                { $set: updatedUser },
-                (err, result) => {
-                    if (err) {
-                        res.writeHead(500, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ message: 'Internal Server Error' }));
-                        return;
-                    }
-                    if (result.matchedCount === 0) {
-                        res.writeHead(404, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ message: 'User not found' }));
-                        return;
-                    }
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ message: 'User updated successfully' }));
-                }
-            );
-        });
-    }
-    // 사용자 삭제 요청 처리
-    else if (req.method === 'DELETE' && req.url.startsWith('/users/')) {
-        const userId = req.url.split('/')[2]; // URL에서 사용자 ID 추출
-        try {
-            const result = await db.collection('users').deleteOne({ id: userId }); // 사용자 삭제
 
-            if (result.deletedCount === 0) {
-                res.writeHead(404, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ message: '사용자를 찾을 수 없습니다.' }));
-                return;
-            }
+        // MongoDB에 메시지 저장
+        const result = await db.collection('messages').insertOne({
+            channelId,
+            userId,
+            message,
+            timestamp: new Date()
+        });
 
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: `User with ID ${userId} deleted successfully` }));
-        } catch (error) {
-            console.error('사용자 삭제 중 오류 발생:', error);
-            res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: '서버 오류가 발생했습니다.' }));
+        res.status(201).json({ message: 'Message saved successfully', messageId: result.insertedId });
+    } catch (error) {
+        console.error('메시지 저장 중 오류 발생:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// 특정 채널의 모든 메시지 가져오기
+app.get('/messages', async (req, res) => {
+    const { channelId } = req.query;  // 쿼리 파라미터에서 channelId 추출
+
+    if (!channelId) {
+        return res.status(400).json({ message: 'channelId query parameter is missing' });
+    }
+
+    try {
+        // 특정 채널의 모든 메시지 가져오기
+        const messages = await db.collection('messages').find({ channelId }).toArray();
+        res.status(200).json(messages);
+    } catch (error) {
+        console.error('메시지 가져오기 중 오류 발생:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// 사용자 정보 업데이트
+app.put('/users/:userId', async (req, res) => {
+    const { userId } = req.params; // URL에서 userId 추출
+    const updatedUser = req.body;  // 요청 본문에서 업데이트할 사용자 정보 추출
+
+    try {
+        const result = await db.collection('users').updateOne(
+            { id: userId },
+            { $set: updatedUser }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: 'User not found' });
         }
+
+        res.status(200).json({ message: 'User updated successfully' });
+    } catch (err) {
+        console.error('Error updating user:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-    // 그룹 삭제
-    // 그룹 삭제
-else if (req.method === 'DELETE' && req.url.startsWith('/groups/')) {
-    const groupId = req.url.split('/').pop();
+});
+
+// 사용자 삭제
+app.delete('/users/:userId', async (req, res) => {
+    const { userId } = req.params; // URL에서 userId 추출
+
+    try {
+        const result = await db.collection('users').deleteOne({ id: userId });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({ message: `User with ID ${userId} deleted successfully` });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// 그룹 삭제
+app.delete('/groups/:groupId', async (req, res) => {
+    const { groupId } = req.params; // URL에서 groupId 추출
 
     try {
         // 그룹 데이터베이스에서 그룹 삭제
         const groupResult = await db.collection('groups').deleteOne({ id: groupId });
         if (groupResult.deletedCount === 0) {
-            res.writeHead(404, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: 'Group not found' }));
-            return;
+            return res.status(404).json({ message: 'Group not found' });
         }
 
         // 사용자 데이터베이스에서 삭제된 그룹 제거
@@ -700,25 +435,22 @@ else if (req.method === 'DELETE' && req.url.startsWith('/groups/')) {
             { $pull: { groups: { id: groupId } } }
         );
 
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'Group and related user data deleted successfully' }));
+        res.status(200).json({ message: 'Group and related user data deleted successfully' });
     } catch (err) {
         console.error('Error deleting group:', err);
-        res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message: 'Internal Server Error' }));
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-}
+});
 
-});// 이하의 요청 처리 로직 구현
     
+    // 소켓 설정
+    setupSocket(server, db);
 
-setupSocket(server, db);
-
+    // 서버 시작
     const PORT = 3000;
-    server.listen(PORT, () => {
-        console.log(`Server running at http://localhost:${PORT}`);
+    server.listen(PORT, () => { // server.listen으로 변경
+        console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
     });
-
 }
 
 startServer();

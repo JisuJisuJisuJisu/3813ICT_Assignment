@@ -21,52 +21,54 @@ export class ProfileComponent implements OnInit {
     password: '',
     groups: [],
     interestGroups: [],
-    profileImage:''
+    profileImage: ''
   };
   
-  userGroups: any[] = []; // 사용자 그룹을 저장할 변수
+  userGroups: any[] = []; // Variable to store user's groups
   loggedInUserEmail: string | null = null;
   selectedFile: File | null = null;
 
   constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
-    // sessionStorage에서 이메일을 가져옴
+    // Retrieve email from sessionStorage
     this.loggedInUserEmail = sessionStorage.getItem('loggedInUserEmail');
     console.log(this.loggedInUserEmail);
 
-    // 로그인 정보가 없는 경우
+    // If no login information is found
     if (!this.loggedInUserEmail) {
-      console.log('로그인 정보가 없습니다.');
-      this.router.navigate(['/login']);  // 로그인 페이지로 리다이렉트
-      return; // 더 이상 진행하지 않음
+      console.log('No login information found.');
+      this.router.navigate(['/login']);  // Redirect to login page
+      return; // Stop further execution
     }
 
-    // 이메일이 존재하는 경우 서버에서 사용자 정보를 가져옴
-    this.http.get<User>(`http://localhost:3000/users?email=${this.loggedInUserEmail}`).subscribe({
-      next: (user: User) => {  // 서버에서 단일 사용자 객체가 반환되는 경우
+    // If email exists, fetch user information from the server
+    this.http.get<User>(`http://localhost:3000/users/email?email=${this.loggedInUserEmail}`).subscribe({
+      next: (user: User) => {  // If a user object is returned from the server
         this.user = user;
         if (!this.user) {
-          console.log('사용자 정보를 찾을 수 없습니다.');
+          console.log('User information not found.');
           this.router.navigate(['/login']);
         } else {
-          this.fetchUserGroups(this.user.id); // 사용자 그룹을 가져옴
+          this.fetchUserGroups(this.user.id); // Fetch user groups
         }
       },
       error: (error) => {
-        console.error('사용자 정보를 불러오는 중 오류가 발생했습니다:', error);
+        console.error('Error fetching user information:', error);
       }
     });
   }
 
+  // Handle file selection for profile image
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];
     this.uploadProfileImage();
   }
 
+  // Upload selected profile image to the server
   uploadProfileImage(): void {
     if (!this.selectedFile) {
-      alert('파일을 선택하세요');
+      alert('Please select a file');
       return;
     }
 
@@ -77,65 +79,64 @@ export class ProfileComponent implements OnInit {
     this.http.post('http://localhost:3000/upload-profile-image', formData)
       .subscribe({
         next: (response: any) => {
-          console.log('이미지 업로드 성공:', response);
-          this.user.profileImage = response.imageUrl; // 서버에서 받은 이미지 URL을 저장
+          console.log('Image upload successful:', response);
+          this.user.profileImage = response.imageUrl; // Save image URL from server
         },
         error: (error) => {
-          console.error('이미지 업로드 실패:', error);
+          console.error('Image upload failed:', error);
         }
       });
   }
   
-  
-  // 사용자가 속한 그룹을 가져오는 메서드
+  // Fetch the groups the user belongs to
   fetchUserGroups(userId: string): void {
     this.http.get<any[]>(`http://localhost:3000/groups`).subscribe({
       next: (groups) => {
-        // 모든 그룹에서 pendingUsers에 userId가 포함된 그룹만 필터링
+        // Filter groups where userId is in pendingUsers
         this.userGroups = groups.filter(group => group.pendingUsers.includes(userId));
-        console.log('가입 요청을 보낸 그룹:', this.userGroups);
+        console.log('Groups with pending join requests:', this.userGroups);
       },
       error: (error) => {
-        console.error('그룹 정보를 불러오는 중 오류가 발생했습니다:', error);
+        console.error('Error fetching group information:', error);
       }
     });
   }
 
-  // 가입 요청 승인 메서드
-approveJoinRequest(groupId: string, userId: string): void {
-  this.http.put(`http://localhost:3000/groups/approve/${groupId}`, { userId }).subscribe({
-    next: () => {
-      console.log('가입 요청이 승인되었습니다.');
-      this.fetchUserGroups(userId); // 그룹 목록을 새로 고침
-    },
-    error: (error) => {
-      console.error('가입 요청 승인 중 오류 발생:', error);
-    }
-  });
-}
+  // Approve a join request
+  approveJoinRequest(groupId: string, userId: string): void {
+    this.http.put(`http://localhost:3000/groups/approve/${groupId}`, { userId }).subscribe({
+      next: () => {
+        console.log('Join request approved.');
+        this.fetchUserGroups(userId); // Refresh group list
+      },
+      error: (error) => {
+        console.error('Error approving join request:', error);
+      }
+    });
+  }
 
-// 가입 요청 거절 메서드
-rejectJoinRequest(groupId: string, userId: string): void {
-  this.http.put(`http://localhost:3000/groups/reject/${groupId}`, { userId }).subscribe({
-    next: () => {
-      console.log('가입 요청이 거절되었습니다.');
-      this.fetchUserGroups(userId); // 그룹 목록을 새로 고침
-    },
-    error: (error) => {
-      console.error('가입 요청 거절 중 오류 발생:', error);
-    }
-  });
-}
+  // Reject a join request
+  rejectJoinRequest(groupId: string, userId: string): void {
+    this.http.put(`http://localhost:3000/groups/reject/${groupId}`, { userId }).subscribe({
+      next: () => {
+        console.log('Join request rejected.');
+        this.fetchUserGroups(userId); // Refresh group list
+      },
+      error: (error) => {
+        console.error('Error rejecting join request:', error);
+      }
+    });
+  }
 
-
+  // Update the user profile
   updateProfile(): void {
     if (this.user) {
       this.http.put(`http://localhost:3000/users/${this.user.id}`, this.user).subscribe({
         next: () => {
-          console.log('프로필 업데이트 성공');
+          console.log('Profile update successful');
         },
         error: (error) => {
-          console.error('프로필 업데이트 중 오류가 발생했습니다:', error);
+          console.error('Error updating profile:', error);
         }
       });
     }

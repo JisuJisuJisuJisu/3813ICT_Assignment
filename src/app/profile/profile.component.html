@@ -54,7 +54,8 @@
                 <h6 class="mb-0">Role</h6>
               </div>
               <div class="col-sm-9 text-secondary">
-                <input id="roles" type="text" class="form-control" [value]="user.roles.join(', ') || ''" readonly />
+                <input id="roles" type="text" class="form-control" [value]="user.roles && user.roles.length ? user.roles.join(', ') : ''" readonly />
+
               </div>
             </div>
             <div class="row">
