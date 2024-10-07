@@ -33,7 +33,7 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     // Retrieve email from sessionStorage
     this.loggedInUserEmail = sessionStorage.getItem('loggedInUserEmail');
-    console.log(sessionStorage.getItem('loggedInUserEmail')); 
+  
     console.log(this.loggedInUserEmail);
 
     // If no login information is found
@@ -105,6 +105,7 @@ export class ProfileComponent implements OnInit {
 
   // Approve a join request
   approveJoinRequest(groupId: string, userId: string): void {
+    console.log('Approving join request for groupId:', groupId, 'userId:', userId);
     this.http.put(`http://localhost:3000/groups/approve/${groupId}`, { userId }).subscribe({
       next: () => {
         console.log('Join request approved.');

@@ -57,8 +57,6 @@ async function startServer() {
 
     // 정적 파일 제공: 이미지 파일 서빙
     app.use('/uploads/profile-images', express.static(path.join(__dirname, 'uploads', 'profile-images')));
-
-    // 여기에 다른 라우트들을 추가해 나갈 거야.
     
         // 모든 그룹 가져오기
     app.get('/groups', async (req, res) => {
@@ -161,6 +159,67 @@ app.post('/groups/:groupId/channels', async (req, res) => {
     }
 });
 
+// 가입 승인 처리
+app.put('/groups/approve/:groupId', async (req, res) => {
+    console.log('PUT request received for approval');  // 요청이 제대로 왔는지 확인
+    console.log('Params:', req.params);
+    console.log('Body:', req.body);
+    const { groupId } = req.params; // URL에서 groupId 추출
+    const { userId } = req.body; // 사용자 ID 가져오기
+   
+    console.log('Approving join request for groupId:', groupId, 'userId:', userId);
+    try {
+        console.log('Entered try block');
+        const groupUpdateResult = await db.collection('groups').updateOne(
+            { id: groupId }, // _id가 아닌 id 필드로 검색
+            {
+                $pull: { pendingUsers: userId },
+                $push: { members: userId }
+            }
+        );
+
+        if (groupUpdateResult.matchedCount === 0) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        const userUpdateResult = await db.collection('users').updateOne(
+            { id: userId },
+            { $push: { groups: groupId } }
+        );
+
+        if (userUpdateResult.matchedCount === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({ message: 'User approved successfully' });
+    } catch (error) {
+        console.error('Error during approval process:', error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.toString() });
+    }
+});
+
+// 그룹 요청 거절
+app.put('/groups/reject/:groupId', async (req, res) => {
+    const { groupId } = req.params; // URL에서 groupId 추출
+    const { userId } = req.body; // 사용자 ID 가져오기
+
+    try {
+        const result = await db.collection('groups').updateOne(
+            { id: groupId }, // _id가 아닌 id 필드로 검색
+            { $pull: { pendingUsers: userId } }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        res.status(200).json({ message: 'Join request rejected successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Internal Server Error', error: error.toString() });
+    }
+});
+
+
 // 가입 요청 처리
 app.post('/groups/:groupId/join', async (req, res) => {
     const { groupId } = req.params; // 그룹 ID 추출
@@ -192,7 +251,7 @@ app.post('/groups/:groupId/join', async (req, res) => {
 });
 
 // 그룹에 사용자를 초대하는 라우트
-app.post('/groups/:groupId/invite', async (req, res) => {
+app.post('/group/:groupId/invite', async (req, res) => {
     const { groupId } = req.params; // 그룹 ID 추출
     const { userId } = req.body; // 사용자 ID 가져오기
 
@@ -212,59 +271,6 @@ app.post('/groups/:groupId/invite', async (req, res) => {
     }
 });
 
-// 가입 승인 처리
-app.put('/groups/:groupId/approve', async (req, res) => {
-    const { groupId } = req.params; // 그룹 ID 추출
-    const { userId } = req.body; // 사용자 ID 가져오기
-
-    try {
-        const groupUpdateResult = await db.collection('groups').updateOne(
-            { id: groupId },
-            {
-                $pull: { pendingUsers: userId },
-                $push: { members: userId }
-            }
-        );
-
-        if (groupUpdateResult.matchedCount === 0) {
-            return res.status(404).json({ message: 'Group not found' });
-        }
-
-        const userUpdateResult = await db.collection('users').updateOne(
-            { id: userId },
-            { $push: { groups: groupId } }
-        );
-
-        if (userUpdateResult.matchedCount === 0) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        res.status(200).json({ message: 'User approved successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Internal Server Error', error: error.toString() });
-    }
-});
-
-// 그룹 요청 거절
-app.put('/groups/:groupId/reject', async (req, res) => {
-    const { groupId } = req.params; // 그룹 ID 추출
-    const { userId } = req.body; // 사용자 ID 가져오기
-
-    try {
-        const result = await db.collection('groups').updateOne(
-            { id: groupId },
-            { $pull: { pendingUsers: userId } }
-        );
-
-        if (result.matchedCount === 0) {
-            return res.status(404).json({ message: 'Group not found' });
-        }
-
-        res.status(200).json({ message: 'Join request rejected successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Internal Server Error', error: error.toString() });
-    }
-});
 
 // 사용자 등록
 app.post('/signup', async (req, res) => {
