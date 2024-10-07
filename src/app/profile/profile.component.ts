@@ -25,6 +25,7 @@ export class ProfileComponent implements OnInit {
   };
   
   userGroups: any[] = []; // Variable to store user's groups
+  interestGroupDetails: any[] = []; // Variable to store interest group details
   loggedInUserEmail: string | null = null;
   selectedFile: File | null = null;
 
@@ -52,7 +53,7 @@ export class ProfileComponent implements OnInit {
           this.router.navigate(['/login']);
         } else {
           this.fetchUserGroups(this.user.id); // Fetch user groups
-          this.fetchInterestGroups();
+          this.fetchInterestGroupDetails(); // Fetch interest group details
         }
       },
       error: (error) => {
@@ -61,47 +62,21 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  // Fetch user's interest groups
-fetchInterestGroups(): void {
-  this.http.get<any[]>(`http://localhost:3000/users/${this.user.email}/interest-groups`).subscribe({
-    next: (groups: any[]) => {
-      this.user.interestGroups = groups; // Save interest groups
-      console.log('Interest Groups:', this.user.interestGroups);
-    },
-    error: (error) => {
-      console.error('Error fetching interest groups:', error);
-    }
-  });
-}
-  // Handle file selection for profile image
-  onFileSelected(event: any): void {
-    this.selectedFile = event.target.files[0];
-    this.uploadProfileImage();
-  }
-
-  // Upload selected profile image to the server
-  uploadProfileImage(): void {
-    if (!this.selectedFile) {
-      alert('Please select a file');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('profileImage', this.selectedFile);
-    formData.append('userId', this.user.id);
-
-    this.http.post('http://localhost:3000/upload-profile-image', formData)
-      .subscribe({
-        next: (response: any) => {
-          console.log('Image upload successful:', response);
-          this.user.profileImage = response.imageUrl; // Save image URL from server
+  // Fetch interest group details by ID
+  fetchInterestGroupDetails(): void {
+    this.user.interestGroups.forEach(groupId => {
+      this.http.get<any>(`http://localhost:3000/groups/${groupId}`).subscribe({
+        next: (groupDetails) => {
+          this.interestGroupDetails.push(groupDetails);
+          console.log('Fetched interest group details:', groupDetails);
         },
         error: (error) => {
-          console.error('Image upload failed:', error);
+          console.error('Error fetching group details:', error);
         }
       });
+    });
   }
-  
+
   // Fetch the groups the user belongs to
   fetchUserGroups(userId: string): void {
     this.http.get<any[]>(`http://localhost:3000/groups`).subscribe({
@@ -143,17 +118,32 @@ fetchInterestGroups(): void {
     });
   }
 
-  // Update the user profile
-  updateProfile(): void {
-    if (this.user) {
-      this.http.put(`http://localhost:3000/users/${this.user.id}`, this.user).subscribe({
-        next: () => {
-          console.log('Profile update successful');
+  // Handle file selection for profile image
+  onFileSelected(event: any): void {
+    this.selectedFile = event.target.files[0];
+    this.uploadProfileImage();
+  }
+
+  // Upload selected profile image to the server
+  uploadProfileImage(): void {
+    if (!this.selectedFile) {
+      alert('Please select a file');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('profileImage', this.selectedFile);
+    formData.append('userId', this.user.id);
+
+    this.http.post('http://localhost:3000/upload-profile-image', formData)
+      .subscribe({
+        next: (response: any) => {
+          console.log('Image upload successful:', response);
+          this.user.profileImage = response.imageUrl; // Save image URL from server
         },
         error: (error) => {
-          console.error('Error updating profile:', error);
+          console.error('Image upload failed:', error);
         }
       });
-    }
   }
 }
