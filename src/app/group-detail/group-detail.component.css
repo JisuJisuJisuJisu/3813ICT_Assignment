@@ -6,6 +6,7 @@ h2 {
   text-overflow: ellipsis;
 }
 
+
 /* 전체 컨테이너: 본문과 사이드바를 감싸는 요소 */
 .content-container {
   display: flex;

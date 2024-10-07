@@ -1,25 +1,34 @@
 <div class="container-fluid h-100">
     <div class="row justify-content-center h-100">
-        <div class="col-md-8 col-xl-6 chat">
+        <div class="chat">
             <div class="card">
                 <div class="card-body msg_card_body">
-                    <!-- Chat Messages -->
                     <div class="message-list">
                         <!-- 동적으로 메시지 표시 -->
                         <div *ngFor="let message of messages">
                             <!-- 내가 보낸 메시지 -->
                             <div *ngIf="message.userId === userId" class="d-flex justify-content-end mb-4">
-                                <div class="msg_cotainer_send">
-                                    <strong>{{ message.username || 'Unknown' }}:</strong> {{ message.message }}
-                                    <span class="msg_time_send">8:55 AM, Today</span>
+                                <div class="d-flex align-items-center">
+                                    <div class="msg_cotainer_send">
+                                        <strong>{{ message.username || 'Unknown' }}:</strong> {{ message.message }}
+                                        
+                                    </div>
+                                    <div class="img_cont_msg ml-2">
+                                        <img [src]="message.profileImageUrl" class="user_img_msg" alt="user image"> <!-- 사용자 이미지 -->
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- 다른 사용자가 보낸 메시지 -->
                             <div *ngIf="message.userId !== userId" class="d-flex justify-content-start mb-4">
-                                <div class="msg_cotainer">
-                                    <strong>{{ message.username || 'Unknown' }}:</strong> {{ message.message }}
-                                    <span class="msg_time">8:55 AM, Today</span>
+                                <div class="d-flex align-items-center">
+                                    <div class="img_cont_msg mr-2">
+                                        <img [src]="message.profileImageUrl" class="user_img_msg" alt="user image"> <!-- 상대방 이미지 -->
+                                    </div>
+                                    <div class="msg_cotainer">
+                                        <strong>{{ message.username || 'Unknown' }}:</strong> {{ message.message }}
+                                        
+                                    </div>
                                 </div>
                             </div>
                         </div>
