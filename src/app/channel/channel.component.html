@@ -1,13 +1,15 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
+
 <div class="container-fluid h-100">
     <div class="row justify-content-center h-100">
         <div class="chat">
             <div class="card">
                 <div class="card-body msg_card_body">
                     <div class="message-list w-100">
-                        <!-- 동적으로 메시지 표시 -->
+                        
                         <div *ngFor="let message of messages" class="message-item">
-                            <!-- 내가 보낸 메시지 -->
-                            <div *ngIf="message.userId === userId" class="d-flex justify-content-end mb-4"> <!-- 메시지 오른쪽 정렬 -->
+                            
+                            <div *ngIf="message.userId === userId" class="d-flex justify-content-end mb-4"> 
                                 <div class="message-content"> <!-- 메시지 박스 수직 정렬 -->
                                     <!-- <div class="username">{{ message.username || 'Unknown' }}</div> 이름 -->
                                     <div class="msg_cotainer_send">
@@ -48,6 +50,11 @@
                 <div class="card-footer">
                     <!-- Chat Input -->
                     <div class="input-group">
+                        <div class="input-group-prepend">
+                            <button (click)="startVideoCall()" class="btn call_btn">
+                                <i class="bi bi-telephone"></i> <!-- Bootstrap 전화기 아이콘 -->
+                            </button>
+                        </div>
                         <input type="text" [(ngModel)]="newMessage" class="form-control type_msg" placeholder="메시지를 입력하세요..." />
                         <input type="file" #fileInput (change)="onFileSelected($event)" class="form-control-file" />
                         <div class="input-group-append">

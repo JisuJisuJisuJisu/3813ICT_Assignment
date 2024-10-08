@@ -4,6 +4,7 @@ import { io, Socket } from 'socket.io-client';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { Peer } from 'peerjs';
 
 @Component({
   selector: 'app-channel',
@@ -20,6 +21,12 @@ export class ChannelComponent implements OnInit, OnDestroy {
   username: string = ''; // User's username
   userId: string = ''; // User's ID
   selectedFile: File | null = null; // Selected file
+
+  // PeerJS 관련 변수
+  private peer: Peer | null = null; // PeerJS 객체
+  private localStream: MediaStream | null = null;
+  private remoteStream: MediaStream | null = null;
+  private myPeerId: string | null = null;
   
   constructor(private http: HttpClient, private route: ActivatedRoute) {}
 
@@ -40,14 +47,86 @@ export class ChannelComponent implements OnInit, OnDestroy {
         this.setupSocketConnection(); // Set up the socket connection
       }
     });
+    // PeerJS 서버 연결 및 웹캠 스트림 설정
+    this.peer = new Peer({
+      host: 'localhost', // Peer 서버 호스트
+      port: 9001, // Peer 서버 포트
+      path: '/peerjs'
+    });
+
+    this.peer.on('open', (id: string) => {
+      this.myPeerId = id;
+      console.log('My Peer ID is: ', id);
+    });
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        this.localStream = stream;
+        const localVideoElement = document.querySelector('video#local-video') as HTMLVideoElement;
+        if (localVideoElement) {
+          localVideoElement.srcObject = stream; // 로컬 비디오 스트림 설정
+        }
+      })
+      .catch(err => {
+        console.error('Failed to get local stream', err);
+      });
+
+    // PeerJS에서 통화 수신 처리
+    if (this.peer) {
+      this.peer.on('call', (call) => {
+        call.answer(this.localStream|| undefined); // 수신된 통화에 대해 웹캠 스트림을 응답으로 보냄
+        call.on('stream', (remoteStream: MediaStream) => {
+          this.remoteStream = remoteStream;
+          const remoteVideoElement = document.querySelector('video#remote-video') as HTMLVideoElement;
+          if (remoteVideoElement) {
+            remoteVideoElement.srcObject = remoteStream; // 상대방 비디오 스트림 설정
+          }
+        });
+      });
+    }
+    
   }
+  
 
   ngOnDestroy(): void {
     if (this.socket) {
       this.socket.disconnect();
     }
+    if (this.peer) {
+      this.peer.destroy();
+    }
   }
-
+  // 영상 통화 시작
+  startVideoCall(): void {
+    // Check if PeerJS and local stream are ready
+    if (!this.peer || !this.localStream) {
+      console.error('PeerJS or local stream is not ready.');
+      return;
+    }
+  
+    // Prompt user to enter the remote peer ID
+    const remotePeerId = prompt('Enter the remote peer ID:');
+    if (remotePeerId) {
+      // Ensure that localStream is not null before making the call
+      const call = this.peer.call(remotePeerId, this.localStream || undefined); // Handle null by passing undefined
+      console.log('Attempting to call remote peer:', remotePeerId);
+  
+      // Listen for the remote stream and set it to the video element
+      call.on('stream', (remoteStream: MediaStream) => {
+        this.remoteStream = remoteStream;
+        const remoteVideoElement = document.querySelector('video#remote-video') as HTMLVideoElement;
+        if (remoteVideoElement) {
+          remoteVideoElement.srcObject = remoteStream; // Set the remote video stream
+        }
+      });
+  
+      // Handle any errors during the call
+      call.on('error', (err: any) => {
+        console.error('Error during the call:', err);
+      });
+    }
+  }
+  
   // Set up connection with the Socket.IO server
   setupSocketConnection(): void {
     if (this.socket) {

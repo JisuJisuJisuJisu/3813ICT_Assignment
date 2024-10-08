@@ -15,7 +15,16 @@ const uri = "mongodb://localhost:27017";
 const client = new MongoClient(uri);
 const server = http.createServer(app); // Generate Http Server
 // const io = require('./socket')(server, db); 
+// PeerJS 모듈 추가
+const { PeerServer } = require('peer');
 
+// PeerJS 서버 설정 (server.js 파일 상단에 추가)
+const peerServer = PeerServer({ port: 9001, path: '/peerjs' });
+
+// 기존 서버 로직 아래에 Peer 서버 추가
+peerServer.listen(() => {
+    console.log('PeerJS server is running on http://localhost:9001');
+});
 app.use(express.json()); 
 app.use(cors());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
