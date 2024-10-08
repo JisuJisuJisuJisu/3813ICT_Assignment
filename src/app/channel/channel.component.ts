@@ -79,19 +79,28 @@ setupSocketConnection(): void {
   });
 }
 
-  // MongoDB에서 채팅 히스토리 가져오기
-  loadMessageHistory(): void {
-    this.http.get<{ userId: string | null, username: string, message: string, profileImageUrl: string }[]>(`http://localhost:3000/messages?channelId=${this.channelId}`)
-      .subscribe({
-        next: (data) => {
-          this.messages = data; // 서버로부터 가져온 메시지 히스토리를 메시지 리스트에 저장
-          console.log('메시지 히스토리 불러오기 성공:', data);
-        },
-        error: (error) => {
-          console.error('메시지 히스토리 불러오기 실패:', error);
-        }
-      });
-  }
+ // MongoDB에서 채팅 히스토리 가져오기
+loadMessageHistory(): void {
+  this.http.get<{ userId: string | null, username: string, message: string, profileImageUrl: string }[]>(`http://localhost:3000/messages?channelId=${this.channelId}`)
+    .subscribe({
+      next: (data) => {
+        // 각 메시지의 이미지 여부 확인
+        this.messages = data.map(message => {
+          const isImage = !!message.message && (message.message.endsWith('.jpg') || message.message.endsWith('.png') || message.message.endsWith('.gif'));
+          return {
+            ...message,
+            isImage: isImage  // 메시지의 이미지 여부를 true 또는 false로 설정
+          };
+        });
+        console.log('메시지 히스토리 불러오기 성공:', this.messages);
+      },
+      error: (error) => {
+        console.error('메시지 히스토리 불러오기 실패:', error);
+      }
+    });
+}
+
+
 
   // 채널에 메시지 보내기
   sendMessage(): void {
@@ -122,7 +131,7 @@ setupSocketConnection(): void {
     }
   }
 
-  // 이미지 전송 처리
+  
   // 이미지 전송 처리
 sendImage(): void {
   if (this.selectedFile && this.socket) {  // this.socket이 null이 아닌지 확인
