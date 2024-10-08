@@ -13,10 +13,10 @@ const { ObjectId } = require('mongodb');
 const app = express();
 const uri = "mongodb://localhost:27017";
 const client = new MongoClient(uri);
-const server = http.createServer(app); // http 서버 생성
+const server = http.createServer(app); // Generate Http Server
 // const io = require('./socket')(server, db); 
 
-app.use(express.json()); // JSON 형식의 요청 본문을 자동으로 파싱
+app.use(express.json()); 
 app.use(cors());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 // multer 설정 (이미지 저장 경로 및 파일 이름)
@@ -24,34 +24,34 @@ const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = './uploads/profile-images';
         if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true }); // 폴더가 없으면 생성
+            fs.mkdirSync(uploadDir, { recursive: true });
         }
-        cb(null, uploadDir); // 이미지 파일 저장 경로 설정
+        cb(null, uploadDir); 
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // 파일 이름 설정
+        cb(null, Date.now() + path.extname(file.originalname)); 
     }
 });
 
 const upload = multer({ storage });
 
-// multer 설정 (채팅 이미지 저장 경로 설정)
+// multer Setting
 const chatImageStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = './uploads/chat-images';
         if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true }); // 폴더가 없으면 생성
+            fs.mkdirSync(uploadDir, { recursive: true }); 
         }
-        cb(null, uploadDir); // 채팅 이미지 파일 저장 경로 설정
+        cb(null, uploadDir); 
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // 파일 이름 설정
+        cb(null, Date.now() + path.extname(file.originalname)); 
     }
 });
 
 const uploadChatImage = multer({ storage: chatImageStorage });
 
-// MongoDB 연결 함수
+// MongoDB
 async function connectDB() {
     try {
         await client.connect();
@@ -63,7 +63,7 @@ async function connectDB() {
     }
 }
 
-// 서버 시작 함수
+// Start the server
 async function startServer() {
     const db = await connectDB();
     if (!db) {
@@ -71,7 +71,7 @@ async function startServer() {
         return;
     }
 
-    // 정적 파일 제공: 이미지 파일 서빙
+    // Serving image file
     app.use('/uploads/profile-images', express.static(path.join(__dirname, 'uploads', 'profile-images')));
     
     app.post('/upload-profile-image', upload.single('profileImage'), async (req, res) => {
@@ -82,7 +82,6 @@ async function startServer() {
         const imageUrl = `/uploads/profile-images/${req.file.filename}`;
 
         try {
-            // MongoDB에 이미지 경로 업데이트
             const result = await db.collection('users').updateOne(
                 { id: userId },
                 { $set: { profileImage: imageUrl } }
@@ -99,7 +98,6 @@ async function startServer() {
         }
     });
 
-        // 모든 그룹 가져오기
     app.get('/groups', async (req, res) => {
         try {
             const groups = await db.collection('groups').find({}).toArray();
@@ -556,6 +554,8 @@ app.put('/users/:userId', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+
 // 사용자 삭제
 app.delete('/users/:userId', async (req, res) => {
     const { userId } = req.params; // URL에서 userId 추출

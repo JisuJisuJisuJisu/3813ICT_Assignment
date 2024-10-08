@@ -120,14 +120,7 @@
         <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav side-nav">
-                <!-- Channels 메뉴 -->
-                <li>
-                    <a href="#" data-toggle="collapse" data-target="#submenu-channels">
-                      <i class="fa fa-fw fa-search"></i> Channels 
-                      <i class="fa fa-fw fa-angle-down pull-right"></i>
-                    </a>
-                   
-                  </li>
+               
                 
                 <!-- Back to Dashboard 버튼 -->
                 <li>
@@ -148,7 +141,7 @@
                     <a routerLink="/super-admin/manage-channels"><i class="fa fa-fw fa-comments"></i> Manage Channels</a>
                 </li>
 
-                <!-- Group Admin 전용 메뉴 -->
+                <!-- Group Admin -->
                 <li *ngIf="isGroupAdmin() && !isSuperAdmin()">
                     <a href="#" onclick="window.location.href='create-groups-url';"><i class="fa fa-fw fa-plus"></i> Create Groups</a>
                 </li>

@@ -7,24 +7,24 @@ body, html {
 }
 
 .message-list {
-    width: 800px; /* 전체 너비 */
+    width: 800px; 
 }
 
 .msg_cotainer img, .msg_cotainer_send img {
-    max-width: 100%; /* 이미지 크기를 메시지 박스 안에 맞추어 자동 조정 */
-    height: auto; /* 이미지 비율을 유지 */
-    border-radius: 10px; /* 이미지에 약간의 곡선 추가 */
-    display: block; /* 이미지를 블록 요소로 변환하여 메시지 안에 정렬 */
-    margin-top: 10px; /* 메시지와 이미지 사이 간격 추가 */
+    max-width: 100%; 
+    height: auto; 
+    border-radius: 10px; 
+    display: block; 
+    margin-top: 10px; 
 }
 
 .message-item {
-    width: 100%; /* 개별 메시지 항목이 전체 너비를 사용하도록 */
+    width: 100%; 
 }
 
 .msg_card_body {
     overflow-y: auto;
-    height: calc(100vh - 160px); /* 메시지 창의 높이를 조정 */
+    height: calc(100vh - 160px); 
 }
 
 .d-flex {
@@ -102,42 +102,42 @@ body, html {
     border-radius: 0 0 15px 15px !important;
     border-top: 0 !important;
     padding: 0;
-    height: 70px; /* footer 높이 유지 */
+    height: 70px; 
 }
 
 .msg_cotainer, .msg_cotainer_send {
-    display: flex; /* 수평 정렬 */
-    align-items: center; /* 세로 가운데 정렬 */
+    display: flex; 
+    align-items: center; 
     margin-top: auto;
     margin-bottom: auto;
     border-radius: 25px;
     padding: 10px;
     position: relative;
-    max-width: 75%; /* 메시지 박스 최대 너비 설정 */
+    max-width: 75%; 
     word-wrap: break-word;
     margin-bottom: 15px;
 }
-/* 내가 보낸 메시지 - 오른쪽에 정렬 */
+
 .msg_cotainer_send {
-    background-color: #78e08f; /* 내가 보낸 메시지 배경색 */
-    margin-right: 10px; /* 오른쪽 정렬 */
-    margin-left: auto; /* 왼쪽 여백 자동 조정 */
-    align-self: flex-end; /* 오른쪽에 완전히 붙이기 */
-    max-width: 75%; /* 메시지 박스 최대 너비 설정 */
+    background-color: #78e08f; 
+    margin-right: 10px; 
+    margin-left: auto; 
+    align-self: flex-end; 
+    max-width: 75%; 
 }
 
-/* 상대방이 보낸 메시지 - 왼쪽에 정렬 */
+
 .msg_cotainer {
-    background-color: #82ccdd; /* 상대방 메시지 배경색 */
+    background-color: #82ccdd; 
     margin-left: 10px;
-    margin-right: auto; /* 왼쪽 정렬 */
-    max-width: 75%; /* 메시지 박스 최대 너비 설정 */
-    word-wrap: break-word; /* 긴 텍스트를 자동 줄바꿈 */
+    margin-right: auto; 
+    max-width: 75%; 
+    word-wrap: break-word; 
 }
 .user_img_msg {
-    height: 40px;  /* 크기를 적절히 조정 */
+    height: 40px;  
     width: 40px;
-    border-radius: 50%;  /* 동그란 프로필 이미지 */
+    border-radius: 50%; 
     border: 1.5px solid #f5f6fa;
   }
   .username {
@@ -153,5 +153,5 @@ body, html {
     height: 40px;
     width: 40px;
     margin-left: 10px;
-    margin-right: 1px; /* 메시지와 프로필 사이 간격 */
+    margin-right: 1px; 
 }

@@ -15,7 +15,7 @@
                 <input id="username" type="text" class="form-control" [(ngModel)]="user.username" />
                
                
-                <button class="btn btn-primary">Follow</button>
+                <button class="btn btn-primary" (click)="updateUserProfile()">Edit</button>
                 
               </div>
             </div>
@@ -59,7 +59,7 @@
                 <ul class="list-group">
                   <li *ngFor="let group of userGroups" class="list-group-item d-flex justify-content-between align-items-center">
                     {{ group.name }}  
-                    <span class="badge badge-primary badge-pill">{{ group.id }}</span>  <!-- 그룹 ID 표시 -->
+                    <span class="badge badge-primary badge-pill">{{ group.id }}</span>  
                     <button class="btn btn-success btn-sm ml-2" (click)="approveJoinRequest(group.id, user.id)">Accept</button>
                     <button class="btn btn-danger btn-sm ml-2" (click)="rejectJoinRequest(group.id, user.id)">Decline</button>
                   </li>
@@ -73,7 +73,7 @@
               <ul class="list-group">
                 <li *ngFor="let group of interestGroupDetails" class="list-group-item d-flex justify-content-between align-items-center">
                   {{ group.name }} 
-                  <span class="badge badge-primary badge-pill">{{ group.id }}</span>  <!-- 그룹 ID 표시 -->
+                  <span class="badge badge-primary badge-pill">{{ group.id }}</span>  
                 </li>
               </ul>
             </div>

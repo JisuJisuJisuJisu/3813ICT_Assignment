@@ -1,6 +1,6 @@
 
 body{
-  /* 페이지의 맨 위에서 여백을 추가합니다 */
+  
 
   color: #1a202c;
   text-align: left;
@@ -56,4 +56,30 @@ body{
 }
 .shadow-none {
   box-shadow: none!important;
+}
+
+/* Target all buttons with the class 'btn' */
+.btn {
+  background-color: #007bff;  /* Example: Change the button color */
+  color: white;
+  border-radius: 20px;
+  
+}
+
+/* Target primary buttons */
+.btn-primary {
+  background-color: #0056b3;
+  margin-top: 10px;
+}
+
+/* Target success buttons */
+.btn-success {
+  background-color: #28a745;
+  margin-left: 5px;
+}
+
+/* Target danger buttons */
+.btn-danger {
+  background-color: #dc3545;
+  margin-left: 5px;
 }

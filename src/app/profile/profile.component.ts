@@ -124,6 +124,22 @@ export class ProfileComponent implements OnInit {
     this.uploadProfileImage();
   }
 
+  updateUserProfile(): void {
+  const updatedUserData = {
+    username: this.user.username,  // 사용자 이름만 업데이트하는 예시
+  };
+
+  this.http.put(`http://localhost:3000/users/${this.user.id}`, updatedUserData).subscribe({
+    next: (response) => {
+      alert('Profile updated successfully!');
+      console.log('User profile updated:', response);
+    },
+    error: (error) => {
+      console.error('Error updating profile:', error);
+      alert('Failed to update profile. Please try again.');
+    }
+  });
+}
   // Upload selected profile image to the server
   uploadProfileImage(): void {
     if (!this.selectedFile) {
@@ -131,6 +147,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
+    
     const formData = new FormData();
     formData.append('profileImage', this.selectedFile);
     formData.append('userId', this.user.id);
