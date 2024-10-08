@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Group } from '../models/group.model';
-import { User } from '../models/user.model'; // 현재 사용자 정보에 대한 모델
+import { User } from '../models/user.model'; // Model for the current user information
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -14,20 +14,21 @@ import { HttpClient } from '@angular/common/http';
 })
 export class ManageGroupsComponent implements OnInit {
 
-  groups: Group[] = []; // 모든 그룹 목록
-  newGroup: Group = { id: '', name: '', description: '', createdBy: '', channels: [], imageUrl: '' }; // 새로운 그룹을 위한 객체
-  user: User | null = null; // 현재 로그인한 사용자 정보
-  isSuperAdmin: boolean = false; // 현재 사용자가 Super Admin인지 여부
-  showModal: boolean = false; // 모달 가시성 제어
-  successMessage: string = ''; // 성공 메시지
+  groups: Group[] = []; // List of all groups
+  newGroup: Group = { id: '', name: '', description: '', createdBy: '', channels: [], imageUrl: '' }; // Object for creating a new group
+  user: User | null = null; // Current logged-in user information
+  isSuperAdmin: boolean = false; // Check if the current user is a Super Admin
+  showModal: boolean = false; // Control modal visibility
+  successMessage: string = ''; // Success message for feedback
   router: any;
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.loadUser();
+    this.loadUser(); // Load the current user data on component initialization
   }
 
+  // Load current user data from the session storage
   loadUser(): void {
     const loggedInUserEmail = sessionStorage.getItem('loggedInUserEmail');
 
@@ -37,72 +38,74 @@ export class ManageGroupsComponent implements OnInit {
           this.user = users.find(u => u.email === loggedInUserEmail) || null;
 
           if (this.user) {
-            this.isSuperAdmin = this.user.roles.includes('Super Admin');
-            console.log('현재 사용자:', this.user);
-            this.loadGroups(); // 사용자가 로드된 후 그룹 데이터를 로드합니다.
+            this.isSuperAdmin = this.user.roles.includes('Super Admin'); // Determine if the user is a Super Admin
+            console.log('Current user:', this.user);
+            this.loadGroups(); // Load group data after the user is loaded
           } else {
-            console.log('사용자를 찾을 수 없습니다.');
-            // 로그인이 필요한 경우 로그인 페이지로 리디렉션
+            console.log('User not found.');
+            // Redirect to the login page if no user is found
             this.router.navigate(['/login']);
           }
         },
         error: (error) => {
-          console.error('사용자 정보를 가져오는 중 오류 발생:', error);
+          console.error('Error fetching user data:', error);
         }
       });
     } else {
-      console.log('로그인 정보가 없습니다.');
-      // 로그인이 필요한 경우 로그인 페이지로 리디렉션
+      console.log('No login information found.');
+      // Redirect to the login page if no login information is found
       this.router.navigate(['/login']);
     }
   }
 
+  // Load all groups or the groups created by the user
   loadGroups(): void {
-    console.log("HeEELLLo");
+    console.log("Loading groups...");
     this.http.get<Group[]>(`http://localhost:3000/groups`).subscribe({
       next: (groups: Group[]) => {
         if (this.isSuperAdmin) {
-          this.groups = groups; // Super Admin은 모든 그룹을 볼 수 있음
+          this.groups = groups; // Super Admin can view all groups
         } else {
-          this.groups = groups.filter(group => group.createdBy === this.user?.id); // Group Admin은 자신이 생성한 그룹만 볼 수 있음
+          this.groups = groups.filter(group => group.createdBy === this.user?.id); // Group Admin can only view groups they created
         }
         console.log("Loaded Groups:", this.groups);
-        // 로컬 스토리지에 그룹 저장
+        // Store the groups in local storage
         localStorage.setItem('groups', JSON.stringify(this.groups));
       },
       error: (error) => {
-        console.error('그룹 정보를 가져오는 중 오류 발생:', error);
+        console.error('Error loading group data:', error);
       }
     });
   }
 
+  // Delete a group (only allowed for Super Admin or Group Admin who created the group)
   deleteGroup(groupId: string): void {
-    // Super Admin이거나 Group Admin이 자신이 생성한 그룹을 삭제할 수 있음
+    // Super Admin or Group Admin who created the group can delete it
     if (this.isSuperAdmin || this.groups.some(group => group.id === groupId && group.createdBy === this.user?.id)) {
       this.http.delete(`http://localhost:3000/groups/${groupId}`).subscribe({
         next: () => {
           console.log(`Group with ID ${groupId} deleted successfully`);
-  
-          // 그룹 리스트에서 해당 그룹 삭제
+
+          // Remove the group from the group list
           this.groups = this.groups.filter(group => group.id !== groupId);
-  
-          // 로컬 스토리지에서 그룹 삭제
+
+          // Remove the group from local storage
           let storedGroups = JSON.parse(localStorage.getItem('groups') || '[]');
           storedGroups = storedGroups.filter((group: Group) => group.id !== groupId);
           localStorage.setItem('groups', JSON.stringify(storedGroups));
-  
-          // 사용자 정보에서 해당 그룹 삭제
+
+          // Remove the group from the current user's group list
           if (this.user) {
             this.user.groups = this.user.groups.filter(group => group.id !== groupId);
-            this.updateUserInStorage(this.user);
+            this.updateUserInStorage(this.user); // Update the user information in storage
           }
 
-          // 성공 메시지 설정
+          // Display success message
           this.successMessage = `Group with ID ${groupId} deleted successfully.`;
           this.clearMessageAfterTimeout();
         },
         error: (error) => {
-          console.error('그룹 삭제 중 오류 발생:', error);
+          console.error('Error deleting group:', error);
         }
       });
     } else {
@@ -110,93 +113,97 @@ export class ManageGroupsComponent implements OnInit {
     }
   }
 
+  // Update the user information in local storage and on the server
   updateUserInStorage(user: User): void {
-    // 로컬 스토리지의 users 배열 업데이트
+    // Update the users array in local storage
     let storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
     storedUsers = storedUsers.map((u: User) => u.id === user.id ? user : u);
     localStorage.setItem('users', JSON.stringify(storedUsers));
 
-    // currentUser 업데이트
+    // Update the current user in local storage
     localStorage.setItem('currentUser', JSON.stringify(user));
 
-    // 서버에 사용자 정보 PUT 요청 (서버에 보내기 전에 _id를 삭제하여 수정되지 않도록 함)
-    const { _id, ...updatedUserData } = user;  // _id 필드를 제외한 나머지 데이터를 전송
+    // Send a PUT request to update user data on the server (excluding _id to avoid modification)
+    const { _id, ...updatedUserData } = user;  // Exclude _id from the data sent to the server
     this.http.put(`http://localhost:3000/users/${user.id}`, updatedUserData).subscribe({
       next: () => {
-        console.log('사용자 정보가 성공적으로 갱신되었습니다.');
+        console.log('User data updated successfully.');
       },
       error: (error) => {
-        console.error('사용자 정보 갱신 중 오류 발생:', error);
+        console.error('Error updating user data:', error);
       }
     });
   }
 
-  // 채널 추가 기능
+  // Add a new channel to the group
   addChannel(): void {
     this.newGroup.channels.push({ 
-      id: this.generateUniqueId(),  // 고유한 ID 생성
+      id: this.generateUniqueId(),  // Generate a unique ID for the new channel
       name: '', 
       description: '' 
     });
   }
 
-  // 새로운 그룹 생성 기능
+  // Handle form submission for creating a new group
   onSubmit(): void {
     this.newGroup.id = this.generateUniqueId();
     this.newGroup.createdBy = this.user?.id || '';
 
-    // 서버에 새로운 그룹 추가 요청
+    // Send a POST request to the server to create a new group
     this.http.post<Group>(`http://localhost:3000/groups`, this.newGroup).subscribe({
       next: (group) => {
         console.log('New group created successfully:', group);
 
-        // 그룹 추가
+        // Add the new group to the group list
         this.groups.push(group);
 
-        // 로컬 스토리지에 그룹 추가
+        // Store the new group in local storage
         const storedGroups = JSON.parse(localStorage.getItem('groups') || '[]');
         storedGroups.push(group);
         localStorage.setItem('groups', JSON.stringify(storedGroups));
 
-        // 현재 사용자에 그룹 추가
+        // Add the new group to the current user's group list
         if (this.user) {
-          this.user.groups.push(group);  // 서버에서 받은 그룹 정보 사용
-          this.updateUserInStorage(this.user);
+          this.user.groups.push(group);  // Use the group data from the server
+          this.updateUserInStorage(this.user); // Update the user information in storage
         }
 
-        // 폼 리셋 및 모달 닫기
+        // Reset the form and close the modal
         this.newGroup = { id: '', name: '', description: '', createdBy: '', channels: [], imageUrl: '' };
         this.showModal = false;
 
-        // 성공 메시지 설정
+        // Display success message
         this.successMessage = 'New group created successfully.';
         this.clearMessageAfterTimeout();
       },
       error: (error) => {
-        console.error('그룹 생성 중 오류 발생:', error);
+        console.error('Error creating group:', error);
       }
     });
   }
 
+  // Generate a unique ID for new channels and groups
   generateUniqueId(): string {
     return Math.random().toString(36).substr(2, 9);
   }
 
+  // Handle file selection for group image upload
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e: any) => {
         console.log('File selected:', e.target.result);
-        // 필요한 경우 여기서 이미지 데이터를 처리합니다
+        // Process the image data if needed
       };
       reader.readAsDataURL(file);
     }
   }
 
+  // Clear success messages after a timeout (5 seconds)
   clearMessageAfterTimeout(): void {
     setTimeout(() => {
       this.successMessage = '';
-    }, 5000); // 5초 후에 메시지 초기화
+    }, 5000); // Clear the message after 5 seconds
   }
 }
