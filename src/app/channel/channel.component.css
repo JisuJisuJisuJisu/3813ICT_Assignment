@@ -140,7 +140,12 @@ body, html {
     border-radius: 50%;  /* 동그란 프로필 이미지 */
     border: 1.5px solid #f5f6fa;
   }
-
+  .username {
+    font-weight: lighter;
+    color: #fff;
+    margin-bottom: 2px;
+    display: block;
+}
 .img_cont_msg {
     display: flex;
     justify-content: center;
@@ -149,11 +154,4 @@ body, html {
     width: 40px;
     margin-left: 10px;
     margin-right: 1px; /* 메시지와 프로필 사이 간격 */
-}
-
-.user_img_msg {
-    height: 40px;
-    width: 40px;
-    border-radius: 50%; /* 동그란 프로필 이미지 */
-    border: 1.5px solid #f5f6fa;
 }
