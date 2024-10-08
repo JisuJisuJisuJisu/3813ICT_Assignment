@@ -18,7 +18,7 @@ const server = http.createServer(app); // http 서버 생성
 
 app.use(express.json()); // JSON 형식의 요청 본문을 자동으로 파싱
 app.use(cors());
-
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 // multer 설정 (이미지 저장 경로 및 파일 이름)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -34,6 +34,22 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+
+// multer 설정 (채팅 이미지 저장 경로 설정)
+const chatImageStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = './uploads/chat-images';
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true }); // 폴더가 없으면 생성
+        }
+        cb(null, uploadDir); // 채팅 이미지 파일 저장 경로 설정
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname)); // 파일 이름 설정
+    }
+});
+
+const uploadChatImage = multer({ storage: chatImageStorage });
 
 // MongoDB 연결 함수
 async function connectDB() {
@@ -461,9 +477,16 @@ app.post('/messages', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+// 채팅에서 이미지를 보내는 라우트
+app.post('/upload-chat-image', uploadChatImage.single('image'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+    }
 
+    const imageUrl = `/uploads/chat-images/${req.file.filename}`; // 업로드된 이미지 URL 생성
 
-// 특정 채널의 모든 메시지 가져오기
+    res.status(200).json({ imageUrl }); // 클라이언트에 이미지 URL 반환
+});
 // 특정 채널의 모든 메시지 가져오기
 app.get('/messages', async (req, res) => {
     const { channelId } = req.query;  // 쿼리 파라미터에서 channelId 추출
@@ -533,8 +556,6 @@ app.put('/users/:userId', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
-
 // 사용자 삭제
 app.delete('/users/:userId', async (req, res) => {
     const { userId } = req.params; // URL에서 userId 추출
@@ -577,8 +598,7 @@ app.delete('/groups/:groupId', async (req, res) => {
     }
 });
 
-    
-    // 소켓 설정
+// 소켓 설정
     setupSocket(server, db);
 
     // 서버 시작

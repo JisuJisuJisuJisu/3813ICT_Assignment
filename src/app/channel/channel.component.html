@@ -7,29 +7,46 @@
                         <!-- 동적으로 메시지 표시 -->
                         <div *ngFor="let message of messages" class="message-item">
                             <!-- 내가 보낸 메시지 -->
-                            <div *ngIf="message.userId === userId" class="d-flex justify-content-end mb-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="msg_cotainer_send">
-                                        <strong>{{ message.username || 'Unknown' }}:</strong> {{ message.message }}
-                                    </div>
-                                    <div class="img_cont_msg ml-2">
-                                        <img [src]="'http://localhost:3000' + message.profileImageUrl" class="user_img_msg" alt="user image"> <!-- 사용자 이미지 -->
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- 내가 보낸 메시지 -->
+    <div *ngIf="message.userId === userId" class="d-flex justify-content-end mb-4">
+        <div class="d-flex align-items-center">
+          <div class="msg_cotainer_send">
+            <strong>{{ message.username || 'Unknown' }}:</strong>
+  
+            <!-- 이미지 메시지인지 확인 -->
+            <ng-container *ngIf="message.isImage; else textMessage">
+                <img [src]="'http://localhost:3000' + message.message" class="user_img_msg" alt="Image" *ngIf="message.isImage" />
+            </ng-container>
+  
+            <!-- 텍스트 메시지 -->
+            <ng-template #textMessage>{{ message.message }}</ng-template>
+          </div>
+          <div class="img_cont_msg ml-2">
+            <img [src]="'http://localhost:3000' + message.profileImageUrl" class="user_img_msg" alt="user image">
+          </div>
+        </div>
+      </div>
+  
 
                             <!-- 다른 사용자가 보낸 메시지 -->
                             <div *ngIf="message.userId !== userId" class="d-flex justify-content-start mb-4">
                                 <div class="d-flex align-items-center">
-                                    <div class="img_cont_msg mr-2">
-                                        <img [src]="'http://localhost:3000' + message.profileImageUrl" class="user_img_msg" alt="user image"> <!-- 상대방 이미지 -->
-                                    </div>
-                                    <div class="msg_cotainer">
-                                        <strong>{{ message.username || 'Unknown' }}:</strong> {{ message.message }}
-                                    </div>
+                                  <div class="img_cont_msg mr-2">
+                                    <img [src]="'http://localhost:3000' + message.profileImageUrl" class="user_img_msg" alt="user image">
+                                  </div>
+                                  <div class="msg_cotainer">
+                                    <strong>{{ message.username || 'Unknown' }}:</strong>
+                          
+                                    <!-- 이미지 메시지인지 확인 -->
+                                    <ng-container *ngIf="message.isImage; else otherTextMessage">
+                                        <img [src]="'http://localhost:3000' + message.message" class="user_img_msg" alt="Image" *ngIf="message.isImage" />
+                                    </ng-container>
+                          
+                                    <!-- 텍스트 메시지 -->
+                                    <ng-template #otherTextMessage>{{ message.message }}</ng-template>
+                                  </div>
                                 </div>
-                                <span class="msg_time_send">8:55 AM, Today</span>
-                            </div>
+                              </div>
                         </div>
                     </div>
                 </div>
@@ -37,13 +54,15 @@
                 <div class="card-footer">
                     <!-- Chat Input -->
                     <div class="input-group">
-                        <input type="text" [(ngModel)]="newMessage" class="form-control type_msg" placeholder="메시지를 입력하세요..." />
-                        <input type="file" #fileInput  class="form-control-file" />
-                        <div class="input-group-append">
-                            <button (click)="sendMessage()" class="btn send_btn">Send</button>
-                        </div>
+                      <input type="text" [(ngModel)]="newMessage" class="form-control type_msg" placeholder="메시지를 입력하세요..." />
+                      <input type="file" #fileInput (change)="onFileSelected($event)" class="form-control-file" />
+                      <div class="input-group-append">
+                        <button (click)="sendMessage()" class="btn send_btn">Send</button>
+                        <button *ngIf="selectedFile" (click)="sendImage()" class="btn send_btn">Send Image</button> <!-- 이미지 전송 버튼 -->
+                      </div>
                     </div>
-                </div>
+                  </div>
+                  
             </div>
         </div>
     </div>

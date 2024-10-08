@@ -10,6 +10,14 @@ body, html {
     width: 800px; /* 전체 너비 */
 }
 
+.msg_cotainer img, .msg_cotainer_send img {
+    max-width: 100%; /* 이미지 크기를 메시지 박스 안에 맞추어 자동 조정 */
+    height: auto; /* 이미지 비율을 유지 */
+    border-radius: 10px; /* 이미지에 약간의 곡선 추가 */
+    display: block; /* 이미지를 블록 요소로 변환하여 메시지 안에 정렬 */
+    margin-top: 10px; /* 메시지와 이미지 사이 간격 추가 */
+}
+
 .message-item {
     width: 100%; /* 개별 메시지 항목이 전체 너비를 사용하도록 */
 }
@@ -109,22 +117,29 @@ body, html {
     word-wrap: break-word;
     margin-bottom: 15px;
 }
+/* 내가 보낸 메시지 - 오른쪽에 정렬 */
+.msg_cotainer_send {
+    background-color: #78e08f; /* 내가 보낸 메시지 배경색 */
+    margin-right: 10px; /* 오른쪽 정렬 */
+    margin-left: auto; /* 왼쪽 여백 자동 조정 */
+    align-self: flex-end; /* 오른쪽에 완전히 붙이기 */
+    max-width: 75%; /* 메시지 박스 최대 너비 설정 */
+}
 
 /* 상대방이 보낸 메시지 - 왼쪽에 정렬 */
 .msg_cotainer {
     background-color: #82ccdd; /* 상대방 메시지 배경색 */
     margin-left: 10px;
     margin-right: auto; /* 왼쪽 정렬 */
+    max-width: 75%; /* 메시지 박스 최대 너비 설정 */
+    word-wrap: break-word; /* 긴 텍스트를 자동 줄바꿈 */
 }
-
-/* 내가 보낸 메시지 - 오른쪽에 정렬 */
-.msg_cotainer_send {
-    background-color: #78e08f; /* 내가 보낸 메시지 배경색 */
-    margin-right: 0;
-    margin-left: 700px; /* 오른쪽 정렬 */
-    align-self: flex-end; /* 오른쪽에 완전히 붙이기 */
-}
-
+.user_img_msg {
+    height: 40px;  /* 크기를 적절히 조정 */
+    width: 40px;
+    border-radius: 50%;  /* 동그란 프로필 이미지 */
+    border: 1.5px solid #f5f6fa;
+  }
 
 .img_cont_msg {
     display: flex;
