@@ -14,9 +14,9 @@
               <div class="mt-3">
                 <input id="username" type="text" class="form-control" [(ngModel)]="user.username" />
                
-                <p class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
+               
                 <button class="btn btn-primary">Follow</button>
-                <button class="btn btn-outline-primary">Message</button>
+                
               </div>
             </div>
           </div>
@@ -47,11 +47,7 @@
 
               </div>
             </div>
-            <div class="row">
-              <div class="col-sm-12">
-                <a class="btn btn-info" target="__blank" href="https://www.bootdey.com/snippets/view/profile-edit-data-and-skills">Edit</a>
-              </div>
-            </div>
+            
           </div>
         </div>
 
@@ -62,7 +58,7 @@
                 <h6 class="d-flex align-items-center mb-3">Join Request</h6>
                 <ul class="list-group">
                   <li *ngFor="let group of userGroups" class="list-group-item d-flex justify-content-between align-items-center">
-                    {{ group.name }}  <!-- 그룹 이름 표시 -->
+                    {{ group.name }}  
                     <span class="badge badge-primary badge-pill">{{ group.id }}</span>  <!-- 그룹 ID 표시 -->
                     <button class="btn btn-success btn-sm ml-2" (click)="approveJoinRequest(group.id, user.id)">Accept</button>
                     <button class="btn btn-danger btn-sm ml-2" (click)="rejectJoinRequest(group.id, user.id)">Decline</button>
@@ -76,7 +72,7 @@
               <h6 class="d-flex align-items-center mb-3">Interest Groups</h6>
               <ul class="list-group">
                 <li *ngFor="let group of interestGroupDetails" class="list-group-item d-flex justify-content-between align-items-center">
-                  {{ group.name }}  <!-- 그룹 이름 표시 -->
+                  {{ group.name }} 
                   <span class="badge badge-primary badge-pill">{{ group.id }}</span>  <!-- 그룹 ID 표시 -->
                 </li>
               </ul>

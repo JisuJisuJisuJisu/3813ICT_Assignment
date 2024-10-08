@@ -28,6 +28,7 @@
                                         <strong>{{ message.username || 'Unknown' }}:</strong> {{ message.message }}
                                     </div>
                                 </div>
+                                <span class="msg_time_send">8:55 AM, Today</span>
                             </div>
                         </div>
                     </div>
@@ -37,6 +38,7 @@
                     <!-- Chat Input -->
                     <div class="input-group">
                         <input type="text" [(ngModel)]="newMessage" class="form-control type_msg" placeholder="메시지를 입력하세요..." />
+                        <input type="file" #fileInput  class="form-control-file" />
                         <div class="input-group-append">
                             <button (click)="sendMessage()" class="btn send_btn">Send</button>
                         </div>

@@ -121,9 +121,10 @@ body, html {
 .msg_cotainer_send {
     background-color: #78e08f; /* 내가 보낸 메시지 배경색 */
     margin-right: 0;
-    margin-left: 800px; /* 오른쪽 정렬 */
+    margin-left: 700px; /* 오른쪽 정렬 */
     align-self: flex-end; /* 오른쪽에 완전히 붙이기 */
 }
+
 
 .img_cont_msg {
     display: flex;

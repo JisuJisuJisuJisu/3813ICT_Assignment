@@ -4,16 +4,67 @@
     <link rel="stylesheet" href="https://unpkg.com/bs-brain@2.0.4/components/logins/login-9/assets/css/login-9.css">
     <style>
         .bg-primary {
-          background-image: url('images/background.jpg');
-          background-size: cover;
-          background-position: center;
-          background-repeat: no-repeat;
-          /* background-color: transparent;  */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+        z-index: 0;
+      }
+
+      .bg, .bg2, .bg3 {
+       
+        position: fixed;
+        bottom: 0;
+        left: -50%;
+        right: -50%;
+        height: 100%;
+        top: 0;
+        z-index: -1;
+      }
+
+      .bg {
+        animation: slide 2s ease-in-out infinite alternate;
+        background-image: linear-gradient(-60deg, #4a00e0 50%, #8e2de2 50%); /* 진한 파란색(#4a00e0)과 자주색(#8e2de2) */
+        opacity: 0.7;
+        z-index: -1;
+      }
+
+      .bg2 {
+        animation: slide 4s ease-in-out infinite alternate-reverse;
+        background-image: linear-gradient(-60deg, #6a00f4 50%, #b5179e 50%); /* 짙은 보라(#6a00f4)와 밝은 자주색(#b5179e) */
+        opacity: 0.5;
+        z-index: -2;
+      }
+
+      .bg3 {
+        animation: slide 5s ease-in-out infinite alternate;
+        background-image: linear-gradient(-60deg, #3a0ca3 50%, #9d4edd 50%); /* 어두운 파랑(#3a0ca3)과 자주색(#9d4edd) */
+        opacity: 0.3;
+        z-index: -3;
+      }
+
+
+
+      .content {
+        position: relative;
+        z-index: 1;
+      }
+
+      @keyframes slide {
+        0% {
+          transform: translateX(-25%);
         }
+        100% {
+          transform: translateX(25%);
+        }
+      }
       </style>  
 </head>
   
 <section class="bg-primary py-3 py-md-5 py-xl-8">
+  <div class="bg"></div>
+      <div class="bg bg2"></div>
+      <div class="bg bg3"></div> 
     <div class="container">
       <div class="row gy-4 align-items-center">
         <div class="col-12 col-md-6 col-xl-7">
