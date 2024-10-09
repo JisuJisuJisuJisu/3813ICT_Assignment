@@ -242,5 +242,23 @@
     "imageUrl": "/uploads/group-images/1728505806577.jpg",
     "pendingUsers": [],
     "members": []
+  },
+  {
+    "_id": "6706ea2448b59ef2b2b630b3",
+    "id": "ko3m6q25p",
+    "name": "My Third Group",
+    "description": "Heelllo",
+    "createdBy": "31ma6cdko",
+    "channels": [
+      {
+        "id": "isg91w0sh",
+        "name": "Hi",
+        "description": "",
+        "groupId": ""
+      }
+    ],
+    "imageUrl": "/uploads/group-images/1728506397321.jpeg",
+    "pendingUsers": [],
+    "members": []
   }
 ]

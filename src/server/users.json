@@ -290,5 +290,41 @@
     "groups": [],
     "interestGroups": [],
     "_id": "6706e73048b59ef2b2b630aa"
+  },
+  {
+    "id": "oas0aywvt",
+    "username": "w2@w2.com",
+    "email": "w2@w2.com",
+    "password": "123",
+    "roles": [
+      "User"
+    ],
+    "groups": [],
+    "interestGroups": [],
+    "_id": "6706e9c448b59ef2b2b630b1"
+  },
+  {
+    "id": "0zogexb80",
+    "username": "w3@w3.com",
+    "email": "w3@w3.com",
+    "password": "123",
+    "roles": [
+      "User"
+    ],
+    "groups": [],
+    "interestGroups": [],
+    "_id": "6706e9ca48b59ef2b2b630b2"
+  },
+  {
+    "id": "bwyc3bp2m",
+    "username": "w4@w4.com",
+    "email": "w4@w4.com",
+    "password": "123",
+    "roles": [
+      "User"
+    ],
+    "groups": [],
+    "interestGroups": [],
+    "_id": "6706eab448b59ef2b2b630b7"
   }
 ]
