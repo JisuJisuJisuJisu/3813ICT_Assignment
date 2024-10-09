@@ -15,7 +15,7 @@ import { Peer } from 'peerjs';
 })
 export class ChannelComponent implements OnInit, OnDestroy {
   private socket: Socket | null = null;
-  messages: { userId: string | null, username: string, message: string, profileImageUrl?: string, isImage?: boolean;}[] = []; // Message list
+  messages: { userId: string | null, username: string, message: string, profileImageUrl?: string, isImage?: boolean, timestamp?: string }[] = []; // Message list
   newMessage: string = ''; // New message input field
   channelId: string = ''; // Channel ID
   username: string = ''; // User's username
@@ -47,6 +47,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
         this.setupSocketConnection(); // Set up the socket connection
       }
     });
+
     // PeerJS 서버 연결 및 웹캠 스트림 설정
     this.peer = new Peer({
       host: 'localhost', // Peer 서버 호스트
@@ -74,7 +75,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
     // PeerJS에서 통화 수신 처리
     if (this.peer) {
       this.peer.on('call', (call) => {
-        call.answer(this.localStream|| undefined); // 수신된 통화에 대해 웹캠 스트림을 응답으로 보냄
+        call.answer(this.localStream || undefined); // 수신된 통화에 대해 웹캠 스트림을 응답으로 보냄
         call.on('stream', (remoteStream: MediaStream) => {
           this.remoteStream = remoteStream;
           const remoteVideoElement = document.querySelector('video#remote-video') as HTMLVideoElement;
@@ -84,9 +85,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
         });
       });
     }
-    
   }
-  
 
   ngOnDestroy(): void {
     if (this.socket) {
@@ -96,6 +95,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
       this.peer.destroy();
     }
   }
+
   // 영상 통화 시작
   startVideoCall(): void {
     // Check if PeerJS and local stream are ready
@@ -103,14 +103,13 @@ export class ChannelComponent implements OnInit, OnDestroy {
       console.error('PeerJS or local stream is not ready.');
       return;
     }
-  
+
     // Prompt user to enter the remote peer ID
     const remotePeerId = prompt('Enter the remote peer ID:');
     if (remotePeerId) {
-      // Ensure that localStream is not null before making the call
       const call = this.peer.call(remotePeerId, this.localStream || undefined); // Handle null by passing undefined
       console.log('Attempting to call remote peer:', remotePeerId);
-  
+
       // Listen for the remote stream and set it to the video element
       call.on('stream', (remoteStream: MediaStream) => {
         this.remoteStream = remoteStream;
@@ -119,14 +118,14 @@ export class ChannelComponent implements OnInit, OnDestroy {
           remoteVideoElement.srcObject = remoteStream; // Set the remote video stream
         }
       });
-  
+
       // Handle any errors during the call
       call.on('error', (err: any) => {
         console.error('Error during the call:', err);
       });
     }
   }
-  
+
   // Set up connection with the Socket.IO server
   setupSocketConnection(): void {
     if (this.socket) {
@@ -139,6 +138,30 @@ export class ChannelComponent implements OnInit, OnDestroy {
     // Join the channel
     this.socket.emit('join-channel', this.channelId);
 
+    // Listen for users joining the channel
+    this.socket.on('user-joined', (data) => {
+      console.log('Join event data:', data); 
+      this.messages.push({
+        userId: null,  // System message
+        username: 'System',
+        message: `User has joined the channel at ${data.timestamp}`,
+        isImage: false,
+        timestamp: data.timestamp
+      });
+    });
+
+    // Listen for users leaving the channel
+    this.socket.on('user-left', (data) => {
+      console.log('Leave event data:', data); 
+      this.messages.push({
+        userId: null,  // System message
+        username: 'System',
+        message: `User has left the channel at ${data.timestamp}`,
+        isImage: false,
+        timestamp: data.timestamp
+      });
+    });
+
     // Listen for new messages
     this.socket.on('new-message', (message) => {
       console.log('Received new message:', message);
@@ -146,27 +169,30 @@ export class ChannelComponent implements OnInit, OnDestroy {
       // Check if the message is an image URL
       const isImage = message.text && (message.text.endsWith('.jpg') || message.text.endsWith('.png') || message.text.endsWith('.gif'));
 
+      // Add the new message to the message list, including the timestamp
       this.messages.push({
         userId: message.userId,
         username: message.username,
         message: message.text,
         profileImageUrl: message.profileImageUrl,
-        isImage: isImage  // Add flag to check if it's an image
+        isImage: isImage,
+        timestamp: message.timestamp // Add the timestamp to the message
       });
     });
   }
 
   // Load chat history from MongoDB
   loadMessageHistory(): void {
-    this.http.get<{ userId: string | null, username: string, message: string, profileImageUrl: string }[]>(`http://localhost:3000/messages?channelId=${this.channelId}`)
+    this.http.get<{ userId: string | null, username: string, message: string, profileImageUrl: string, timestamp: string }[]>(`http://localhost:3000/messages?channelId=${this.channelId}`)
       .subscribe({
         next: (data) => {
-          // Check each message for image status
+          // Map the message history and include timestamps
           this.messages = data.map(message => {
             const isImage = !!message.message && (message.message.endsWith('.jpg') || message.message.endsWith('.png') || message.message.endsWith('.gif'));
             return {
               ...message,
-              isImage: isImage  // Set the image flag as true or false
+              isImage: isImage,  // Set the image flag as true or false
+              timestamp: message.timestamp // Include the timestamp
             };
           });
           console.log('Successfully loaded message history:', this.messages);
@@ -184,7 +210,8 @@ export class ChannelComponent implements OnInit, OnDestroy {
         channelId: this.channelId, // Actual channel ID
         message: this.newMessage,
         username: this.username, // Username retrieved from session
-        userId: this.userId // User ID retrieved from session
+        userId: this.userId, // User ID retrieved from session
+        timestamp: new Date().toLocaleString() // Add the current timestamp
       };
 
       // Send the message to the server
@@ -218,7 +245,8 @@ export class ChannelComponent implements OnInit, OnDestroy {
             channelId: this.channelId,
             userId: this.userId,
             username: this.username,
-            message: imageUrl // Set image URL as the message
+            message: imageUrl, // Set image URL as the message
+            timestamp: new Date().toLocaleString() // Add the current timestamp
           };
 
           if (this.socket) {  // Double check if this.socket is not null
