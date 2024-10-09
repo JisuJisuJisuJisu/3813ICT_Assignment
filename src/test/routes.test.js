@@ -111,5 +111,75 @@ describe('API Routes', () => {
         });
     });
 
-    // You can add more tests for other routes (e.g., group creation, message handling)
+    // Test for creating a new user
+describe('POST /signup', () => {
+    it('should create a new user', async () => {
+      const newUser = {
+        id: 'user123',
+        email: 'test@example.com',
+        password: 'password123',
+        username: 'testuser',
+      };
+  
+      // Send a POST request to the signup route
+      const res = await request(server).post('/signup').send(newUser);
+  
+      // Check if the response status is 201 (Created)
+      assert.strictEqual(res.status, 201);
+  
+      // Check if the email in the response matches the new user's email
+      assert.strictEqual(res.body.email, newUser.email);
+    });
+  });
+  
+  // Test for logging in a user
+  describe('POST /login', () => {
+    it('should login a user with valid credentials', async () => {
+      const credentials = {
+        email: 'test@example.com',
+        password: 'password123'
+      };
+  
+      // Send a POST request to the login route
+      const res = await request(server).post('/login').send(credentials);
+  
+      // Check if the response status is 200 (OK)
+      assert.strictEqual(res.status, 200);
+  
+      // Check if the login was successful by verifying the message
+      assert.strictEqual(res.body.message, 'Login successful');
+    });
+  
+    it('should return 401 for invalid credentials', async () => {
+      const credentials = {
+        email: 'wrong@example.com',
+        password: 'wrongpassword'
+      };
+  
+      // Send a POST request with invalid credentials
+      const res = await request(server).post('/login').send(credentials);
+  
+      // Check if the response status is 401 (Unauthorized)
+      assert.strictEqual(res.status, 401);
+  
+      // Check if the error message matches 'Invalid email or password'
+      assert.strictEqual(res.body.message, 'Invalid email or password');
+    });
+  });
+  
+  // Test for fetching all groups
+  describe('GET /groups', () => {
+    it('should return all groups', async () => {
+      // Send a GET request to retrieve all groups
+      const res = await request(server).get('/groups');
+  
+      // Check if the response status is 200 (OK)
+      assert.strictEqual(res.status, 200);
+  
+      // Check if the response body is an array
+      assert.ok(Array.isArray(res.body)); // true if the result is an array
+    });
+  });
+   
+  
 });
