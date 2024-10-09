@@ -146,5 +146,17 @@
       "User"
     ],
     "groups": []
+  },
+  {
+    "id": "0pr18t8vp",
+    "username": "t4@t4.com",
+    "email": "t4@t4.com",
+    "password": "123",
+    "roles": [
+      "User"
+    ],
+    "groups": [],
+    "interestGroups": [],
+    "_id": "67069245d0d1ae725d5a6c13"
   }
 ]

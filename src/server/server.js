@@ -18,10 +18,9 @@ const server = http.createServer(app); // Generate Http Server
 // PeerJS 모듈 추가
 const { PeerServer } = require('peer');
 
-// PeerJS 서버 설정 (server.js 파일 상단에 추가)
+// PeerJS Server Setting 
 const peerServer = PeerServer({ port: 9001, path: '/peerjs' });
 
-// 기존 서버 로직 아래에 Peer 서버 추가
 peerServer.listen(() => {
     console.log('PeerJS server is running on http://localhost:9001');
 });
@@ -29,9 +28,39 @@ app.use(express.json());
 app.use(cors());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
+// Paths to JSON files
+const usersFilePath = path.join(__dirname, 'users.json');
+const groupsFilePath = path.join(__dirname, 'groups.json');
 
+// Function to save user data to JSON file
+function saveUserData(data) {
+    fs.writeFileSync(usersFilePath, JSON.stringify(data, null, 2), 'utf-8');
+  }
+  
+  // Function to save group data to JSON file
+  function saveGroupData(data) {
+    fs.writeFileSync(groupsFilePath, JSON.stringify(data, null, 2), 'utf-8');
+  }
+  
+  // Function to load user data from JSON file
+  function loadUserData() {
+    if (fs.existsSync(usersFilePath)) {
+      const fileData = fs.readFileSync(usersFilePath, 'utf-8');
+      return JSON.parse(fileData);
+    }
+    return [];
+  }
+  
+  // Function to load group data from JSON file
+  function loadGroupData() {
+    if (fs.existsSync(groupsFilePath)) {
+      const fileData = fs.readFileSync(groupsFilePath, 'utf-8');
+      return JSON.parse(fileData);
+    }
+    return [];
+  }
 
-// multer 설정 (이미지 저장 경로 및 파일 이름)
+// multer 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = './uploads/profile-images';
@@ -67,10 +96,10 @@ const uploadChatImage = multer({ storage: chatImageStorage });
 async function connectDB() {
     try {
         await client.connect();
-        console.log("MongoDB에 성공적으로 연결되었습니다.");
-        return client.db('s5310537'); // MongoDB 데이터베이스를 반환
+        console.log("Successgully linked with MongoDB.");
+        return client.db('s5310537'); 
     } catch (error) {
-        console.error('MongoDB 연결 실패:', error);
+        console.error('MongoDB Connect Fail:', error);
         return null;
     }
 }
@@ -79,7 +108,7 @@ async function connectDB() {
 async function startServer() {
     const db = await connectDB();
     if (!db) {
-        console.log("데이터베이스 연결 실패. 서버를 시작할 수 없습니다.");
+        console.log("Database connection failed, server could not be started.");
         return;
     }
 
@@ -138,25 +167,26 @@ async function startServer() {
         }
     });
     // 새로운 그룹 생성
+// New group creation
 app.post('/groups', async (req, res) => {
     try {
         let newGroup = req.body;
 
-        // MongoDB가 _id를 자동 생성하므로, 수동으로 _id 필드를 삭제
+        // Remove _id if it exists, since MongoDB will generate it automatically
         if (newGroup._id) {
             delete newGroup._id;
         }
 
-        newGroup.pendingUsers = [];  // pendingUsers 필드 초기화
-        newGroup.members = [];  // members 필드 초기화
+        newGroup.pendingUsers = [];  // Initialize pendingUsers field
+        newGroup.members = [];  // Initialize members field
 
-        // 그룹 생성 및 MongoDB에 저장
+        // Insert the new group into MongoDB
         const result = await db.collection('groups').insertOne(newGroup);
 
-        // 생성된 그룹 다시 조회
+        // Fetch the inserted group by ID
         const insertedGroup = await db.collection('groups').findOne({ _id: result.insertedId });
 
-        // 생성한 사용자의 그룹 리스트에 추가
+        // Add the created group to the user's group list
         const createdBy = newGroup.createdBy;
         if (createdBy) {
             await db.collection('users').updateOne(
@@ -165,7 +195,16 @@ app.post('/groups', async (req, res) => {
             );
         }
 
-        // 성공적으로 생성된 그룹 반환
+        // Fetch the existing groups from groups.json
+        const existingGroups = loadGroupData();
+
+        // Add the new group to the array
+        existingGroups.push(insertedGroup);
+
+        // Save the updated groups to groups.json
+        saveGroupData(existingGroups);
+
+        // Return the successfully created group
         res.status(201).json(insertedGroup);
 
     } catch (error) {
@@ -173,6 +212,7 @@ app.post('/groups', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
         // 모든 그룹 가져오기
 app.get('/groups', async (req, res) => {
     try {
@@ -352,24 +392,28 @@ app.post('/group/:groupId/invite', async (req, res) => {
 // 사용자 등록
 app.post('/signup', async (req, res) => {
     try {
-        const newUser = req.body;  // 요청 본문에서 사용자 데이터 가져오기
-        newUser.interestGroups = [];  // 관심 그룹 목록 초기화
+        const newUser = req.body;  
+        newUser.interestGroups = []; 
         console.log('Attempting to register new user:', newUser);
 
         const result = await db.collection('users').insertOne(newUser);
         console.log('New user registered successfully:', result);
 
-        res.status(201).json(newUser);  // 성공적으로 등록된 사용자 반환
+        const users = loadUserData();
+        users.push(newUser);
+        saveUserData(users);
+
+        res.status(201).json(newUser); 
     } catch (err) {
         console.error('Database insertion error:', err);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
-// 로그인
+// Log in
 app.post('/login', async (req, res) => {
     try {
-        const { email, password } = req.body;  // 요청 본문에서 이메일과 비밀번호 추출
+        const { email, password } = req.body;  
         console.log(`Login attempt for email: ${email}, with password: ${password}`);
 
         const user = await db.collection('users').findOne({ email, password });
@@ -386,22 +430,22 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// 모든 사용자 조회
+// All User Data
 app.get('/users', async (req, res) => {
     console.log('Received GET request for /users');
     try {
         const users = await db.collection('users').find({}).toArray();
-        res.status(200).json(users);  // 사용자 리스트 반환
+        res.status(200).json(users);  
     } catch (error) {
         console.error('Database error:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
-// 특정 이메일을 기반으로 사용자 조회
+// Look up users based on specific emails
 app.get('/users/email', async (req, res) => {
     console.log('Received GET request for /users with email query');
-    const { email } = req.query;  // 쿼리 파라미터에서 이메일 추출
+    const { email } = req.query; 
 
     console.log('Email parameter received:', email); 
     if (!email) {
@@ -411,7 +455,7 @@ app.get('/users/email', async (req, res) => {
     try {
         const user = await db.collection('users').findOne({ email });
         if (user) {
-            res.status(200).json(user);  // 단일 사용자 정보 반환
+            res.status(200).json(user); 
         } else {
             res.status(404).json({ message: 'User not found' });
         }
@@ -420,7 +464,7 @@ app.get('/users/email', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-// 사용자 정보 가져오기
+// User Information
 app.get('/users/:userId', async (req, res) => {
     const { userId } = req.params;
 
@@ -568,7 +612,7 @@ app.put('/users/:userId', async (req, res) => {
 });
 
 
-// 사용자 삭제
+// delete users
 app.delete('/users/:userId', async (req, res) => {
     const { userId } = req.params; // URL에서 userId 추출
 
@@ -586,18 +630,18 @@ app.delete('/users/:userId', async (req, res) => {
     }
 });
 
-// 그룹 삭제
+// Delete Groups
 app.delete('/groups/:groupId', async (req, res) => {
-    const { groupId } = req.params; // URL에서 groupId 추출
+    const { groupId } = req.params; // get group Id from url
 
     try {
-        // 그룹 데이터베이스에서 그룹 삭제
+        // delete group from database
         const groupResult = await db.collection('groups').deleteOne({ id: groupId });
         if (groupResult.deletedCount === 0) {
             return res.status(404).json({ message: 'Group not found' });
         }
 
-        // 사용자 데이터베이스에서 삭제된 그룹 제거
+        // delete group from users
         await db.collection('users').updateMany(
             { "groups.id": groupId },
             { $pull: { groups: { id: groupId } } }

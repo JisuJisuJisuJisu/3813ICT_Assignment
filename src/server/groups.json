@@ -105,5 +105,23 @@
       }
     ],
     "imageUrl": ""
+  },
+  {
+    "_id": "67069379af23aee663252f1b",
+    "id": "6a9vwk9bg",
+    "name": "t1New",
+    "description": "",
+    "createdBy": "b7g73vizu",
+    "channels": [
+      {
+        "id": "d510h8rsq",
+        "name": "t1Ne2",
+        "description": "",
+        "groupId": ""
+      }
+    ],
+    "imageUrl": "",
+    "pendingUsers": [],
+    "members": []
   }
 ]
