@@ -10,21 +10,21 @@
 
 <div *ngIf="!isLoading && !errorMessage">
   
-  <!-- Invite 버튼 클릭 시 전체 유저 리스트가 보여지도록 showAllUsers에 따라 변경 -->
+  
   <div *ngIf="!showAllUsers">
-    <!-- Member List 제목과 Invite, Request 버튼을 한 줄에 배치 -->
+   
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2 class="mb-0">Member List</h2>
       <div class="ml-auto">
-        <!-- Invite 버튼 -->
+      
         <button class="button-74 mr-2" (click)="inviteUser()">Invite</button>
         
-        <!-- Request 버튼 -->
+       
         <button class="button-74" (click)="requestUser()">Request</button>
       </div>
     </div>
 
-    <!-- 그룹의 정식 멤버 리스트 -->
+
     <ul class="list-group mb-4">
       <li *ngFor="let member of memberDetails" class="list-group-item d-flex justify-content-between align-items-center">
         <span>
@@ -34,14 +34,13 @@
     </ul>
   </div>
 
-  <!-- 관심 있는 유저 목록을 보여줌 -->
   <div *ngIf="showInterestUsers && interestedUsers.length > 0">
     <h3>Requested Users</h3>
     <ul class="list-group mb-4">
       <li *ngFor="let user of interestedUsers" class="list-group-item d-flex justify-content-between align-items-center">
         <span>{{ user.username }} ({{ user.email }}) - {{ user.roles.join(', ') }}</span>
 
-        <!-- Allow 버튼 -->
+       
         <button class="btn btn-success btn-sm mr-2" (click)="allowUserToJoin(selectedGroup?.id, user.id)">Allow</button>
 
         <!-- Reject 버튼 -->
@@ -50,19 +49,19 @@
     </ul>
   </div>
 
-  <!-- showAllUsers가 true일 때 전체 유저 리스트를 보여줌 -->
+ 
   <div *ngIf="showAllUsers">
-    <h3>전체 유저 목록</h3>
+    <h3>All Users List</h3>
     <ul class="list-group mb-4">
       <li *ngFor="let user of allUsers" class="list-group-item d-flex justify-content-between align-items-center">
         <span>
           {{ user.username }} ({{ user.email }}) - {{ user.roles.join(', ') }}
         </span>
-        <!-- 기본적으로 invite 버튼을 표시하고, pendingUsers에 포함된 경우만 pending 버튼을 표시 -->
+       
         <button *ngIf="!selectedGroup?.pendingUsers?.includes(user.id)" class="btn btn-primary btn-sm" (click)="inviteUserToGroup(selectedGroup?.id, user.id)">
           Invite
         </button>
-        <!-- pendingUser인 경우 비활성화된 버튼을 표시 -->
+        
         <button *ngIf="selectedGroup?.pendingUsers?.includes(user.id)" class="btn btn-danger btn-sm" disabled>
           Pending
         </button>

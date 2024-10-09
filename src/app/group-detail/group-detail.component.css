@@ -20,7 +20,7 @@ h2 {
   padding: 50px;
   padding-left: 200px; /* 사이드바가 있을 때 여백 */
   transition: margin-left 0.3s ease-in-out;
-  background-image: url('/images/groupbackground.jpg');
+  /* background-image: url('/images/groupbackground.jpg'); */
   background-size: 100% 100%; 
   background-size: cover; /* 이미지가 전체 영역에 맞게 조정 */
   background-position: center; /* 이미지가 가운데 정렬되도록 설정 */
