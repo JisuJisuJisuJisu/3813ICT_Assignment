@@ -1,6 +1,6 @@
 export interface Channel {
-    id: string;        
-    name: string;      
-    description?: string;
-  }
-
+  id?: string;        // Optional property
+  name: string;       
+  description?: string;
+  groupId?: string;   // Optional property
+}

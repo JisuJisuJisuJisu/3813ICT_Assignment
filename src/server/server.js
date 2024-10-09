@@ -607,6 +607,93 @@ app.delete('/groups/:groupId', async (req, res) => {
     }
 });
 
+// Get all channels in a specific group
+app.get('/groups/:groupId/channels', async (req, res) => {
+    const { groupId } = req.params; // Extract groupId from URL
+
+    try {
+        const group = await db.collection('groups').findOne({ id: groupId });
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        res.status(200).json(group.channels || []); // Return the list of channels in the group
+    } catch (error) {
+        console.error('Error fetching channels:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+// Delete a specific channel by channelId (without groupId)
+app.delete('/channels/:channelId', async (req, res) => {
+    const { channelId } = req.params;
+
+    try {
+        // Find the group that contains the channel with the given ID
+        const result = await db.collection('groups').updateOne(
+            { 'channels.id': channelId },  // Find the group that contains the channel
+            { $pull: { channels: { id: channelId } } }  // Remove the channel with the matching ID
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ message: 'Channel not found' });
+        }
+
+        res.status(200).json({ message: 'Channel deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting channel:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+
+// Update a specific channel's information
+app.put('/groups/:groupId/channels/:channelId', async (req, res) => {
+    const { groupId, channelId } = req.params; // Extract groupId and channelId from URL
+    const updatedChannel = req.body; // Extract updated channel data from request body
+
+    try {
+        const group = await db.collection('groups').findOne({ id: groupId });
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        // Update the specific channel information
+        const result = await db.collection('groups').updateOne(
+            { id: groupId, "channels.id": new ObjectId(channelId) }, // Search for the channel by group and channel ID
+            { $set: { "channels.$": updatedChannel } } // Update the channel
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ message: 'Channel not found' });
+        }
+
+        res.status(200).json({ message: 'Channel updated successfully' });
+    } catch (error) {
+        console.error('Error updating channel:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+// Get all channels across all groups
+app.get('/channels', async (req, res) => {
+    try {
+        // Search for all groups and retrieve their channels
+        const groups = await db.collection('groups').find({}).toArray();
+        const allChannels = groups.flatMap(group => group.channels || []); // Combine all channels from all groups
+
+        res.status(200).json(allChannels); // Return all channels
+    } catch (error) {
+        console.error('Error fetching channels:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+
+
+
+
 // 소켓 설정
     setupSocket(server, db);
 

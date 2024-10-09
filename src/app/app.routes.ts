@@ -41,7 +41,8 @@ export const routes: Routes = [
     path: 'group-admin',
     component: GroupAdminComponent, 
     children: [
-      { path: 'manage-groups', component: ManageGroupsComponent }
+      { path: 'manage-groups', component: ManageGroupsComponent },
+      { path: 'manage-channels', component: ManageChannelsComponent },
     ]
   },
   { path: '', redirectTo: '/dashboard', pathMatch: 'prefix' }, 

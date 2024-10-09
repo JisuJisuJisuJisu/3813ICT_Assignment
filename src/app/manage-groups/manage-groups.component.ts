@@ -21,6 +21,7 @@ export class ManageGroupsComponent implements OnInit {
   showModal: boolean = false; // Control modal visibility
   successMessage: string = ''; // Success message for feedback
   router: any;
+  
 
   constructor(private http: HttpClient) {}
 
@@ -137,10 +138,11 @@ export class ManageGroupsComponent implements OnInit {
 
   // Add a new channel to the group
   addChannel(): void {
-    this.newGroup.channels.push({ 
-      id: this.generateUniqueId(),  // Generate a unique ID for the new channel
-      name: '', 
-      description: '' 
+    this.newGroup.channels.push({
+      id: this.generateUniqueId(), // Generate a unique ID for the new channel
+      name: '',
+      description: '',
+      groupId: ''
     });
   }
 
