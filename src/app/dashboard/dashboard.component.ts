@@ -41,11 +41,11 @@ export class DashboardComponent implements OnInit {
   
       // 사용자의 정보가 없는 경우 로그인 페이지로 이동
       if (!this.user) {
-        console.log('사용자 정보가 없습니다.');
+        
         this.router.navigate(['/login']);
       }
     } else {
-      console.log('로그인 정보가 없습니다. 얍');
+      
       this.router.navigate(['/login']);
     }
   

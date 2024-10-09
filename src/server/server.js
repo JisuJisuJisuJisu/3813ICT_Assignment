@@ -167,6 +167,35 @@ async function startServer() {
         }
     });
     
+    // Delete a member from a group (only for Group Admin or Super Admin)
+app.delete('/groups/:groupId/members/:memberId', async (req, res) => {
+    const { groupId, memberId } = req.params; // Extract groupId and memberId from URL
+    const { loggedInUser } = req.body; // Get the logged in user information from the request body
+
+    try {
+        // Check if loggedInUser exists and has the required role
+        if (!loggedInUser || !loggedInUser.roles.includes('Group Admin') && !loggedInUser.roles.includes('Super Admin')) {
+            return res.status(403).json({ message: 'You do not have permission to delete members.' });
+        }
+
+        // Remove the member from the group
+        const result = await db.collection('groups').updateOne(
+            { id: groupId }, // Find group by groupId
+            { $pull: { members: memberId } } // Remove the memberId from the members array
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ message: 'Group or member not found' });
+        }
+
+        res.status(200).json({ message: 'Member deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting member:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
 // New group creation
 app.post('/groups', async (req, res) => {
     try {

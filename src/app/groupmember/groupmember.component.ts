@@ -54,6 +54,32 @@ export class GroupMemberComponent implements OnInit {
     });
   }
 
+  // Delete a member from the group
+  deleteMember(memberId: string): void {
+    const loggedInUser = JSON.parse(sessionStorage.getItem('loggedinUser') || '{}'); // Get the logged in user info from sessionStorage
+  
+    if (!loggedInUser || !loggedInUser.roles.includes('Group Admin') && !loggedInUser.roles.includes('Super Admin')) {
+      alert('You do not have permission to delete members.');
+      return;
+    }
+  
+    if (confirm('Are you sure you want to delete this member?')) {
+      this.http.delete(`http://localhost:3000/groups/${this.selectedGroup?.id}/members/${memberId}`, { // Backend server URL
+        body: { loggedInUser } // Pass loggedInUser in the request body
+      }).subscribe({
+        next: () => {
+          alert('Member deleted successfully.');
+          this.fetchGroupDetails(this.selectedGroup!.id);  // Refresh group details after deleting the member
+        },
+        error: (error) => {
+          console.error('Error deleting member:', error);
+          alert('Failed to delete the member.');
+        }
+      });
+    }
+  }
+  
+  
   // Fetch group details from the server
   fetchGroupDetails(groupId: string): void {
     this.http.get<Group>(`http://localhost:3000/groups/${groupId}`)

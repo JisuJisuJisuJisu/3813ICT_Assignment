@@ -152,5 +152,23 @@
     "imageUrl": "",
     "pendingUsers": [],
     "members": []
+  },
+  {
+    "_id": "6706e03b2683f7ff8113259c",
+    "id": "fv7797lgn",
+    "name": "Super",
+    "description": "",
+    "createdBy": "si8w9m6m7",
+    "channels": [
+      {
+        "id": "sax570u3i",
+        "name": "Super1",
+        "description": "",
+        "groupId": ""
+      }
+    ],
+    "imageUrl": "",
+    "pendingUsers": [],
+    "members": []
   }
 ]
