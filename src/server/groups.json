@@ -170,5 +170,23 @@
     "imageUrl": "",
     "pendingUsers": [],
     "members": []
+  },
+  {
+    "_id": "6706e3e348b59ef2b2b630a9",
+    "id": "gwdpxtwtf",
+    "name": "VV",
+    "description": "",
+    "createdBy": "6zjivvwur",
+    "channels": [
+      {
+        "id": "f6sjhvkct",
+        "name": "V",
+        "description": "hehe",
+        "groupId": ""
+      }
+    ],
+    "imageUrl": "/uploads/group-images/1728504791444.png",
+    "pendingUsers": [],
+    "members": []
   }
 ]

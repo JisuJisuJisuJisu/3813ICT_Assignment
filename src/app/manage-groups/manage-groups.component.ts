@@ -193,14 +193,24 @@ export class ManageGroupsComponent implements OnInit {
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        console.log('File selected:', e.target.result);
-        // Process the image data if needed
-      };
-      reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append('image', file);  // Append the selected file to FormData
+  
+      // Send the image to the server
+      this.http.post<{ imageUrl: string }>(`http://localhost:3000/upload-group-image`, formData)
+        .subscribe({
+          next: (response) => {
+            console.log('File uploaded successfully:', response.imageUrl);
+            // Store the image URL in the new group's imageUrl field
+            this.newGroup.imageUrl = response.imageUrl;
+          },
+          error: (error) => {
+            console.error('Error uploading file:', error);
+          }
+        });
     }
   }
+  
 
   // Clear success messages after a timeout (5 seconds)
   clearMessageAfterTimeout(): void {

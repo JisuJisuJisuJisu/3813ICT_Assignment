@@ -74,6 +74,27 @@ const storage = multer.diskStorage({
     }
 });
 
+// Set up Multer for file upload handling
+const groupImageStorages = multer.diskStorage({
+    destination: (req, file, cb) => {
+      const uploadDir = './uploads/group-images';  // Set the upload directory path
+      if (!fs.existsSync(uploadDir)) {
+        try {
+          fs.mkdirSync(uploadDir, { recursive: true });  // Create the directory if it does not exist
+        } catch (err) {
+          console.error('Error creating directory:', err);
+          return cb(err, uploadDir);  // Return an error if the directory creation fails
+        }
+      }
+      cb(null, uploadDir);  // Proceed to the upload destination
+    },
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + path.extname(file.originalname));  // Generate a unique file name with timestamp
+    }
+  });
+  
+
+const uploadGroupImage = multer({ storage: groupImageStorages });
 const upload = multer({ storage });
 
 // multer Setting
@@ -111,6 +132,16 @@ async function startServer() {
         console.log("Database connection failed, server could not be started.");
         return;
     }
+
+    // Use the configured uploadGroupImage instead of upload
+app.post('/upload-group-image', uploadGroupImage.single('image'), (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    const imageUrl = `/uploads/group-images/${req.file.filename}`;  // Create the image URL
+    res.status(200).json({ imageUrl });  // Send the image URL back to the client
+});
 
     // Serving image file
     app.use('/uploads/profile-images', express.static(path.join(__dirname, 'uploads', 'profile-images')));
