@@ -53,12 +53,19 @@ export class ManageChannelsComponent implements OnInit {
     });
   }
 
-  // Return group name based on group's ID
   getGroupNameByChannel(channelId: string): string {
-    const group = this.groups.find(g => g.channels.some(channel => channel.id === channelId)); // 그룹에서 채널을 검색
+    // Check if groups array is not defined or empty
+    if (!this.groups || this.groups.length === 0) {
+      return 'Unknown Group'; // Return 'Unknown Group' if groups have not loaded
+    }
+  
+    // Check if channels array exists before calling 'some'
+    const group = this.groups.find(g => g.channels && g.channels.some(channel => channel.id === channelId));
+  
+    // Return group name if found, otherwise return 'Unknown Group'
     return group ? group.name : 'Unknown Group';
   }
-
+  
   // Handle form submission for creating a new channel in a group
   onSubmit(): void {
     const groupId = this.newChannel.groupId as string; // Group ID를 사용하는 방식은 유지

@@ -63,7 +63,10 @@ export class ProfileComponent implements OnInit {
   }
 
   // Fetch interest group details by ID
-  fetchInterestGroupDetails(): void {
+  // Fetch interest group details by ID
+fetchInterestGroupDetails(): void {
+  // Check if interestGroups is defined and is an array
+  if (this.user.interestGroups && this.user.interestGroups.length > 0) {
     this.user.interestGroups.forEach(groupId => {
       this.http.get<any>(`http://localhost:3000/groups/${groupId}`).subscribe({
         next: (groupDetails) => {
@@ -75,7 +78,10 @@ export class ProfileComponent implements OnInit {
         }
       });
     });
+  } else {
+    console.log('No interest groups found for this user.');
   }
+}
 
   // Fetch the groups the user belongs to
 fetchUserGroups(userId: string): void {
