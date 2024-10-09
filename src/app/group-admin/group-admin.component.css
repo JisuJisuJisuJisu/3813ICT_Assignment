@@ -83,7 +83,7 @@
         border-radius: 0;
         border-top: 1px rgba(0,0,0,.5) solid;
         overflow-y: auto;
-        background-color: #222;
+        background-color: #3a006e;
         /*background-color: #5A6B7D;*/
         bottom: 0;
         overflow-x: hidden;
@@ -118,7 +118,10 @@
 .side-nav>li>ul>li>a:hover {
     color: #fff;
 }
-
+.navbar-inverse {
+    background-color: #3a006e; /* 헤더 배경색 */
+    border-color: #080808;
+}
 .navbar .nav > li > a > .label {
   -webkit-border-radius: 50%;
   -moz-border-radius: 50%;
