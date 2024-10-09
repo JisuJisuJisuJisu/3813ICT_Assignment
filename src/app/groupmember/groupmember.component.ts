@@ -16,7 +16,7 @@ interface Group {
   id: string;
   name: string;
   pendingUsers: string[];
-  members: string[]; // members는 이제 User 객체가 아닌 사용자 ID만을 저장
+  members: string[]; // members now stores user IDs instead of User objects
 }
 
 @Component({
@@ -27,162 +27,170 @@ interface Group {
   styleUrls: ['./groupmember.component.css']
 })
 export class GroupMemberComponent implements OnInit {
-  groupId: string | null = null;  // URL에서 가져온 groupId 저장
+  groupId: string | null = null;  // Stores groupId from URL
   selectedGroup: Group | null = null;
-  allUsers: User[] = [];
-  interestedUsers: User[] = [];  // 요청을 보낸 유저들
-  isLoading: boolean = true;
-  showAllUsers: boolean = false;
-  showInterestUsers: boolean = false;  // 요청 보낸 유저 리스트를 보여줄지 여부
-  errorMessage: string | null = null;
-  memberDetails: User[] = []; // 멤버의 상세 정보를 저장
+  allUsers: User[] = [];  // All users fetched from the server
+  interestedUsers: User[] = [];  // Users who sent join requests
+  isLoading: boolean = true;  // Loading state
+  showAllUsers: boolean = false;  // Controls whether all users are shown
+  showInterestUsers: boolean = false;  // Controls whether interested users are shown
+  errorMessage: string | null = null;  // Error message in case of failure
+  memberDetails: User[] = []; // Stores detailed information about group members
 
   constructor(private http: HttpClient, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    // URL에서 groupId를 가져옴
+    // Retrieve the groupId from the URL
     this.route.parent?.paramMap.subscribe(params => {
-      this.groupId = params.get('id'); // 부모 경로에서 'id' 파라미터 가져오기
+      this.groupId = params.get('id'); // Get 'id' parameter from the parent route
       console.log('Group ID from URL:', this.groupId);
 
       if (this.groupId) {
-        this.fetchGroupDetails(this.groupId);
+        this.fetchGroupDetails(this.groupId);  // Fetch group details if groupId is present
       } else {
-        console.error('그룹 ID가 없습니다.');
-        this.isLoading = false;
+        console.error('No group ID found.');
+        this.isLoading = false;  // Stop loading if no groupId is found
       }
     });
   }
 
-  // 그룹 세부 사항 가져오기
+  // Fetch group details from the server
   fetchGroupDetails(groupId: string): void {
     this.http.get<Group>(`http://localhost:3000/groups/${groupId}`)
       .subscribe({
         next: (group) => {
           console.log('Fetched Group:', group);
-          this.selectedGroup = group;
-          this.fetchAllUsers(); // 전체 유저 리스트를 불러와서 멤버 정보를 매핑
+          this.selectedGroup = group;  // Set the selected group
+          this.fetchAllUsers(); // Fetch all users to map group members
         },
         error: (error) => {
-          console.error('그룹을 불러오는 중 오류 발생:', error);
-          this.errorMessage = '그룹을 불러오는 데 실패했습니다.';
+          console.error('Error fetching group:', error);
+          this.errorMessage = 'Failed to load group details.';
           this.isLoading = false;
         }
       });
   }
 
-  // 전체 유저 리스트 가져오기
+  // Fetch all users from the server
   fetchAllUsers(): void {
     this.http.get<User[]>('http://localhost:3000/users')
       .subscribe({
         next: (users) => {
           console.log('Fetched Users:', users);
-          this.allUsers = users;
-          this.mapMemberDetails();
+          this.allUsers = users;  // Store fetched users
+          this.mapMemberDetails();  // Map group members to detailed user information
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('유저 리스트를 불러오는 중 오류 발생:', error);
-          this.errorMessage = '유저 리스트를 불러오는 데 실패했습니다.';
+          console.error('Error fetching users:', error);
+          this.errorMessage = 'Failed to load user list.';
           this.isLoading = false;
         }
       });
   }
 
-  // 그룹 멤버 ID를 전체 유저 정보와 매핑하여 상세 정보 생성
+  // Map group member IDs to detailed user information
   mapMemberDetails(): void {
-    if (this.selectedGroup) {
+    if (this.selectedGroup && this.selectedGroup.members) {
+      // Find users based on member IDs and filter out undefined results
       this.memberDetails = this.selectedGroup.members
         .map(memberId => this.allUsers.find(user => user.id === memberId))
         .filter((user): user is User => user !== undefined);
-      console.log('Mapped Member Details:', this.memberDetails);
+
+      // Ensure that roles is always defined, even if it's empty
+      this.memberDetails.forEach(member => {
+        member.roles = member.roles || [];  // If roles is undefined, set it to an empty array
+      });
+    } else {
+      this.memberDetails = []; // Assign an empty array if no members are found
     }
+    console.log('Mapped Member Details:', this.memberDetails);
   }
 
-  // Invite 버튼 클릭 시 전체 유저 리스트를 표시
+  // Show all users when the Invite button is clicked
   inviteUser(): void {
-    this.showAllUsers = true;  // 전체 유저 리스트를 보여줌
+    this.showAllUsers = true;  // Show the list of all users
   }
 
-  // 특정 유저를 그룹에 초대
+  // Invite a specific user to the group
   inviteUserToGroup(groupId: string | undefined, userId: string): void {
     console.log('groupId:', groupId);
     console.log('userId:', userId);
 
     if (!this.selectedGroup || !this.selectedGroup.id) {
-      alert('그룹이 선택되지 않았습니다.');
+      alert('No group selected.');
       return;
     }
 
     this.http.post(`http://localhost:3000/group/${this.selectedGroup.id}/invite`, { groupId: this.selectedGroup.id, userId })
       .subscribe({
         next: () => {
-          alert('초대가 성공적으로 보내졌습니다.');
-          this.fetchGroupDetails(this.selectedGroup!.id);  // 그룹 정보를 다시 불러옴
+          alert('Invitation sent successfully.');
+          this.fetchGroupDetails(this.selectedGroup!.id);  // Refresh group details after inviting the user
         },
         error: (error) => {
-          console.error('초대 중 오류 발생:', error);
-          alert('초대에 실패했습니다.');
+          console.error('Error inviting user:', error);
+          alert('Failed to send the invitation.');
         }
       });
   }
 
-  // Request 버튼 클릭 시 요청 보낸 유저 리스트를 가져옴
+  // Show the list of users who requested to join the group when the Request button is clicked
   requestUser() {
     if (!this.selectedGroup || !this.selectedGroup.id) {
-      alert('그룹이 선택되지 않았습니다.');
+      alert('No group selected.');
       return;
     }
 
-    this.showInterestUsers = true;  // 관심 유저 리스트를 보여줌
+    this.showInterestUsers = true;  // Show the list of interested users
 
-    // InterestGroups에 해당 그룹 ID가 포함된 유저들을 필터링
+    // Filter users who are interested in joining the group
     this.interestedUsers = this.allUsers.filter(user => 
       user.interestGroups && user.interestGroups.includes(this.selectedGroup!.id)
     );
 
-    // 필터링된 유저 리스트를 출력 (콘솔 로그 또는 화면에 표시)
+    // Log or display the filtered list of users
     console.log('Users interested in this group:', this.interestedUsers);
   }
 
-  // 유저를 그룹에 승인
+  // Approve a user's request to join the group
   allowUserToJoin(groupId: string | undefined, userId: string): void {
     if (!this.selectedGroup || !this.selectedGroup.id) {
-      alert('그룹이 선택되지 않았습니다.');
+      alert('No group selected.');
       return;
     }
 
-    // 서버에 요청하여 사용자를 그룹에 추가 (members)하고, pendingUsers에서 제거
+    // Send a request to the server to add the user to the group and remove them from pendingUsers
     this.http.put(`http://localhost:3000/groups/approve/${groupId}`, { userId })
       .subscribe({
         next: () => {
-          alert('사용자가 승인되었습니다.');
-          this.fetchGroupDetails(this.selectedGroup!.id);  // 그룹 정보를 다시 불러옴
+          alert('User has been approved.');
+          this.fetchGroupDetails(this.selectedGroup!.id);  // Refresh group details after approval
         },
         error: (error) => {
-          console.error('사용자 승인 중 오류 발생:', error);
-          alert('사용자 승인이 실패했습니다.');
+          console.error('Error approving user:', error);
+          alert('Failed to approve the user.');
         }
       });
   }
 
-  // 유저를 그룹에서 거부
+  // Reject a user's request to join the group
   rejectUserFromGroup(groupId: string | undefined, userId: string): void {
     if (!this.selectedGroup || !this.selectedGroup.id) {
-      alert('그룹이 선택되지 않았습니다.');
+      alert('No group selected.');
       return;
     }
 
-    // 서버에 요청하여 사용자를 pendingUsers에서 제거
+    // Send a request to the server to remove the user from pendingUsers
     this.http.put(`http://localhost:3000/groups/reject/${groupId}`, { userId })
       .subscribe({
         next: () => {
-          alert('사용자가 거부되었습니다.');
-          this.fetchGroupDetails(this.selectedGroup!.id);  // 그룹 정보를 다시 불러옴
+          alert('User has been rejected.');
+          this.fetchGroupDetails(this.selectedGroup!.id);  // Refresh group details after rejection
         },
         error: (error) => {
-          console.error('사용자 거부 중 오류 발생:', error);
-          alert('사용자 거부가 실패했습니다.');
+          console.error('Error rejecting user:', error);
+          alert('Failed to reject the user.');
         }
       });
   }

@@ -82,7 +82,28 @@ fetchInterestGroupDetails(): void {
     console.log('No interest groups found for this user.');
   }
 }
+// Function to handle user account deletion
+deleteUser(): void {
+  // Ask for confirmation before proceeding with account deletion
+  const confirmation = confirm('Are you sure you want to delete your account? This action cannot be undone.');
 
+  if (confirmation) {
+    // Send HTTP DELETE request to remove the user from the server
+    this.http.delete(`http://localhost:3000/users/${this.user.id}`).subscribe({
+      next: () => {
+        console.log('User account deleted successfully.');
+        alert('Your account has been deleted.');
+        // Clear session storage and navigate to login page
+        sessionStorage.clear();
+        this.router.navigate(['/login']); // Redirect to login page
+      },
+      error: (error) => {
+        console.error('Error deleting user account:', error);
+        alert('Failed to delete account. Please try again later.');
+      }
+    });
+  }
+}
   // Fetch the groups the user belongs to
 fetchUserGroups(userId: string): void {
   this.http.get<any[]>(`http://localhost:3000/groups`).subscribe({

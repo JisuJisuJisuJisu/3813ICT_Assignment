@@ -28,7 +28,7 @@
     <ul class="list-group mb-4">
       <li *ngFor="let member of memberDetails" class="list-group-item d-flex justify-content-between align-items-center">
         <span>
-          {{ member.username }} ({{ member.email }}) - {{ member.roles.join(', ') }}
+          {{ member?.username ?? 'Unknown User' }} ({{ member?.email ?? 'Unknown Email' }})
         </span>
       </li>
     </ul>
@@ -55,7 +55,7 @@
     <ul class="list-group mb-4">
       <li *ngFor="let user of allUsers" class="list-group-item d-flex justify-content-between align-items-center">
         <span>
-          {{ user.username }} ({{ user.email }}) - {{ user.roles.join(', ') }}
+          {{ user.username }} ({{ user.email }}) - {{ user.roles?.length ? user.roles.join(', ') : 'No roles' }}
         </span>
        
         <button *ngIf="!selectedGroup?.pendingUsers?.includes(user.id)" class="btn btn-primary btn-sm" (click)="inviteUserToGroup(selectedGroup?.id, user.id)">

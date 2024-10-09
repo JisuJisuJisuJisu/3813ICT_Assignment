@@ -63,6 +63,7 @@ body{
   background-color: #007bff;  /* Example: Change the button color */
   color: white;
   border-radius: 20px;
+  margin-bottom: 10px;
   
 }
 
@@ -70,6 +71,7 @@ body{
 .btn-primary {
   background-color: #0056b3;
   margin-top: 10px;
+  margin-right: 3px;
 }
 
 /* Target success buttons */

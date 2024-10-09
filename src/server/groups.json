@@ -123,5 +123,34 @@
     "imageUrl": "",
     "pendingUsers": [],
     "members": []
+  },
+  {
+    "_id": "6706b01faf23aee663252f1f",
+    "id": "6qf2s3l2s",
+    "name": "t1newnew",
+    "description": "",
+    "createdBy": "b7g73vizu",
+    "channels": [],
+    "imageUrl": "",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6706b3a3af23aee663252f22",
+    "id": "pa0ttwx8n",
+    "name": "t81",
+    "description": "",
+    "createdBy": "6zjivvwur",
+    "channels": [
+      {
+        "id": "z2i1sncww",
+        "name": "t81_1",
+        "description": "",
+        "groupId": ""
+      }
+    ],
+    "imageUrl": "",
+    "pendingUsers": [],
+    "members": []
   }
 ]
