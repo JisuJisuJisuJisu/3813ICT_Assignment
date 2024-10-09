@@ -54,7 +54,10 @@
     color: #fff;
     background-color: #1a242f;
 }
-
+.navbar-inverse {
+    background-color: #3a006e; /* 헤더 배경색 */
+    border-color: #080808;
+}
 .top-nav>.open>.dropdown-menu {
     float: left;
     position: absolute;
@@ -82,9 +85,9 @@
         margin-left: -225px;
         border: none;
         border-radius: 0;
-        border-top: 1px rgba(0,0,0,.5) solid;
+        border-top: 1px rgba(0,0,0,.7) solid;
         overflow-y: auto;
-        background-color: #222;
+        background-color: #3a006e;
         /*background-color: #5A6B7D;*/
         bottom: 0;
         overflow-x: hidden;
@@ -93,7 +96,7 @@
 
     .side-nav>li>a {
         width: 225px;
-        border-bottom: 1px rgba(0,0,0,.3) solid;
+        border-bottom: 1px rgba(0,0,0,.7) solid;
     }
 
     .side-nav li a:hover,
@@ -105,7 +108,7 @@
 
 .side-nav>li>ul {
     padding: 0;
-    border-bottom: 1px rgba(0,0,0,.3) solid;
+    border-bottom: 1px rgba(0,0,0,.7) solid;
 }
 
 .side-nav>li>ul>li>a {

@@ -10,14 +10,14 @@
                         <div *ngFor="let message of messages" class="message-item">
                             
                             <div *ngIf="message.userId === userId" class="d-flex justify-content-end mb-4"> 
-                                <div class="message-content"> <!-- 메시지 박스 수직 정렬 -->
+                                <div class="message-content"> 
                                     <!-- <div class="username">{{ message.username || 'Unknown' }}</div> 이름 -->
                                     <div class="msg_cotainer_send">
-                                        <!-- 이미지 메시지인지 확인 -->
+                                       
                                         <ng-container *ngIf="message.isImage; else textMessage">
                                             <img [src]="'http://localhost:3000' + message.message" class="user_img_msg" alt="Image" />
                                         </ng-container>
-                                        <!-- 텍스트 메시지 -->
+                                      
                                         <ng-template #textMessage>{{ message.message }}</ng-template>
                                     </div>
                                 </div>
@@ -26,19 +26,19 @@
                                 </div>
                             </div>
 
-                            <!-- 다른 사용자가 보낸 메시지 -->
-                            <div *ngIf="message.userId !== userId" class="d-flex justify-content-start mb-4"> <!-- 메시지 왼쪽 정렬 -->
-                                <div class="img_cont_msg mr-2"> <!-- 왼쪽 프로필 사진 -->
+                            
+                            <div *ngIf="message.userId !== userId" class="d-flex justify-content-start mb-4"> 
+                                <div class="img_cont_msg mr-2"> 
                                     <img [src]="'http://localhost:3000' + message.profileImageUrl" class="user_img_msg" alt="user image">
                                 </div>
-                                <div class="message-content"> <!-- 메시지 박스 수직 정렬 -->
+                                <div class="message-content"> 
                                     <div class="username">{{ message.username || 'Unknown' }}</div> <!-- 이름 -->
                                     <div class="msg_cotainer">
-                                        <!-- 이미지 메시지인지 확인 -->
+                                        
                                         <ng-container *ngIf="message.isImage === true; else otherTextMessage">
                                             <img [src]="'http://localhost:3000' + message.message" class="user_img_msg" alt="Image" />
                                         </ng-container>
-                                        <!-- 텍스트 메시지 -->
+                                        
                                         <ng-template #otherTextMessage>{{ message.message }}</ng-template>
                                     </div>
                                 </div>
@@ -55,7 +55,7 @@
                                 <i class="bi bi-telephone"></i> <!-- Bootstrap 전화기 아이콘 -->
                             </button>
                         </div>
-                        <input type="text" [(ngModel)]="newMessage" class="form-control type_msg" placeholder="메시지를 입력하세요..." />
+                        <input type="text" [(ngModel)]="newMessage" class="form-control type_msg" placeholder="Type the message..." />
                         <input type="file" #fileInput (change)="onFileSelected($event)" class="form-control-file" />
                         <div class="input-group-append">
                             <button (click)="sendMessage()" class="btn send_btn">Send</button>
