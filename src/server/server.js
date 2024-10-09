@@ -15,7 +15,7 @@ const uri = "mongodb://localhost:27017";
 const client = new MongoClient(uri);
 const server = http.createServer(app); // Generate Http Server
 // const io = require('./socket')(server, db); 
-// PeerJS 모듈 추가
+
 const { PeerServer } = require('peer');
 
 // PeerJS Server Setting 
@@ -142,16 +142,16 @@ async function startServer() {
     app.get('/groups', async (req, res) => {
         try {
             const groups = await db.collection('groups').find({}).toArray();
-            res.status(200).json(groups);  // 그룹 리스트 반환
+            res.status(200).json(groups);  
         } catch (error) {
             console.error('Error reading groups data:', error);
             res.status(500).json({ message: 'Internal Server Error' });
         }
     });
 
-    // 특정 그룹 가져오기
+
     app.get('/groups/:groupId', async (req, res) => {
-        const { groupId } = req.params; // 그룹 ID 추출
+        const { groupId } = req.params; 
 
         try {
             const group = await db.collection('groups').findOne({ id: groupId });
@@ -160,13 +160,13 @@ async function startServer() {
                 return res.status(404).json({ message: 'Group not found' });
             }
 
-            res.status(200).json(group);  // 그룹 정보 반환
+            res.status(200).json(group); 
         } catch (error) {
             console.error('Error fetching group:', error);
             res.status(500).json({ message: 'Internal Server Error' });
         }
     });
-    // 새로운 그룹 생성
+    
 // New group creation
 app.post('/groups', async (req, res) => {
     try {
@@ -213,7 +213,7 @@ app.post('/groups', async (req, res) => {
     }
 });
 
-        // 모든 그룹 가져오기
+       
 app.get('/groups', async (req, res) => {
     try {
         const groups = await db.collection('groups').find({}).toArray();
@@ -224,18 +224,18 @@ app.get('/groups', async (req, res) => {
     }
 });
 
-// 그룹에 채널 추가
+
 app.post('/groups/:groupId/channels', async (req, res) => {
-    const { groupId } = req.params; // URL에서 groupId 추출
+    const { groupId } = req.params; 
     const newChannel = req.body;
 
-    // MongoDB가 _id를 자동 생성하므로, 수동으로 _id 필드를 삭제
+    
     delete newChannel._id;
 
     try {
         const result = await db.collection('groups').updateOne(
-            { id: groupId }, // 그룹을 groupId로 식별
-            { $push: { channels: newChannel } } // 새로운 채널 추가
+            { id: groupId }, 
+            { $push: { channels: newChannel } }
         );
 
         if (result.matchedCount === 0) {
@@ -252,22 +252,22 @@ app.post('/groups/:groupId/channels', async (req, res) => {
 
 app.put('/groups/approve/:groupId', async (req, res) => {
     console.log('PUT request received for approval');
-    const { groupId } = req.params; // URL에서 groupId 추출
-    const { userId } = req.body; // 요청 본문에서 userId 추출
+    const { groupId } = req.params;
+    const { userId } = req.body; 
 
     try {
-        // 1. 그룹 정보를 먼저 조회
+       
         const group = await db.collection('groups').findOne({ id: groupId });
         if (!group) {
             return res.status(404).json({ message: 'Group not found' });
         }
 
-        // 2. 그룹 업데이트: pendingUsers에서 제거하고 members에 추가
+      
         const groupUpdateResult = await db.collection('groups').updateOne(
-            { id: groupId }, // id로 그룹 검색
+            { id: groupId },
             {
-                $pull: { pendingUsers: userId }, // pendingUsers 배열에서 해당 userId 제거
-                $push: { members: userId } // members 배열에 userId 추가
+                $pull: { pendingUsers: userId }, 
+                $push: { members: userId } 
             }
         );
 
@@ -275,13 +275,13 @@ app.put('/groups/approve/:groupId', async (req, res) => {
             return res.status(404).json({ message: 'Group not found' });
         }
 
-        // 3. 사용자의 groups 배열에 그룹의 전체 정보 추가 및 interestGroups에서 그룹 제거
+
         const userUpdateResult = await db.collection('users').updateOne(
             { id: userId },
             {
-                // 중복 없이 그룹 전체 데이터를 추가 ($addToSet 사용 시 중복 방지)
-                $addToSet: { groups: group }, // group 객체 전체 추가
-                $pull: { interestGroups: groupId } // interestGroups에서 해당 groupId 제거
+                
+                $addToSet: { groups: group }, 
+                $pull: { interestGroups: groupId } 
             }
         );
 
@@ -298,14 +298,13 @@ app.put('/groups/approve/:groupId', async (req, res) => {
 
 
 
-// 그룹 요청 거절
 app.put('/groups/reject/:groupId', async (req, res) => {
-    const { groupId } = req.params; // URL에서 groupId 추출
-    const { userId } = req.body; // 사용자 ID 가져오기
+    const { groupId } = req.params; 
+    const { userId } = req.body; 
 
     try {
         const result = await db.collection('groups').updateOne(
-            { id: groupId }, // _id가 아닌 id 필드로 검색
+            { id: groupId }, 
             { $pull: { pendingUsers: userId } }
         );
 
@@ -323,7 +322,7 @@ app.get('/users/:email/interest-groups', async (req, res) => {
     const { email } = req.params;
     
     try {
-      // 이메일로 사용자 조회
+      
       const user = await db.collection('users').findOne({ email: email });
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
@@ -334,13 +333,13 @@ app.get('/users/:email/interest-groups', async (req, res) => {
     }
 });
 
-// 가입 요청 처리
+
 app.post('/groups/:groupId/join', async (req, res) => {
-    const { groupId } = req.params; // 그룹 ID 추출
-    const { email } = req.body; // 사용자 이메일 가져오기
+    const { groupId } = req.params;
+    const { email } = req.body; 
 
     try {
-        // 그룹의 pendingUsers에 사용자 추가
+        
         const groupUpdateResult = await db.collection('groups').updateOne(
             { id: groupId },
             { $push: { pendingUsers: email } }
@@ -350,7 +349,7 @@ app.post('/groups/:groupId/join', async (req, res) => {
             return res.status(404).json({ message: 'Group not found' });
         }
 
-        // 사용자의 interestGroups에 그룹 추가
+     
         const userUpdateResult = await db.collection('users').updateOne(
             { email: email }, // email로 사용자 찾기
             { $push: { interestGroups: groupId } }
@@ -367,7 +366,7 @@ app.post('/groups/:groupId/join', async (req, res) => {
 });
 
 
-// 그룹에 사용자를 초대하는 라우트
+// invite user to group
 app.post('/group/:groupId/invite', async (req, res) => {
     const { groupId } = req.params; // 그룹 ID 추출
     const { userId } = req.body; // 사용자 ID 가져오기
@@ -389,7 +388,7 @@ app.post('/group/:groupId/invite', async (req, res) => {
 });
 
 
-// 사용자 등록
+// Sign up
 app.post('/signup', async (req, res) => {
     try {
         const newUser = req.body;  
@@ -475,19 +474,19 @@ app.get('/users/:userId', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.status(200).json(user); // 사용자 정보 반환
+        res.status(200).json(user); 
     } catch (err) {
         console.error('Error fetching user:', err);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 
-// 채널에 새로운 메시지 추가하기
+// Add new message to channel
 app.post('/messages', async (req, res) => {
     console.log("hello");
     try {
         console.log("hello2");
-        const { channelId, userId, message } = req.body;  // 요청 본문에서 필요한 필드 추출
+        const { channelId, userId, message } = req.body;  
 
         // 필수 필드가 모두 있는지 확인
         if (!channelId || !userId || !message) {
@@ -737,17 +736,12 @@ app.get('/channels', async (req, res) => {
 });
 
 
-
-
-
-
-// 소켓 설정
     setupSocket(server, db);
 
-    // 서버 시작
+ 
     const PORT = 3000;
-    server.listen(PORT, () => { // server.listen으로 변경
-        console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
+    server.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT} `);
     });
 }
 

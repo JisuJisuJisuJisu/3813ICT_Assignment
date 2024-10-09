@@ -6,7 +6,6 @@ import { Group } from '../models/group.model';
 import { Channel } from '../models/channel.model';
 import { Router } from '@angular/router';
 
-
 @Component({
   selector: 'app-group-detail',
   templateUrl: './group-detail.component.html',
@@ -16,18 +15,18 @@ import { Router } from '@angular/router';
 })
 export class GroupDetailComponent implements OnInit {
   group: Group | null = null;
-  isLoading = true;  // 로딩 상태를 나타내는 변수 추가
+  isLoading = true;  // Variable to indicate loading state
   isSuperAdmin = false;
   isGroupAdmin = false;
-  selectedChannel: Channel | null = null; // 선택된 채널 상태 관리
-  showGroupDescription = true;  // 그룹 설명을 보여줄지 여부
+  selectedChannel: Channel | null = null; // Manages the state of the selected channel
+  showGroupDescription = true;  // Whether to display the group description
 
-  @Output() channelsUpdated = new EventEmitter<Channel[]>();  // 부모로 채널 전달
+  @Output() channelsUpdated = new EventEmitter<Channel[]>();  // Emits channels to the parent component
 
   constructor(private route: ActivatedRoute, private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
-    const groupId = this.route.snapshot.paramMap.get('id');  // URL에서 그룹 ID를 추출
+    const groupId = this.route.snapshot.paramMap.get('id');  // Extracts the group ID from the URL
     this.isSuperAdmin = this.checkIfSuperAdmin();
     this.isGroupAdmin = this.checkIfGroupAdmin();
     
@@ -36,41 +35,41 @@ export class GroupDetailComponent implements OnInit {
         next: (group) => {
           console.log("Group data:", group);
           this.group = group;
-          this.channelsUpdated.emit(group.channels);  // 채널 정보를 부모로 전달
-          this.isLoading = false;  // 데이터가 로드된 후 로딩 상태 변경
+          this.channelsUpdated.emit(group.channels);  // Sends channel information to the parent component
+          this.isLoading = false;  // Changes the loading state after data is loaded
         },
         error: (err) => {
-          console.error('그룹 정보를 가져오는 중 오류 발생:', err);
-          this.isLoading = false;  // 오류 발생 시에도 로딩 상태 변경
+          console.error('Error occurred while fetching group information:', err);
+          this.isLoading = false;  // Changes the loading state even when an error occurs
         }
       });
     }
   }
 
   onChannelClick(channel: Channel): void {
-    this.selectedChannel = channel; // 선택한 채널을 상태에 저장
+    this.selectedChannel = channel; // Stores the selected channel in the state
     console.log('Selected Channel:', this.selectedChannel);
     console.log('Group ID:', this.group?.id);
     console.log('hello');
   }
 
   checkIfSuperAdmin(): boolean {
-    // 사용자 권한을 확인하는 로직 구현
-    return true; // Super Admin 여부를 리턴
+    // Logic to check if the user is a Super Admin
+    return true; // Returns whether the user is a Super Admin
   }
 
   checkIfGroupAdmin(): boolean {
-    // 사용자 권한을 확인하는 로직 구현
-    return true; // Group Admin 여부를 리턴
+    // Logic to check if the user is a Group Admin
+    return true; // Returns whether the user is a Group Admin
   }
 
-  // 그룹 멤버 및 Pending Users 관리 페이지로 이동하는 메서드
+  // Method to navigate to the group members and pending users management page
   goToGroupMembers(...args: []): void {
     if (this.group && this.group.id) {
-      this.showGroupDescription = false;  // 그룹 설명 숨기기
-      this.router.navigate([`/dashboard/group/${this.group.id}/members`]); // group.id 사용
+      this.showGroupDescription = false;  // Hides the group description
+      this.router.navigate([`/dashboard/group/${this.group.id}/members`]); // Uses group.id for navigation
     } else {
-      console.error('Group ID가 존재하지 않습니다.');
+      console.error('Group ID does not exist.');
     }
     console.log('hello');
   }
