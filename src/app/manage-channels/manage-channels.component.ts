@@ -15,7 +15,7 @@ import { CommonModule } from '@angular/common';
 export class ManageChannelsComponent implements OnInit {
   channels: Channel[] = [];
   groups: Group[] = [];
-  newChannel: Channel = { id: '', name: '', description: '', groupId: '' };
+  newChannel: Channel = { id: '', name: '', description: '', groupId: '' }; // groupId는 더 이상 사용하지 않음
   showModal: boolean = false;
   successMessage: string = '';
   router: any;
@@ -53,70 +53,63 @@ export class ManageChannelsComponent implements OnInit {
     });
   }
 
-  // Return group name based on group ID
-  getGroupName(groupId: string): string {
-    const group = this.groups.find(g => g.id === groupId);
+  // Return group name based on group's ID
+  getGroupNameByChannel(channelId: string): string {
+    const group = this.groups.find(g => g.channels.some(channel => channel.id === channelId)); // 그룹에서 채널을 검색
     return group ? group.name : 'Unknown Group';
   }
 
-// Handle form submission for creating a new channel in a group
-onSubmit(): void {
-  const groupId = this.newChannel.groupId as string; // Type assertion to treat groupId as string
+  // Handle form submission for creating a new channel in a group
+  onSubmit(): void {
+    const groupId = this.newChannel.groupId as string; // Group ID를 사용하는 방식은 유지
 
-  // Generate a unique ID for the new channel
-  this.newChannel.id = this.generateUniqueId(); // Ensure ID is generated on the client side
+    // Generate a unique ID for the new channel
+    this.newChannel.id = this.generateUniqueId(); // Ensure ID is generated on the client side
 
-  // Remove groupId from newChannel before sending the request
-  const channelToAdd = { ...this.newChannel };
-  delete channelToAdd.groupId;
+    // Remove groupId from newChannel before sending the request
+    const channelToAdd = { ...this.newChannel };
+    delete channelToAdd.groupId;
 
-  // Make the API call to add the channel to the group
-  this.http.post<Channel>(`http://localhost:3000/groups/${groupId}/channels`, channelToAdd).subscribe({
-    next: (channel) => {
-      const group = this.groups.find(g => g.id === groupId);
-      if (group) {
-        group.channels.push(channel); // Update the local group data
+    // Make the API call to add the channel to the group
+    this.http.post<Channel>(`http://localhost:3000/groups/${groupId}/channels`, channelToAdd).subscribe({
+      next: (channel) => {
+        const group = this.groups.find(g => g.id === groupId);
+        if (group) {
+          group.channels.push(channel); // Update the local group data
+        }
+        this.newChannel = { id: '', name: '', description: '', groupId: '' }; // Reset the form
+        this.showModal = false;
+        this.successMessage = 'New channel added successfully.';
+        this.clearMessageAfterTimeout();
+      },
+      error: (error) => {
+        console.error('Error adding channel:', error);
       }
-      this.newChannel = { id: '', name: '', description: '', groupId: '' }; // Reset the form
-      this.showModal = false;
-      this.successMessage = 'New channel added successfully.';
-      this.clearMessageAfterTimeout();
-    },
-    error: (error) => {
-      console.error('Error adding channel:', error);
-    }
-  });
-}
-
-
-
-deleteChannel(channelId: string): void {
-  // Make sure the channelId is valid before making the API call
-  if (!channelId) {
-    console.error('Channel ID is missing.');
-    return;
+    });
   }
 
-  this.http.delete(`http://localhost:3000/channels/${channelId}`).subscribe({
-    next: () => {
-      console.log(`Channel with ID ${channelId} deleted successfully`);
-
-      // Update the local channels list by removing the deleted channel
-      this.channels = this.channels.filter(channel => channel.id !== channelId);
-      this.successMessage = `Channel with ID ${channelId} deleted successfully.`;
-      this.clearMessageAfterTimeout();
-    },
-    error: (error) => {
-      console.error('Error deleting channel:', error);
+  // Delete a channel
+  deleteChannel(channelId: string): void {
+    // Make sure the channelId is valid before making the API call
+    if (!channelId) {
+      console.error('Channel ID is missing.');
+      return;
     }
-  });
-}
 
+    this.http.delete(`http://localhost:3000/channels/${channelId}`).subscribe({
+      next: () => {
+        console.log(`Channel with ID ${channelId} deleted successfully`);
 
-
-
-
-
+        // Update the local channels list by removing the deleted channel
+        this.channels = this.channels.filter(channel => channel.id !== channelId);
+        this.successMessage = `Channel with ID ${channelId} deleted successfully.`;
+        this.clearMessageAfterTimeout();
+      },
+      error: (error) => {
+        console.error('Error deleting channel:', error);
+      }
+    });
+  }
 
   // Generate a unique ID for new channels
   generateUniqueId(): string {

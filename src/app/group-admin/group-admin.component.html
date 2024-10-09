@@ -37,21 +37,14 @@
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav side-nav">
                 <!-- Channels 메뉴 -->
-                <li>
-                    <a href="#" data-toggle="collapse" data-target="#submenu-channels"><i class="fa fa-fw fa-search"></i> Channels <i class="fa fa-fw fa-angle-down pull-right"></i></a>
-                    <ul id="submenu-channels" class="collapse">
-                        <li *ngFor="let channel of userChannels">
-                            <a href="#"><i class="fa fa-angle-double-right"></i> channel name</a>
-                        </li>
-                    </ul>
-                </li>
                 
-                <!-- Back to Dashboard 버튼 -->
+                
+                <!-- Back to Dashboard -->
                 <li>
                     <a href="#" onclick="window.location.href='dashboard-url';"><i class="fa fa-fw fa-arrow-left"></i> Back to Dashboard</a>
                 </li>
                 
-                <!-- Super Admin 전용 메뉴 -->
+                <!-- Super Admin  -->
                 <li *ngIf="isSuperAdmin">
                     <a routerLink="/super-admin/manage-users"><i class="fa fa-fw fa-users"></i> Manage Users</a>
                   </li>
@@ -62,7 +55,7 @@
                     <a routerLink="/super-admin/manage-channels"><i class="fa fa-fw fa-comments"></i> Manage Channels</a>
                   </li>
 
-                <!-- Group Admin 전용 메뉴 -->
+                <!-- Group Admin -->
                 <li *ngIf="isGroupAdmin && !isSuperAdmin">
                     <a href="#" onclick="window.location.href='create-groups-url';"><i class="fa fa-fw fa-plus"></i> Create Groups</a>
                 </li>
@@ -70,7 +63,7 @@
                     <a routerLink="/group-admin/manage-groups"><i class="fa fa-fw fa-sitemap"></i> Manage My Groups</a>
                 </li>
                 <li *ngIf="isGroupAdmin && !isSuperAdmin">
-                    <a href="#" onclick="window.location.href='manage-channels-url';"><i class="fa fa-fw fa-comments"></i> Manage Channels</a>
+                    <a routerLink="/group-admin/manage-channels"><i class="fa fa-fw fa-comments"></i> Manage My Channels</a>
                 </li>
             </ul>
         </div>

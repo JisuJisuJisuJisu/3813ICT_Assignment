@@ -1,60 +1,67 @@
 <div class="container">
     <h2>Manage Channels</h2>
     <button class="btn btn-success pull-right" (click)="showModal = true">
-        <i class="fa fa-plus"></i> Add Channel
+      <i class="fa fa-plus"></i> Add Channel
     </button>
+    
+    <!-- Table for displaying channels -->
     <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Channel Name</th>
-                <th>Description</th>
-                <th>Group</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let channel of channels">
-                <td>{{ channel.id }}</td>
-                <td>{{ channel.name }}</td>
-                <td>{{ channel.description }}</td>
-                <td>{{ getGroupName(channel.groupId) }}</td>
-                <td>
-                    <!-- Updated Delete Button -->
-                    <button class="btn btn-danger btn-sm" (click)="deleteChannel(channel.id)">Delete</button>
-                  </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Channel Name</th>
+          <th>Description</th>
+          <th>Group</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let channel of channels">
+          <td>{{ channel.id }}</td>
+          <td>{{ channel.name }}</td>
+          <td>{{ channel.description }}</td>
+          <td>
+            <!-- Call getGroupNameByChannel to get group name using channel id -->
+            {{ channel.id ? getGroupNameByChannel(channel.id) : 'Unknown Group' }}
 
-<!-- Add Channel 모달 -->
-<div class="modal" tabindex="-1" role="dialog" *ngIf="showModal">
-    <div class="modal-dialog" role="document">
+          </td>
+          <td>
+            <!-- Delete button for each channel -->
+            <button class="btn btn-danger btn-sm" *ngIf="channel.id" (click)="deleteChannel(channel.id!)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <!-- Modal for adding a new channel -->
+    <div class="modal" tabindex="-1" role="dialog" *ngIf="showModal">
+      <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" (click)="showModal = false"><span>&times;</span></button>
-                <h4 class="modal-title">Add Channel</h4>
-            </div>
-            <div class="modal-body">
-                <form (ngSubmit)="onSubmit()">
-                    <div class="form-group">
-                        <label for="groupSelect">Select Group</label>
-                        <select id="groupSelect" class="form-control" [(ngModel)]="newChannel.groupId" name="groupId" required>
-                            <option *ngFor="let group of groups" [value]="group.id">{{ group.name }}</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="channelName">Channel Name</label>
-                        <input type="text" class="form-control" id="channelName" [(ngModel)]="newChannel.name" name="channelName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="channelDescription">Description</label>
-                        <textarea class="form-control" id="channelDescription" [(ngModel)]="newChannel.description" name="channelDescription" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </form>
-            </div>
+          <div class="modal-header">
+            <h5 class="modal-title">Add Channel</h5>
+            <button type="button" class="close" (click)="showModal = false">&times;</button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="onSubmit()">
+              <div class="form-group">
+                <label for="groupSelect">Select Group</label>
+                <select id="groupSelect" class="form-control" [(ngModel)]="newChannel.groupId" name="groupId" required>
+                  <option *ngFor="let group of groups" [value]="group.id">{{ group.name }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="channelName">Channel Name</label>
+                <input type="text" class="form-control" id="channelName" [(ngModel)]="newChannel.name" name="channelName" required>
+              </div>
+              <div class="form-group">
+                <label for="channelDescription">Description</label>
+                <textarea class="form-control" id="channelDescription" [(ngModel)]="newChannel.description" name="channelDescription" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
-</div>
+  </div>
+  

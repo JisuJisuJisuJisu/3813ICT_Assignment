@@ -149,7 +149,7 @@
                     <a routerLink="/group-admin/manage-groups"><i class="fa fa-fw fa-sitemap"></i> Manage My Groups</a>
                 </li>
                 <li *ngIf="isGroupAdmin() && !isSuperAdmin()">
-                    <a href="#" onclick="window.location.href='manage-channels-url';"><i class="fa fa-fw fa-comments"></i> Manage Channels</a>
+                    <a routerLink="/group-admin/manage-channels"><i class="fa fa-fw fa-comments"></i> Manage My Channels</a>
                 </li>
             </ul>
         </div>
