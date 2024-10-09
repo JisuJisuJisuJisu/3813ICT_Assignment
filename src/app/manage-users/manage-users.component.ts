@@ -36,13 +36,18 @@ export class ManageUsersComponent implements OnInit {
 
   openRoleModal(user: User): void {
     this.selectedUser = user;
-    this.newRole = user.roles[0]; // 현재 역할을 기본값으로 설정
+    
+    // Set the current role if roles exist; otherwise, default to an empty string
+    this.newRole = user.roles && user.roles.length > 0 ? user.roles[0] : ''; 
+    
+    // Get the modal element and display it
     const modalElement = document.getElementById('roleModal');
     if (modalElement) {
       modalElement.classList.add('show');
       modalElement.style.display = 'block';
     }
   }
+  
 
   closeRoleModal(): void {
     const modalElement = document.getElementById('roleModal');
