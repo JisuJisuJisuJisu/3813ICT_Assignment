@@ -28,6 +28,9 @@ peerServer.listen(() => {
 app.use(express.json()); 
 app.use(cors());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
+
+
+
 // multer 설정 (이미지 저장 경로 및 파일 이름)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
