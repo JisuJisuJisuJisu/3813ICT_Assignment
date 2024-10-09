@@ -78,18 +78,18 @@ export class ProfileComponent implements OnInit {
   }
 
   // Fetch the groups the user belongs to
-  fetchUserGroups(userId: string): void {
-    this.http.get<any[]>(`http://localhost:3000/groups`).subscribe({
-      next: (groups) => {
-        // Filter groups where userId is in pendingUsers
-        this.userGroups = groups.filter(group => group.pendingUsers.includes(userId));
-        console.log('Groups with pending join requests:', this.userGroups);
-      },
-      error: (error) => {
-        console.error('Error fetching group information:', error);
-      }
-    });
-  }
+fetchUserGroups(userId: string): void {
+  this.http.get<any[]>(`http://localhost:3000/groups`).subscribe({
+    next: (groups) => {
+      // Filter groups where userId is in pendingUsers, and ensure pendingUsers is defined
+      this.userGroups = groups.filter(group => group.pendingUsers && group.pendingUsers.includes(userId));
+      console.log('Groups with pending join requests:', this.userGroups);
+    },
+    error: (error) => {
+      console.error('Error fetching group information:', error);
+    }
+  });
+}
 
   // Approve a join request
   approveJoinRequest(groupId: string, userId: string): void {
