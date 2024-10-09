@@ -188,5 +188,59 @@
     "imageUrl": "/uploads/group-images/1728504791444.png",
     "pendingUsers": [],
     "members": []
+  },
+  {
+    "_id": "6706e78948b59ef2b2b630ab",
+    "id": "zsemdsjll",
+    "name": "My First Group",
+    "description": "Wellcome",
+    "createdBy": "31ma6cdko",
+    "channels": [
+      {
+        "id": "yzwwtfhg3",
+        "name": "Talk",
+        "description": "",
+        "groupId": ""
+      }
+    ],
+    "imageUrl": "/uploads/group-images/1728505723399.jpg",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6706e7bd48b59ef2b2b630ac",
+    "id": "djrhv83n5",
+    "name": "My Second Group",
+    "description": "Hi",
+    "createdBy": "31ma6cdko",
+    "channels": [
+      {
+        "id": "8j8xk96zy",
+        "name": "Wow",
+        "description": "",
+        "groupId": ""
+      }
+    ],
+    "imageUrl": "",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6706e7cf48b59ef2b2b630ad",
+    "id": "rov04vjec",
+    "name": "My Second Group",
+    "description": "Hii",
+    "createdBy": "31ma6cdko",
+    "channels": [
+      {
+        "id": "d311pun6s",
+        "name": "Talk",
+        "description": "",
+        "groupId": ""
+      }
+    ],
+    "imageUrl": "/uploads/group-images/1728505806577.jpg",
+    "pendingUsers": [],
+    "members": []
   }
 ]

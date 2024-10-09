@@ -278,5 +278,17 @@
     "groups": [],
     "interestGroups": [],
     "_id": "6706b7c9af23aee663252f27"
+  },
+  {
+    "id": "31ma6cdko",
+    "username": "w1@w1.com",
+    "email": "w1@w1.com",
+    "password": "123",
+    "roles": [
+      "User"
+    ],
+    "groups": [],
+    "interestGroups": [],
+    "_id": "6706e73048b59ef2b2b630aa"
   }
 ]
