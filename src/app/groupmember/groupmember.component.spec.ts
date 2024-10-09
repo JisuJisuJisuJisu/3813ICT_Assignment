@@ -1,14 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientModule } from '@angular/common/http';
+import { RouterTestingModule } from '@angular/router/testing'; // Import RouterTestingModule
 import { GroupMemberComponent } from './groupmember.component';
 
-describe('GroupmemberComponent', () => {
+describe('GroupMemberComponent', () => {
   let component: GroupMemberComponent;
   let fixture: ComponentFixture<GroupMemberComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GroupMemberComponent, HttpClientModule]
+      imports: [
+        GroupMemberComponent,  // Import the standalone component
+        HttpClientModule,      // Add HttpClientModule to handle HTTP requests
+        RouterTestingModule    // Add RouterTestingModule for routing services (if needed)
+      ]
     })
     .compileComponents();
 
@@ -18,6 +23,7 @@ describe('GroupmemberComponent', () => {
   });
 
   it('should create', () => {
+    // Check if the component is created successfully
     expect(component).toBeTruthy();
   });
 });

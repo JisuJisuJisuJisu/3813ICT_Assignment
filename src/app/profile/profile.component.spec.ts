@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { HttpClientModule } from '@angular/common/http'; // Import HttpClientModule
+import { RouterTestingModule } from '@angular/router/testing'; // Import RouterTestingModule
 import { ProfileComponent } from './profile.component';
 
 describe('ProfileComponent', () => {
@@ -8,7 +9,11 @@ describe('ProfileComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProfileComponent]
+      imports: [
+        ProfileComponent,     // Import the standalone component
+        HttpClientModule,     // Add HttpClientModule for HTTP requests
+        RouterTestingModule   // Add RouterTestingModule for routing services
+      ]
     })
     .compileComponents();
 
@@ -18,6 +23,7 @@ describe('ProfileComponent', () => {
   });
 
   it('should create', () => {
+    // Check if the component is created successfully
     expect(component).toBeTruthy();
   });
 });
