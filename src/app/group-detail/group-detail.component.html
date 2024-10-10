@@ -1,7 +1,7 @@
 <div class="content-container">
-  <!-- 본문 영역 -->
+  
   <div class="main-content">
-    <!-- 기본 그룹 디테일을 보여줌 -->
+    
     <div *ngIf="!selectedChannel">
       <h2>{{ group?.name }}</h2>
       <p *ngIf="showGroupDescription">{{ group?.description || 'No description available' }}</p>
@@ -12,11 +12,11 @@
       </button>
     </div>
 
-    <!-- 채널 디테일을 <router-outlet>으로 대체 -->
+    
     <router-outlet></router-outlet>
   </div>
 
-  <!-- 사이드바: 채널 목록 -->
+ 
   <div id="channel-sidebar" class="open">
     <h3>Channels</h3>
     <ul>

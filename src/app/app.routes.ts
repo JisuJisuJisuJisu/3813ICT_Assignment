@@ -22,7 +22,7 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, children:[
     { path: '', component: GroupListComponent},
     { path: 'group/:id', component: GroupDetailComponent, children: [
-      { path: 'members', component: GroupMemberComponent }, // GroupDetailComponent의 자식 경로로 이동
+      { path: 'members', component: GroupMemberComponent }, 
       { path: 'channel/:channelId', component: ChannelComponent } 
     ]},
     { path: 'profile', component: ProfileComponent },
