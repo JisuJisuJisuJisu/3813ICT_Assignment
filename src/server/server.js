@@ -133,6 +133,16 @@ async function startServer() {
         return;
     }
 
+    app.get('/users-json', (req, res) => {
+        const filePath = path.join(__dirname, './users.json'); // 서버 내의 JSON 파일 경로
+        fs.readFile(filePath, 'utf8', (err, data) => {
+          if (err) {
+            res.status(500).json({ message: 'Failed to load JSON file.' });
+          } else {
+            res.json(JSON.parse(data));
+          }
+        });
+      });
     // Use the configured uploadGroupImage instead of upload
 app.post('/upload-group-image', uploadGroupImage.single('image'), (req, res) => {
     if (!req.file) {

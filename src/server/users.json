@@ -326,5 +326,17 @@
     "groups": [],
     "interestGroups": [],
     "_id": "6706eab448b59ef2b2b630b7"
+  },
+  {
+    "id": "ked3da9p4",
+    "username": "w5@w5.com",
+    "email": "w5@w5.com",
+    "password": "123",
+    "roles": [
+      "User"
+    ],
+    "groups": [],
+    "interestGroups": [],
+    "_id": "670866507b732af03b92f225"
   }
 ]

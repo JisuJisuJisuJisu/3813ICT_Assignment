@@ -54,6 +54,13 @@ export class GroupMemberComponent implements OnInit {
     });
   }
 
+  // Check if the logged-in user is an Admin (Super Admin or Group Admin)
+isAdmin(): boolean {
+  const loggedInUser = JSON.parse(sessionStorage.getItem('loggedinUser') || '{}');  // Get the logged-in user info from sessionStorage
+
+  // Return true if the user is either Super Admin or Group Admin
+  return loggedInUser.roles.includes('Super Admin') || loggedInUser.roles.includes('Group Admin');
+}
   // Delete a member from the group
   deleteMember(memberId: string): void {
     const loggedInUser = JSON.parse(sessionStorage.getItem('loggedinUser') || '{}'); // Get the logged in user info from sessionStorage
@@ -97,23 +104,46 @@ export class GroupMemberComponent implements OnInit {
       });
   }
 
-  // Fetch all users from the server
-  fetchAllUsers(): void {
+  
+// Fetch all users from the server or JSON file
+fetchAllUsers(): void {
+  const loggedInUser = JSON.parse(sessionStorage.getItem('loggedinUser') || '{}');  // Get the currently logged-in user's information from sessionStorage
+
+  // If the logged-in user is a regular user, fetch data from the server-provided JSON file
+  if (!loggedInUser || loggedInUser.roles.includes('User')) {
+    this.http.get<User[]>('http://localhost:3000/users-json')  // Server path to JSON file
+      .subscribe({
+        next: (users) => {
+          console.log('Fetched Users from JSON:', users);  // Log the user data fetched from JSON
+          this.allUsers = users;  // Store JSON data in the allUsers array
+          this.mapMemberDetails();  // Call the function to map group member details
+          this.isLoading = false;  // Set loading state to false
+        },
+        error: (error) => {
+          console.error('Error fetching users from JSON:', error);  // Log any errors while fetching data from JSON
+          this.errorMessage = 'Failed to load user list from JSON.';
+          this.isLoading = false;  // Stop loading on error
+        }
+      });
+  } else {
+    // If the logged-in user is an admin, fetch data from the MongoDB server
     this.http.get<User[]>('http://localhost:3000/users')
       .subscribe({
         next: (users) => {
-          console.log('Fetched Users:', users);
-          this.allUsers = users;  // Store fetched users
-          this.mapMemberDetails();  // Map group members to detailed user information
-          this.isLoading = false;
+          console.log('Fetched Users from MongoDB:', users);  // Log the user data fetched from MongoDB
+          this.allUsers = users;  // Store MongoDB data in the allUsers array
+          this.mapMemberDetails();  // Call the function to map group member details
+          this.isLoading = false;  // Set loading state to false
         },
         error: (error) => {
-          console.error('Error fetching users:', error);
+          console.error('Error fetching users from MongoDB:', error);  // Log any errors while fetching data from MongoDB
           this.errorMessage = 'Failed to load user list.';
-          this.isLoading = false;
+          this.isLoading = false;  // Stop loading on error
         }
       });
   }
+}
+
 
   // Map group member IDs to detailed user information
   mapMemberDetails(): void {

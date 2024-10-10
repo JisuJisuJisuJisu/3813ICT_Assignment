@@ -30,7 +30,7 @@
         <span>
           {{ member?.username ?? 'Unknown User' }} ({{ member?.email ?? 'Unknown Email' }})
         </span>
-        <button class="btn btn-danger btn-sm" (click)="deleteMember(member.id)">Delete</button>
+        <button *ngIf="isAdmin()" class="btn btn-danger btn-sm" (click)="deleteMember(member.id)">Delete</button>
 
       </li>
     </ul>
