@@ -148,6 +148,10 @@ export class ManageGroupsComponent implements OnInit {
 
   // Handle form submission for creating a new group
   onSubmit(): void {
+    if (!this.newGroup.name || this.newGroup.name.trim() === '') {
+      alert('Please enter a group name.');
+      return; 
+    }
     this.newGroup.id = this.generateUniqueId();
     this.newGroup.createdBy = this.user?.id || '';
 

@@ -125,6 +125,12 @@ loadChannels(): void {
       return;
     }
 
+      // Check if the channel name is empty
+  if (!this.newChannel.name || this.newChannel.name.trim() === '') {
+    alert('Please enter a channel name.');
+    return; // Stop the form submission if the channel name is missing
+  }
+
     // Check if the user is allowed to create a channel in the selected group
     if (!this.isSuperAdmin && !this.groups.some(group => group.id === groupId && group.createdBy === this.user?.id)) {
       alert('You do not have permission to create a channel in this group.');

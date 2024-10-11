@@ -81,7 +81,7 @@
                 
                                 <!-- Group Admin 전용 메뉴 -->
                                 <li *ngIf="isGroupAdmin() && !isSuperAdmin()">
-                                    <a href="#" onclick="window.location.href='create-groups-url';"><i class="fa fa-fw fa-plus"></i> Create Groups</a>
+                                    <!-- <a href="#" onclick="window.location.href='create-groups-url';"><i class="fa fa-fw fa-plus"></i> Create Groups</a> -->
                                 </li>
                                 <li *ngIf="isGroupAdmin() && !isSuperAdmin()">
                                     <a routerLink="/group-admin/manage-groups"><i class="fa fa-fw fa-sitemap"></i> Manage My Groups</a>
@@ -143,7 +143,7 @@
 
                 <!-- Group Admin -->
                 <li *ngIf="isGroupAdmin() && !isSuperAdmin()">
-                    <a href="#" onclick="window.location.href='create-groups-url';"><i class="fa fa-fw fa-plus"></i> Create Groups</a>
+                    <!-- <a href="#" onclick="window.location.href='create-groups-url';"><i class="fa fa-fw fa-plus"></i> Create Groups</a> -->
                 </li>
                 <li *ngIf="isGroupAdmin() && !isSuperAdmin()">
                     <a routerLink="/group-admin/manage-groups"><i class="fa fa-fw fa-sitemap"></i> Manage My Groups</a>

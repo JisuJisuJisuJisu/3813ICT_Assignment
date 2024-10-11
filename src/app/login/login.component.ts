@@ -48,10 +48,12 @@ export class LoginComponent {
           this.router.navigate(['/dashboard'], { state: { user: response.user } });
         },
         error: (error) => {
-          alert(error.error.message);
-          console.error('Invalid email or password. Please Try again.', error);
+          console.error('Invalid email or password. Please Log in again.', error);
+          alert('Invalid email or password. Please Log in again.');
         }
       });
+    }else {
+      alert('Please fill in all required fields. Please Log in again.');
     }
   }
 }

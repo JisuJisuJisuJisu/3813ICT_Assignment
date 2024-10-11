@@ -52,7 +52,7 @@
 .top-nav>.open>a:hover,
 .top-nav>.open>a:focus {
     color: #fff;
-    background-color: #1a242f;
+    background-color: #9a50ac;
 }
 .navbar-inverse {
     background-color: #3a006e; /* 헤더 배경색 */
@@ -102,7 +102,7 @@
     .side-nav li a:hover,
     .side-nav li a:focus {
         outline: none;
-        background-color: #1a242f !important;
+        background-color: #9a50ac !important;
     }
 }
 

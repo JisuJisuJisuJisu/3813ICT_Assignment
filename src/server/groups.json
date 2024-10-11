@@ -314,5 +314,41 @@
     "imageUrl": "",
     "pendingUsers": [],
     "members": []
+  },
+  {
+    "_id": "67088a3c242e1bc709c623f1",
+    "id": "56vioha1l",
+    "name": "Hello!",
+    "description": "Nice",
+    "createdBy": "t2ldy25x7",
+    "channels": [
+      {
+        "id": "dtz8qzv38",
+        "name": "Channel1",
+        "description": "Nice",
+        "groupId": ""
+      }
+    ],
+    "imageUrl": "/uploads/group-images/1728612906030.jpg",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "67088eb1611966ba05818582",
+    "id": "rjojw1lhy",
+    "name": "Hello",
+    "description": "nice",
+    "createdBy": "355lb539p",
+    "channels": [
+      {
+        "id": "o9xds5iyr",
+        "name": "Channel1",
+        "description": "",
+        "groupId": ""
+      }
+    ],
+    "imageUrl": "/uploads/group-images/1728614051947.jpg",
+    "pendingUsers": [],
+    "members": []
   }
 ]
