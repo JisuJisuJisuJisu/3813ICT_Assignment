@@ -48,10 +48,10 @@ export class ChannelComponent implements OnInit, OnDestroy {
       }
     });
 
-    // PeerJS 서버 연결 및 웹캠 스트림 설정
+    // PeerJS 
     this.peer = new Peer({
-      host: 'localhost', // Peer 서버 호스트
-      port: 9001, // Peer 서버 포트
+      host: 'localhost', 
+      port: 9001, 
       path: '/peerjs'
     });
 
@@ -65,22 +65,22 @@ export class ChannelComponent implements OnInit, OnDestroy {
         this.localStream = stream;
         const localVideoElement = document.querySelector('video#local-video') as HTMLVideoElement;
         if (localVideoElement) {
-          localVideoElement.srcObject = stream; // 로컬 비디오 스트림 설정
+          localVideoElement.srcObject = stream; 
         }
       })
       .catch(err => {
         console.error('Failed to get local stream', err);
       });
 
-    // PeerJS에서 통화 수신 처리
+
     if (this.peer) {
       this.peer.on('call', (call) => {
-        call.answer(this.localStream || undefined); // 수신된 통화에 대해 웹캠 스트림을 응답으로 보냄
+        call.answer(this.localStream || undefined); 
         call.on('stream', (remoteStream: MediaStream) => {
           this.remoteStream = remoteStream;
           const remoteVideoElement = document.querySelector('video#remote-video') as HTMLVideoElement;
           if (remoteVideoElement) {
-            remoteVideoElement.srcObject = remoteStream; // 상대방 비디오 스트림 설정
+            remoteVideoElement.srcObject = remoteStream; 
           }
         });
       });

@@ -658,7 +658,7 @@ app.get('/messages', async (req, res) => {
                         console.error(`User with id ${message.userId} not found`);
                         return {
                             ...message,
-                            profileImageUrl: '/default/path/to/image.png' // 사용자 없을 때 기본 이미지 제공
+                            profileImageUrl: '/uploads/profile-images/basicprofile.jpg' // 사용자 없을 때 기본 이미지 제공
                         };
                     }
 
