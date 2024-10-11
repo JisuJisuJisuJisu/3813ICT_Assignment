@@ -19,10 +19,18 @@ const server = http.createServer(app); // Generate Http Server
 const { PeerServer } = require('peer');
 
 // PeerJS Server Setting 
-const peerServer = PeerServer({ port: 9001, path: '/peerjs' });
+const peerServer = PeerServer({ port: process.env.NODE_ENV === 'test' ? 9001 : 9001, path: '/peerjs' });
 
 peerServer.listen(() => {
     console.log('PeerJS server is running on http://localhost:9001');
+});
+app.get('/', (req, res) => {
+    res.status(200).send('Server is running');
+});
+// Add a logout route
+app.post('/logout', (req, res) => {
+    // Handle logout logic (clear session or token)
+    res.status(200).json({ message: 'Logout successful' });
 });
 app.use(express.json()); 
 app.use(cors());
@@ -483,22 +491,35 @@ app.post('/group/:groupId/invite', async (req, res) => {
 });
 
 
-// Sign up
+// Check if the user already exists based on email and prevent duplicate signups
 app.post('/signup', async (req, res) => {
     try {
-        const newUser = req.body;  
-        newUser.interestGroups = []; 
+        const { email } = req.body;  // Extract email from request body
+        
+        // Check if a user with the same email already exists
+        const existingUser = await db.collection('users').findOne({ email });
+        if (existingUser) {
+            return res.status(409).json({ message: 'User already exists' });  // Return 409 conflict if email exists
+        }
+        
+        // If no duplicate user is found, proceed with creating a new user
+        const newUser = req.body;
+        newUser.interestGroups = [];  // Initialize interestGroups for the new user
         console.log('Attempting to register new user:', newUser);
 
+        // Insert the new user into the database
         const result = await db.collection('users').insertOne(newUser);
         console.log('New user registered successfully:', result);
 
+        // Load and save user data into the local JSON file
         const users = loadUserData();
         users.push(newUser);
         saveUserData(users);
 
-        res.status(201).json(newUser); 
+        // Return a success response
+        res.status(201).json(newUser);
     } catch (err) {
+        // Log and return a 500 error in case of any failures
         console.error('Database insertion error:', err);
         res.status(500).json({ message: 'Internal Server Error' });
     }
@@ -588,10 +609,10 @@ app.post('/messages', async (req, res) => {
             return res.status(400).json({ message: 'Missing required fields: channelId, userId, message' });
         }
 
-        console.log('요청된 userId:', userId);
+        console.log('Requested userId:', userId);
         // 작성자 정보 조회 (profileImage 포함)
         const user = await db.collection('users').findOne({ id: userId });
-        console.log('조회된 사용자 정보:', user);
+        console.log('User information:', user);
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -834,10 +855,11 @@ app.get('/channels', async (req, res) => {
     setupSocket(server, db);
 
  
-    const PORT = 3000;
+    const PORT = process.env.NODE_ENV === 'test' ? 3001 : 3000;
     server.listen(PORT, () => {
         console.log(`Server is running on http://localhost:${PORT} `);
     });
 }
 
 startServer();
+module.exports = { app, startServer };

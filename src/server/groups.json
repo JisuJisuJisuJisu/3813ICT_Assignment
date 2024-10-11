@@ -350,5 +350,113 @@
     "imageUrl": "/uploads/group-images/1728614051947.jpg",
     "pendingUsers": [],
     "members": []
+  },
+  {
+    "_id": "6708a9266ad743c178d895ea",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6708a9bc739af2c3aa28526e",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6708a9fb21e7a622cd86f4f5",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6708aaf21bafae2c73bb6bfa",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6708ab49c58f06e5f82a543e",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6708ababfbb8b90a33a3644a",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6708ac31f0802b39e88d0da0",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6708acae2705e3f68a1ffb3c",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6708ad1ecd85b3338711b559",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6708ad68df021da4abba4e11",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6708ada592b0c256648d3c32",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6708b03ff000ff53574b76f8",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
   }
 ]

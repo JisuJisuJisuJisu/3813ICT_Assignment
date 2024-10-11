@@ -410,5 +410,31 @@
     "groups": [],
     "interestGroups": [],
     "_id": "67088e3f611966ba05818581"
+  },
+  {
+    "id": "c6hyja1oz",
+    "username": "z1@z1.com",
+    "email": "z1@z1.com",
+    "password": "123",
+    "roles": [
+      "User"
+    ],
+    "groups": [],
+    "interestGroups": [],
+    "_id": "67089bdef7a0db9be89fa8a4"
+  },
+  {
+    "email": "testuser@example.com",
+    "password": "testpassword",
+    "username": "testuser",
+    "interestGroups": [],
+    "_id": "6708a9bc739af2c3aa28526c"
+  },
+  {
+    "email": "testuser@example.com",
+    "password": "testpassword",
+    "username": "testuser",
+    "interestGroups": [],
+    "_id": "6708a9bc739af2c3aa28526d"
   }
 ]
