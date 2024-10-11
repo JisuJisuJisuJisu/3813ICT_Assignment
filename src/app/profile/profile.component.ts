@@ -153,7 +153,7 @@ fetchUserGroups(userId: string): void {
 
   updateUserProfile(): void {
   const updatedUserData = {
-    username: this.user.username,  // 사용자 이름만 업데이트하는 예시
+    username: this.user.username,  
   };
 
   this.http.put(`http://localhost:3000/users/${this.user.id}`, updatedUserData).subscribe({

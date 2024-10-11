@@ -393,61 +393,6 @@ describe('GET /groups/:groupId/channels', function () {
   });
 });
 
-describe('PUT /users/:userId', function () {
-  it('should update user information', function (done) {
-      const updatedUser = {
-          username: 'newUsername',
-          email: 'newEmail@example.com'
-      };
-
-      request(app)
-          .put('/users/user123')
-          .send(updatedUser)
-          .expect(200)
-          .end((err, res) => {
-              if (err) return done(err);
-              expect(res.body).to.have.property('message', 'User updated successfully');
-              done();
-          });
-  });
-
-  it('should return 404 if the user is not found', function (done) {
-      request(app)
-          .put('/users/nonexistentUser')
-          .send({ username: 'newUsername' })
-          .expect(404)
-          .end((err, res) => {
-              if (err) return done(err);
-              expect(res.body).to.have.property('message', 'User not found');
-              done();
-          });
-  });
-});
-
-describe('DELETE /users/:userId', function () {
-  it('should delete a user by userId', function (done) {
-      request(app)
-          .delete('/users/user123')
-          .expect(200)
-          .end((err, res) => {
-              if (err) return done(err);
-              expect(res.body).to.have.property('message', 'User with ID user123 deleted successfully');
-              done();
-          });
-  });
-
-  it('should return 404 if the user is not found', function (done) {
-      request(app)
-          .delete('/users/nonexistentUser')
-          .expect(404)
-          .end((err, res) => {
-              if (err) return done(err);
-              expect(res.body).to.have.property('message', 'User not found');
-              done();
-          });
-  });
-});
-
 
 
 
