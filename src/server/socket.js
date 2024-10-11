@@ -85,6 +85,20 @@ function setupSocket(server, db) {
       }
     });
 
+    // Handle Peer ID broadcast
+    socket.on('peer-id', (data) => {
+      console.log('PEER ID');
+      const { channelId, message } = data;
+      
+      // Broadcast Peer ID to all users in the channel
+      io.to(channelId).emit('new-message', {
+        userId: null, // 시스템 메시지이므로 userId는 null
+        username: 'System', // 시스템 메시지
+        text: message, // Peer ID 메시지
+        timestamp: new Date().toLocaleString() // 현재 시간
+      });
+    });
+    
     socket.on('disconnect', () => {
       console.log('User has disconnected.');
       const timestamp = new Date().toLocaleString(); // Get the current time

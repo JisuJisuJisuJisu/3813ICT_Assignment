@@ -59,13 +59,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
     this.peer.on('open', (id: string) => {
       this.myPeerId = id;
       console.log('My Peer ID is: ', id);
-      this.messages.push({
-        userId: null,  // 시스템 메시지
-        username: 'System',  // 시스템 메시지에서 사용자 이름 대신 'System'을 사용
-        message: `${this.username}' Peer ID is: ${this.myPeerId}`,  // Peer ID를 메시지로 추가
-        isImage: false,
-        timestamp: new Date().toLocaleString()  // 현재 시간 추가
-      });
+      
 
     });
 
@@ -108,36 +102,57 @@ export class ChannelComponent implements OnInit, OnDestroy {
   }
 
   // 영상 통화 시작
-  startVideoCall(): void {
-    // Check if PeerJS and local stream are ready
-    if (!this.peer || !this.localStream) {
-      console.error('PeerJS or local stream is not ready.');
-      return;
-    }
-    alert(`Your Peer ID is: ${this.myPeerId}`);
-    this.videoCallActive = true;
-
-    // Prompt user to enter the remote peer ID
-    const remotePeerId = prompt('Enter the remote peer ID:');
-    if (remotePeerId) {
-      const call = this.peer.call(remotePeerId, this.localStream || undefined); // Handle null by passing undefined
-      console.log('Attempting to call remote peer:', remotePeerId);
-
-      // Listen for the remote stream and set it to the video element
-      call.on('stream', (remoteStream: MediaStream) => {
-        this.remoteStream = remoteStream;
-        const remoteVideoElement = document.querySelector('video#remote-video') as HTMLVideoElement;
-        if (remoteVideoElement) {
-          remoteVideoElement.srcObject = remoteStream; // Set the remote video stream
-        }
-      });
-
-      // Handle any errors during the call
-      call.on('error', (err: any) => {
-        console.error('Error during the call:', err);
-      });
-    }
+startVideoCall(): void {
+  // Check if PeerJS and local stream are ready
+  if (!this.peer || !this.localStream) {
+    console.error('PeerJS or local stream is not ready.');
+    return;
   }
+
+  // Notify the current user with their Peer ID
+  alert(`Your Peer ID is: ${this.myPeerId}`);
+  this.videoCallActive = true;
+
+  // Send the Peer ID as a normal message through the socket
+  const peerIdMessage = {
+    channelId: this.channelId,  // 현재 채널 ID
+    userId: this.userId,  // 실제 사용자 ID
+    username: this.username,  // 실제 사용자 이름
+    message: `${this.username}'s Peer ID is: ${this.myPeerId}`,  // Peer ID 메시지로 추가
+    timestamp: new Date().toLocaleString(),  // 현재 시간 추가
+    isImage: false
+  };
+  
+  
+  // Local message push
+  this.messages.push(peerIdMessage);
+
+  // Broadcast the Peer ID message to other users in the channel
+  if (this.socket) {
+    this.socket.emit('peer-id', peerIdMessage); // 서버로 전송
+  }
+
+  // Prompt user to enter the remote peer ID
+  const remotePeerId = prompt('Enter the remote peer ID:');
+  if (remotePeerId) {
+    const call = this.peer.call(remotePeerId, this.localStream || undefined); // Handle null by passing undefined
+    console.log('Attempting to call remote peer:', remotePeerId);
+
+    // Listen for the remote stream and set it to the video element
+    call.on('stream', (remoteStream: MediaStream) => {
+      this.remoteStream = remoteStream;
+      const remoteVideoElement = document.querySelector('video#remote-video') as HTMLVideoElement;
+      if (remoteVideoElement) {
+        remoteVideoElement.srcObject = remoteStream; // Set the remote video stream
+      }
+    });
+
+    // Handle any errors during the call
+    call.on('error', (err: any) => {
+      console.error('Error during the call:', err);
+    });
+  }
+}
 
   // Set up connection with the Socket.IO server
   setupSocketConnection(): void {
@@ -226,6 +241,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
         userId: this.userId, // User ID retrieved from session
         timestamp: new Date().toLocaleString() // Add the current timestamp
       };
+      
 
       // Send the message to the server
       this.socket.emit('send-message', messageData);
