@@ -2,8 +2,13 @@
 
 <div class="container-fluid h-100">
     <div class="row justify-content-center h-100">
+        <div *ngIf="videoCallActive" class="video-section text-center">
+            <video id="local-video" class="local-video" autoplay playsinline></video>
+            <video id="remote-video" class="remote-video" autoplay playsinline></video>
+        </div>
         <div class="chat">
             <div class="card">
+                
                 <div class="card-body msg_card_body">
                     <div class="message-list w-100">
                         

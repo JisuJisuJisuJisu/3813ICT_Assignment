@@ -21,6 +21,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
   username: string = ''; // User's username
   userId: string = ''; // User's ID
   selectedFile: File | null = null; // Selected file
+  videoCallActive: boolean = false; 
 
   // PeerJS 관련 변수
   private peer: Peer | null = null; // PeerJS 객체
@@ -38,7 +39,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
       this.username = user.username;
       this.userId = user._id; // Retrieve user's ID
     }
-
+    
     // Retrieve channel ID from the URL
     this.route.paramMap.subscribe(params => {
       this.channelId = params.get('channelId') || ''; // Retrieve channel ID from the URL
@@ -58,7 +59,17 @@ export class ChannelComponent implements OnInit, OnDestroy {
     this.peer.on('open', (id: string) => {
       this.myPeerId = id;
       console.log('My Peer ID is: ', id);
+      this.messages.push({
+        userId: null,  // 시스템 메시지
+        username: 'System',  // 시스템 메시지에서 사용자 이름 대신 'System'을 사용
+        message: `${this.username}' Peer ID is: ${this.myPeerId}`,  // Peer ID를 메시지로 추가
+        isImage: false,
+        timestamp: new Date().toLocaleString()  // 현재 시간 추가
+      });
+
     });
+
+    
 
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       .then(stream => {
@@ -71,7 +82,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
       .catch(err => {
         console.error('Failed to get local stream', err);
       });
-
+      
 
     if (this.peer) {
       this.peer.on('call', (call) => {
@@ -103,6 +114,8 @@ export class ChannelComponent implements OnInit, OnDestroy {
       console.error('PeerJS or local stream is not ready.');
       return;
     }
+    alert(`Your Peer ID is: ${this.myPeerId}`);
+    this.videoCallActive = true;
 
     // Prompt user to enter the remote peer ID
     const remotePeerId = prompt('Enter the remote peer ID:');

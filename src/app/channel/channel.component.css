@@ -6,6 +6,17 @@ body, html {
     background: linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
 }
 
+.video-section {
+    margin-bottom: 20px;
+}
+
+.local-video, .remote-video {
+    width: 200px; /* 비디오 너비 설정 */
+    height: 150px; /* 비디오 높이 설정 */
+    margin: 0 10px;
+    background-color: black; /* 비디오가 로드되지 않았을 때 배경색 */
+    border-radius: 8px; /* 비디오 모서리 둥글게 */
+}
 .message-list {
     width: 800px; 
 }
