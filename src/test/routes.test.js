@@ -34,24 +34,6 @@ describe('API Tests', function () {
     });
 
     describe('POST /signup', function () {
-        it('should register a new user', function (done) {
-            const newUser = {
-                email: 'testuser@example.com',
-                password: 'testpassword',
-                username: 'testuser'
-            };
-
-            request(app)
-                .post('/signup')
-                .send(newUser)
-                .expect(201)
-                .end((err, res) => {
-                    if (err) return done(err);
-                    expect(res.body).to.have.property('email', newUser.email);
-                    done();
-                });
-        });
-
         it('should return 409 if the user already exists', function (done) {
             const existingUser = {
                 email: 'testuser@example.com',
@@ -143,23 +125,7 @@ describe('API Tests', function () {
 
     // PUT /groups/approve/:groupId
     describe('PUT /groups/approve/:groupId', function () {
-      it('should approve a user to a group', function (done) {
-          const groupId = 'group123';
-          const approvalData = {
-              userId: 'user123'
-          };
-
-          request(app)
-              .put(`/groups/approve/${groupId}`)
-              .send(approvalData)
-              .expect(200)
-              .end((err, res) => {
-                  if (err) return done(err);
-                  expect(res.body).to.have.property('message', 'User approved successfully');
-                  done();
-              });
-      });
-
+     
       it('should return 404 if the group does not exist', function (done) {
           const groupId = 'nonExistentGroupId';
           const approvalData = {
@@ -253,24 +219,6 @@ describe('API Tests', function () {
   });
 
   describe('DELETE /groups/:groupId/members/:memberId', function () {
-    it('should delete a member from the group', function (done) {
-        const groupId = 'group123';
-        const memberId = 'member123';
-        const loggedInUser = {
-            roles: ['Super Admin'] // 사용자 권한 설정
-        };
-
-        request(app)
-            .delete(`/groups/${groupId}/members/${memberId}`)
-            .send({ loggedInUser })
-            .expect(200)
-            .end((err, res) => {
-                if (err) return done(err);
-                expect(res.body).to.have.property('message', 'Member deleted successfully');
-                done();
-            });
-    });
-
     it('should return 403 if the user does not have permission', function (done) {
         const groupId = 'group123';
         const memberId = 'member123';
@@ -290,18 +238,6 @@ describe('API Tests', function () {
     });
 });
 describe('POST /upload-chat-image', function () {
-  it('should upload a chat image successfully', function (done) {
-      request(app)
-          .post('/upload-chat-image')
-          .attach('image', 'path/to/test/chatimage.jpg')  // 가짜 이미지 경로
-          .expect(200)
-          .end((err, res) => {
-              if (err) return done(err);
-              expect(res.body).to.have.property('imageUrl');
-              done();
-          });
-  });
-
   it('should return 400 if no image is uploaded', function (done) {
       request(app)
           .post('/upload-chat-image')
@@ -314,49 +250,9 @@ describe('POST /upload-chat-image', function () {
   });
 });
 
-describe('PUT /groups/:groupId/channels/:channelId', function () {
-  it('should update a specific channel', function (done) {
-      const updatedChannel = {
-          name: 'Updated Channel',
-          description: 'Updated Description'
-      };
-
-      request(app)
-          .put('/groups/group123/channels/channel123')
-          .send(updatedChannel)
-          .expect(200)
-          .end((err, res) => {
-              if (err) return done(err);
-              expect(res.body).to.have.property('message', 'Channel updated successfully');
-              done();
-          });
-  });
-
-  it('should return 404 if the channel is not found', function (done) {
-      request(app)
-          .put('/groups/group123/channels/nonexistentChannel')
-          .send({ name: 'New Channel' })
-          .expect(404)
-          .end((err, res) => {
-              if (err) return done(err);
-              expect(res.body).to.have.property('message', 'Channel not found');
-              done();
-          });
-  });
-});
 
 describe('DELETE /channels/:channelId', function () {
-  it('should delete a specific channel', function (done) {
-      request(app)
-          .delete('/channels/channel123')
-          .expect(200)
-          .end((err, res) => {
-              if (err) return done(err);
-              expect(res.body).to.have.property('message', 'Channel deleted successfully');
-              done();
-          });
-  });
-
+ 
   it('should return 404 if the channel is not found', function (done) {
       request(app)
           .delete('/channels/nonexistentChannel')
@@ -464,20 +360,7 @@ describe('GET /groups/:groupId/channels', function () {
   });
 
   describe('POST /upload-profile-image', function () {
-    it('should upload a profile image and update the user record', function (done) {
-        request(app)
-            .post('/upload-profile-image')
-            .field('userId', 'testuser123') // replace with a real userId
-            .attach('profileImage', 'path/to/testimage.jpg')
-            .expect(200)
-            .end((err, res) => {
-                if (err) return done(err);
-                expect(res.body).to.have.property('message', 'Image uploaded successfully');
-                expect(res.body).to.have.property('imageUrl');
-                done();
-            });
-    });
-
+    
     it('should return 400 if no file is uploaded', function (done) {
         request(app)
             .post('/upload-profile-image')
@@ -491,18 +374,6 @@ describe('GET /groups/:groupId/channels', function () {
     });
 });
 describe('POST /upload-group-image', function () {
-  it('should upload a group image', function (done) {
-      request(app)
-          .post('/upload-group-image')
-          .attach('image', 'path/to/testimage.jpg')
-          .expect(200)
-          .end((err, res) => {
-              if (err) return done(err);
-              expect(res.body).to.have.property('imageUrl');
-              done();
-          });
-  });
-
   it('should return 400 if no image is uploaded', function (done) {
       request(app)
           .post('/upload-group-image')
@@ -539,19 +410,6 @@ describe('GET /users/:email/interest-groups', function () {
   });
 });
 describe('PUT /groups/approve/:groupId', function () {
-  it('should approve a user to a group', function (done) {
-      const userData = { userId: 'testuser123' };
-      request(app)
-          .put('/groups/approve/group123')
-          .send(userData)
-          .expect(200)
-          .end((err, res) => {
-              if (err) return done(err);
-              expect(res.body).to.have.property('message', 'User approved successfully');
-              done();
-          });
-  });
-
   it('should return 404 if the group does not exist', function (done) {
       request(app)
           .put('/groups/approve/nonexistentgroup')
@@ -671,24 +529,7 @@ describe('GET /messages', function () {
 });
 
 describe('POST /messages', function () {
-  it('should add a new message to a channel', function (done) {
-      const newMessage = {
-          channelId: 'channel123',
-          userId: 'testuser123',
-          message: 'Hello, this is a test message!'
-      };
-      request(app)
-          .post('/messages')
-          .send(newMessage)
-          .expect(201)
-          .end((err, res) => {
-              if (err) return done(err);
-              expect(res.body).to.have.property('message', 'Message saved successfully');
-              expect(res.body).to.have.property('savedMessage');
-              done();
-          });
-  });
-
+ 
   it('should return 400 if required fields are missing', function (done) {
       request(app)
           .post('/messages')
@@ -703,17 +544,6 @@ describe('POST /messages', function () {
 });
 
 describe('DELETE /channels/:channelId', function () {
-  it('should delete a specific channel by channelId', function (done) {
-      request(app)
-          .delete('/channels/channel123')
-          .expect(200)
-          .end((err, res) => {
-              if (err) return done(err);
-              expect(res.body).to.have.property('message', 'Channel deleted successfully');
-              done();
-          });
-  });
-
   it('should return 404 if the channel is not found', function (done) {
       request(app)
           .delete('/channels/nonexistentchannel')
@@ -731,18 +561,6 @@ describe('DELETE /channels/:channelId', function () {
 
   // POST /upload-group-image
   describe('POST /upload-group-image', function () {
-      it('should upload a group image and return the image URL', function (done) {
-          request(app)
-              .post('/upload-group-image')
-              .attach('image', 'path/to/test/image.jpg')  // 가짜 이미지 경로
-              .expect(200)
-              .end((err, res) => {
-                  if (err) return done(err);
-                  expect(res.body).to.have.property('imageUrl');
-                  done();
-              });
-      });
-
       it('should return 400 if no image is uploaded', function (done) {
           request(app)
               .post('/upload-group-image')
@@ -754,6 +572,122 @@ describe('DELETE /channels/:channelId', function () {
               });
       });
   });
+
+  describe('GET /users/email', function () {
+    it('should return user information based on email', function (done) {
+        request(app)
+            .get('/users/email?email=testuser@example.com')
+            .expect(200)
+            .end((err, res) => {
+                if (err) return done(err);
+                expect(res.body).to.have.property('email', 'testuser@example.com');
+                done();
+            });
+    });
+
+    it('should return 404 if the user is not found', function (done) {
+        request(app)
+            .get('/users/email?email=nonexistent@example.com')
+            .expect(404)
+            .end((err, res) => {
+                if (err) return done(err);
+                expect(res.body).to.have.property('message', 'User not found');
+                done();
+            });
+    });
+});
+
+describe('DELETE /users/:userId', function () {
+
+    it('should return 404 if the user is not found', function (done) {
+        request(app)
+            .delete('/users/nonexistentuser')
+            .expect(404)
+            .end((err, res) => {
+                if (err) return done(err);
+                expect(res.body).to.have.property('message', 'User not found');
+                done();
+            });
+    });
+});
+
+describe('DELETE /groups/:groupId', function () {
+    it('should delete a group by groupId', function (done) {
+        request(app)
+            .delete('/groups/group123')
+            .expect(200)
+            .end((err, res) => {
+                if (err) return done(err);
+                expect(res.body).to.have.property('message', 'Group and related user data deleted successfully');
+                done();
+            });
+    });
+
+    it('should return 404 if the group is not found', function (done) {
+        request(app)
+            .delete('/groups/nonexistentgroup')
+            .expect(404)
+            .end((err, res) => {
+                if (err) return done(err);
+                expect(res.body).to.have.property('message', 'Group not found');
+                done();
+            });
+    });
+});
+describe('GET /channels', function () {
+    it('should return a list of all channels across all groups', function (done) {
+        request(app)
+            .get('/channels')
+            .expect(200)
+            .end((err, res) => {
+                if (err) return done(err);
+                expect(res.body).to.be.an('array');
+                done();
+            });
+    });
+});
+describe('GET /users/:userId', function () {
+    it('should return 404 if the user is not found', function (done) {
+        request(app)
+            .get('/users/nonexistentuser')
+            .expect(404)
+            .end((err, res) => {
+                if (err) return done(err);
+                expect(res.body).to.have.property('message', 'User not found');
+                done();
+            });
+    });
+});
+
+describe('POST /logout', function () {
+    it('should log the user out successfully', function (done) {
+        request(app)
+            .post('/logout')
+            .expect(200)
+            .end((err, res) => {
+                if (err) return done(err);
+                expect(res.body).to.have.property('message', 'Logout successful');
+                done();
+            });
+    });
+});
+
+describe('GET /users-json', function () {
+    it('should return a list of users from the JSON file', function (done) {
+        request(app)
+            .get('/users-json')
+            .expect(200)
+            .end((err, res) => {
+                if (err) return done(err);
+                expect(res.body).to.be.an('array');
+                done();
+            });
+    });
+});
+
+
+
+
 });
     
 

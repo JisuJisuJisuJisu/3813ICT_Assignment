@@ -115,10 +115,10 @@ startVideoCall(): void {
 
   // Send the Peer ID as a normal message through the socket
   const peerIdMessage = {
-    channelId: this.channelId,  // 현재 채널 ID
-    userId: this.userId,  // 실제 사용자 ID
-    username: this.username,  // 실제 사용자 이름
-    message: `${this.username}'s Peer ID is: ${this.myPeerId}`,  // Peer ID 메시지로 추가
+    channelId: this.channelId,  
+    userId: this.userId,  
+    username: this.username,  
+    message: `Start Video Call! 👾 ${this.username}s Peer ID is: ${this.myPeerId}`,  
     timestamp: new Date().toLocaleString(),  // 현재 시간 추가
     isImage: false
   };

@@ -458,5 +458,86 @@
     "createdBy": "testuser@example.com",
     "pendingUsers": [],
     "members": []
+  },
+  {
+    "_id": "67093a19aac09c07987b03eb",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6709a89b4d8a0d558fcbbb5f",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6709a8e5facfc4e718c55557",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6709a935768f6d90e7e62299",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6709a94f13723e59fea274df",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6709a9ac19fb245920c27b93",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6709a9d806255d0d42d96794",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6709abccb9f67d0b5a4999a3",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "6709ac7f953709551782187a",
+    "id": "group123",
+    "name": "Test Group",
+    "description": "A group for testing",
+    "createdBy": "testuser@example.com",
+    "pendingUsers": [],
+    "members": []
   }
 ]
