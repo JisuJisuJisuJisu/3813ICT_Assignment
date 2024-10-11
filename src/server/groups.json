@@ -260,5 +260,59 @@
     "imageUrl": "/uploads/group-images/1728506397321.jpeg",
     "pendingUsers": [],
     "members": []
+  },
+  {
+    "_id": "67086f8e79b6d2c19320d6ee",
+    "id": "8gmzu8owt",
+    "name": "My",
+    "description": "",
+    "createdBy": "31ma6cdko",
+    "channels": [
+      {
+        "id": "yr7nx9twp",
+        "name": "My1",
+        "description": "",
+        "groupId": ""
+      }
+    ],
+    "imageUrl": "",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "670870ebe94d8485ef85e4bc",
+    "id": "p2dxe1j37",
+    "name": "My",
+    "description": "",
+    "createdBy": "31ma6cdko",
+    "channels": [
+      {
+        "id": "2o9o821nv",
+        "name": "My",
+        "description": "",
+        "groupId": ""
+      }
+    ],
+    "imageUrl": "",
+    "pendingUsers": [],
+    "members": []
+  },
+  {
+    "_id": "670871a3d53ef152629fba7f",
+    "id": "mnswhuoae",
+    "name": "My",
+    "description": "",
+    "createdBy": "31ma6cdko",
+    "channels": [
+      {
+        "id": "0d0vd5yd2",
+        "name": "My1",
+        "description": "",
+        "groupId": ""
+      }
+    ],
+    "imageUrl": "",
+    "pendingUsers": [],
+    "members": []
   }
 ]

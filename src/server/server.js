@@ -265,6 +265,20 @@ app.post('/groups', async (req, res) => {
             );
         }
 
+        // Check if channels exist in the request body
+        if (newGroup.channels && newGroup.channels.length > 0) {
+            // Loop through each channel and insert it into the channels collection
+            for (const channel of newGroup.channels) {
+                const newChannel = {
+                    id: channel.id || '',  // If id exists, use it, otherwise generate or leave empty
+                    name: channel.name,
+                    description: channel.description || '',
+                    groupId: insertedGroup._id.toString()  // Link the channel with the newly created group
+                };
+                await db.collection('channels').insertOne(newChannel);
+            }
+        }
+
         // Fetch the existing groups from groups.json
         const existingGroups = loadGroupData();
 
@@ -311,6 +325,17 @@ app.post('/groups/:groupId/channels', async (req, res) => {
         if (result.matchedCount === 0) {
             return res.status(404).json({ message: 'Group not found' });
         }
+
+        // Add the new channel to the channels collection
+        const newChannelInCollection = {
+            id: newChannel.id || '',  // Use existing id if provided, otherwise leave blank
+            name: newChannel.name,
+            description: newChannel.description || '',
+            groupId: groupId  // Ensure the channel is linked to the group
+        };
+
+        // Insert the new channel into the channels collection
+        await db.collection('channels').insertOne(newChannelInCollection);
 
         res.status(201).json({ message: 'Channel added successfully', group: groupId });
 
