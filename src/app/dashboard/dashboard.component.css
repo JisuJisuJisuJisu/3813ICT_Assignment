@@ -55,7 +55,7 @@
     background-color: #9a50ac;
 }
 .navbar-inverse {
-    background-color: #3a006e; /* 헤더 배경색 */
+    background-color: #3a006e;
     border-color: #080808;
 }
 .top-nav>.open>.dropdown-menu {
@@ -131,6 +131,7 @@
   top: 14px;
   right: 6px;
   font-size: 10px;
+  
   font-weight: normal;
   min-width: 15px;
   min-height: 15px;
