@@ -60,13 +60,15 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
+
 ## Running End-to-End Tests
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+Run `npx cypress open` to execute the end-to-end tests via [Cypress](https://www.cypress.io). This tool provides an interactive interface for testing the entire application.
+
 
 ## Running Mocha Tests
 
-Run `npm run mocha-test` to execute unit and integration tests using Mocha. This command is used to test server-side functionality and ensure the API behaves as expected.
+Run `npm run mocha-test` to execute the unit and integration tests via [Mocha](https://mochajs.org). This command tests server-side functionality to ensure the API behaves as expected.
 
 
 ## Further help
