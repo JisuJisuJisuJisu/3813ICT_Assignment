@@ -131,12 +131,42 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 - **groups**: Array of groups the user is part of.
 - **interestGroups**: Array of group IDs the user is interested in.
 
-### 2.7 Data Relationships
+### 2.7 Channels Collection
+-	**_id**: ObjectId (unique identifier for the channel)
+-	**id**: String (custom ID assigned to the channel)
+-	**name**: String (name of the channel)
+-	**description**: String (description of the channel, can be empty)
+-	**groupId**: String (ID of the group to which the channel belongs)
+
+### 2.8 Users.json
+-	**id**: String (custom ID assigned to the user)
+-	**username**: String (the user's username, which appears to be an email in this case)
+-	**email**: String (the user's email address, which is the same as the username in this case)
+-	**password**: String (the user's password, stored in plain text—though it is generally recommended to store hashed passwords for security)
+-	**roles**: Array (a list of roles assigned to the user, such as "User")
+-	**groups**: Array (an empty array that will eventually hold the list of groups the user belongs to)
+-	**interestGroups**: Array (an empty array meant to store the user's groups of interest)
+-	**_id**: ObjectId (unique MongoDB identifier for this user document)
+
+### 2.9 Groups.json
+-	**id**: ObjectId (unique identifier for the group)
+-	**id**: String (custom group ID)
+-	**name**: String (name of the group)
+-	**description**: String (description of the group)
+-	**createdBy**: String (ID of the user who created the group)
+-	**channels**: Array of objects (each object represents a channel in the group, containing id, - name, description, and groupId)
+-	**imageUrl**: String (URL of the group's image, empty if no image is set)
+-	**pendingUsers**: Array of strings (list of users who requested to join the group)
+-	**members**: Array of strings (list of users who are members of the group)
+
+### 2.10 Data Relationships
 - Each user can belong to multiple groups, and each group contains multiple channels.
 - When a user joins a group, the group ID is added to the user’s group list, and the user’s ID is added to the group’s member list.
 - Channels are associated with groups, and channel-related logic requires searching for the group before locating the channel.
 - When data is deleted or updated, the relationship between users and groups is maintained (e.g., removing a user from a group also updates both user and group records).
-
+- Additionally, since channels are also part of a group, the channel list is updated when a new group is created, and when a channel is created, the group's channel list is also updated.
+- This Angular project manages data both in MongoDB and as JSON files on the server. This setup allows regular users to view group members through JSON files, while Super Admin and Group Admin can manage all data comprehensively via MongoDB.
+  
 ## 3. Responsibilities between Client and Server
 
 ### 3.1 Client Responsibilities
@@ -151,6 +181,7 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
     - `POST /users`: Registers a new user and returns a success message in JSON format.
 - **Serving Static Files**: The server handles and serves static files such as images uploaded by users, enabling the client to display user-generated content.
   - **Example**: `app.use('/uploads', express.static(path.join(__dirname, 'uploads')));` serves uploaded images.
+-	**JSON File Updates**: The server updates the users.json and groups.json files along with MongoDB. These files are used for storing and referencing data locally, and the server synchronizes them to maintain the latest information whenever changes occur to users or groups. Through this, regular users can view group and user information via JSON files, while Super Admin and Group Admin can manage the data more comprehensively through MongoDB.
 - **Database Interaction**: The server is connected to MongoDB and handles CRUD operations for user, group, channel, and message data based on client requests.
 - **Real-Time Data Handling**: The server uses Socket.IO to manage real-time communication with the client, enabling features like instant chat.
 
@@ -179,7 +210,15 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 | `/channels/:channelId`                  | DELETE     | channelId: string                                        | { message: string }                          | Deletes a specific channel by channel ID.                     |
 | `/groups/:groupId/channels/:channelId`  | PUT        | groupId: string, channelId: string, Body: Channel Object | { message: string }                          | Updates information for a specific channel.                   |
 | `/messages`                             | GET        | channelId: string                                        | Array of Message Objects                     | Retrieves all messages for a specific channel.                |
-
+`/`                                     | GET        | None                                                     | 'Server is running'                         | Checks if the server is running.                                   |
+| `/logout`                               | POST       | None                                                     | { message: string }                        | Logs the user out by clearing session or token information.        |
+| `/users-json`                           | GET        | None                                                     | Array of User Objects from JSON            | Retrieves user data from a local JSON file.                        |
+| `/upload-group-image`                   | POST       | Body: { image: file }                                     | { imageUrl: string }                       | Uploads an image for a group and returns the image URL.            |
+| `/groups/:groupId/members/:memberId`    | DELETE     | groupId: string, memberId: string                         | { message: string }                        | Deletes a member from a specific group.                            |
+| `/users/:userId`                        | DELETE     | userId: string                                            | { message: string }                        | Deletes a user by user ID.                                         |
+| `/groups/:groupId`                      | DELETE     | groupId: string                                           | { message: string }                        | Deletes a specific group by group ID and removes it from users.    |
+| `/channels`                             | GET        | None                                                     | Array of Channel Objects                   | Retrieves a list of all channels across all groups.                |
+| `/users/:userId`                        | PUT        | userId: string, Body: User Object                         | { message: string }                        | Updates the information for a specific user.                       |
 ## 5. Angular Architecture
 
 ### 5.1 Components
