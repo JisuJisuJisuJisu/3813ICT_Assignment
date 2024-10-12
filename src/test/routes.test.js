@@ -1,17 +1,17 @@
 import request from 'supertest';
 import { expect } from 'chai';
-import { app, startServer } from '../server/server.js'; // 서버 파일 경로 조정
+import { app, startServer } from '../server/server.js';
 
 describe('API Tests', function () {
     let server;
 
     before(async function () {
         process.env.NODE_ENV = 'test';
-        server = app.listen(3001); // 테스트용 포트
+        server = app.listen(3001); 
     });
 
     after(async function () {
-        server.close(); // 테스트가 끝난 후 서버를 종료
+        server.close(); 
     });
 
     afterEach(async function () {
@@ -684,9 +684,6 @@ describe('GET /users-json', function () {
             });
     });
 });
-
-
-
 
 });
     
